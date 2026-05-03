@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔮 神秘塔罗 · 命运指引</title>
+<style>
+:root {
+  --bg: #0a0a14;
+  --card-bg: #1a1a2e;
+  --gold: #c9a84c;
+  --gold-light: #e4c76b;
+  --purple: #6b3fa0;
+  --purple-light: #9b6fd4;
+  --text: #d4c8e0;
+  --text-dim: #8a7e9b;
+  --accent: #e07b5a;
+  --positive: #5cb87a;
+  --negative: #c05050;
+  --border: rgba(201,168,76,0.2);
+  --glow: 0 0 30px rgba(201,168,76,0.15);
+  --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Georgia', 'Noto Serif SC', 'SimSun', serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+
+/* 星空背景 */
+.stars { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+.star { position:absolute; background:#fff; border-radius:50%; animation: twinkle var(--dur) ease-in-out infinite; animation-delay: var(--delay); opacity:0; }
+@keyframes twinkle { 0%,100% { opacity:0.2; } 50% { opacity:1; } }
+
+/* 月亮 */
+.moon { position:fixed; top:40px; right:60px; width:80px; height:80px; pointer-events:none; z-index:0;
+  background:radial-gradient(circle at 30% 30%, #f5e6c8 0%, #e0c88e 40%, transparent 70%);
+  border-radius:50%; box-shadow:0 0 60px rgba(224,200,142,0.3), 0 0 120px rgba(224,200,142,0.1);
+  animation: float 8s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-15px); } }
+
+/* 主容器 */
+.container { position:relative; z-index:1; max-width:1000px; margin:0 auto; padding:20px; }
+
+/* 头部 */
+.header { text-align:center; padding:30px 20px 20px; }
+.header h1 { font-size:2.6em; background:linear-gradient(180deg, #e4c76b 0%, #c9a84c 50%, #8b6914 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  text-shadow:none; letter-spacing:0.15em; margin-bottom:6px; }
+.header .sub { color:var(--text-dim); font-size:0.95em; letter-spacing:0.2em; }
+
+/* 步骤区域 */
+.steps { display:flex; justify-content:center; gap:12px; margin:30px 0; flex-wrap:wrap; }
+.step { width:36px; height:36px; border-radius:50%; background:var(--card-bg); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:0.85em; color:var(--text-dim);
+  transition:var(--transition); position:relative; }
+.step.active { border-color:var(--gold); color:var(--gold); box-shadow:var(--glow); }
+.step.done { background:var(--gold); color:var(--bg); border-color:var(--gold); }
+.step::after { content:attr(data-label); position:absolute; top:42px; font-size:0.7em; white-space:nowrap; color:var(--text-dim); }
+
+/* 卡片容器 */
+.section { display:none; }
+.section.visible { display:block; animation:fadeIn 0.5s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* 问题输入 */
+.q-input { width:100%; background:var(--card-bg); border:1px solid var(--border); border-radius:12px;
+  color:var(--text); padding:16px 20px; font-size:1em; font-family:inherit; resize:vertical;
+  min-height:60px; transition:var(--transition); }
+.q-input:focus { outline:none; border-color:var(--gold); box-shadow:var(--glow); }
+.q-input::placeholder { color:var(--text-dim); }
+
+/* 牌阵选择 */
+.spread-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:16px; margin:24px 0; }
+.spread-card { background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+  padding:24px 18px; cursor:pointer; transition:var(--transition); text-align:center; position:relative; overflow:hidden; }
+.spread-card:hover { border-color:var(--gold); transform:translateY(-4px); box-shadow:var(--glow); }
+.spread-card.selected { border-color:var(--gold); background:rgba(201,168,76,0.08); box-shadow:var(--glow); }
+.spread-card .icon { font-size:2.2em; margin-bottom:10px; }
+.spread-card h3 { color:var(--gold-light); font-size:1.05em; margin-bottom:6px; }
+.spread-card p { color:var(--text-dim); font-size:0.82em; line-height:1.5; }
+.spread-card .badge { position:absolute; top:10px; right:10px; background:var(--purple); color:#fff;
+  font-size:0.7em; padding:2px 8px; border-radius:10px; }
+
+/* 氛围选择 */
+.mood-grid { display:flex; flex-wrap:wrap; gap:12px; margin:20px 0; justify-content:center; }
+.mood-tag { padding:8px 20px; border-radius:20px; border:1px solid var(--border); background:var(--card-bg);
+  color:var(--text-dim); cursor:pointer; transition:var(--transition); font-size:0.9em; }
+.mood-tag:hover { border-color:var(--gold); color:var(--gold-light); }
+.mood-tag.selected { border-color:var(--gold); background:rgba(201,168,76,0.1); color:var(--gold-light); }
+
+/* 按钮 */
+.btn { display:inline-block; padding:12px 36px; border-radius:30px; border:none; cursor:pointer;
+  font-size:1em; font-family:inherit; transition:var(--transition); letter-spacing:0.05em; }
+.btn-primary { background:linear-gradient(135deg, var(--purple), #4a1d7a); color:#fff; box-shadow:0 4px 20px rgba(107,63,160,0.3); }
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(107,63,160,0.5); }
+.btn-gold { background:linear-gradient(135deg, var(--gold), #8b6914); color:var(--bg); font-weight:bold; }
+.btn-gold:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(201,168,76,0.4); }
+.btn-outline { background:transparent; border:1px solid var(--gold); color:var(--gold-light); }
+.btn-outline:hover { background:rgba(201,168,76,0.08); }
+.btn-sm { padding:6px 18px; font-size:0.82em; }
+.btn-group { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin:20px 0; }
+
+/* 抽牌区 */
+.draw-area { position:relative; min-height:380px; display:flex; align-items:center; justify-content:center;
+  flex-wrap:wrap; gap:20px; padding:30px 10px; perspective:1200px; }
+.draw-msg { text-align:center; color:var(--text-dim); font-size:1.1em; width:100%; }
+
+/* 塔罗牌 */
+.tarot-card { width:140px; height:220px; position:relative; cursor:pointer; transition:var(--transition);
+  transform-style:preserve-3d; }
+.tarot-card:hover { transform:translateY(-8px); }
+.tarot-card.flipped { transform:rotateY(180deg); pointer-events:none; }
+.tarot-card.reversed .card-front { transform:rotate(180deg); }
+.tarot-card .card-inner { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.8s cubic-bezier(0.4,0,0.2,1); }
+.tarot-card.flipped .card-inner { transform:rotateY(180deg); }
+.card-back, .card-front { position:absolute; width:100%; height:100%; backface-visibility:hidden; border-radius:12px; }
+.card-back { background:linear-gradient(135deg, #1a1030 0%, #2d1050 50%, #1a1030 100%);
+  border:2px solid var(--gold); display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+.card-back::before { content:''; position:absolute; inset:6px; border:1px solid rgba(201,168,76,0.3); border-radius:8px; }
+.card-back .back-design { font-size:3em; opacity:0.6; text-align:center; }
+.card-back .back-design .star-icon { display:block; font-size:0.5em; }
+.card-front { background:linear-gradient(135deg, #faf5e8 0%, #e8dcc8 50%, #d4c4a0 100%);
+  border:2px solid #b8943c; transform:rotateY(180deg); padding:12px; display:flex;
+  flex-direction:column; align-items:center; box-shadow:0 8px 32px rgba(0,0,0,0.5); overflow:hidden; }
+.card-front .card-name { font-size:0.7em; color:#5c3d1a; text-align:center; font-weight:bold; margin-top:4px; }
+.card-front .card-num { font-size:0.6em; color:#8b6914; }
+.card-front .card-emoji { font-size:2em; margin-top:10px; }
+.card-front .card-title-en { font-size:0.55em; color:#a08040; text-align:center; margin-top:2px; }
+.reversed-badge { display:none; position:absolute; top:8px; right:8px; background:var(--accent); color:#fff;
+  font-size:0.6em; padding:2px 6px; border-radius:4px; }
+.tarot-card.reversed .reversed-badge { display:block; }
+
+/* 解读区 */
+.reading { background:var(--card-bg); border:1px solid var(--border); border-radius:16px; padding:30px;
+  margin-top:20px; box-shadow:var(--glow); }
+.reading h2 { color:var(--gold-light); font-size:1.4em; margin-bottom:4px; }
+.reading .reading-meta { color:var(--text-dim); font-size:0.82em; margin-bottom:20px; }
+.card-result { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:20px; margin:20px 0; }
+.result-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px;
+  padding:20px; transition:var(--transition); }
+.result-card:hover { border-color:var(--gold); }
+.result-card h4 { color:var(--gold-light); font-size:1em; margin-bottom:4px; }
+.result-card .position { color:var(--purple-light); font-size:0.78em; }
+.result-card .meaning { color:var(--text); font-size:0.88em; margin-top:10px; line-height:1.6; }
+.result-card .keyword-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.result-card .keyword-tags span { font-size:0.7em; padding:3px 10px; border-radius:10px;
+  background:rgba(107,63,160,0.2); color:var(--purple-light); }
+
+/* 综合解读 */
+.synthesis { border-left:3px solid var(--gold); padding:18px 24px; margin:24px 0;
+  background:rgba(201,168,76,0.05); border-radius:0 12px 12px 0; }
+.synthesis h3 { color:var(--gold-light); margin-bottom:8px; }
+
+/* 页脚广告 */
+.footer-ad { text-align:center; padding:24px 20px; margin-top:30px; border-top:1px solid var(--border);
+  color:var(--text-dim); font-size:0.85em; line-height:2; }
+.footer-ad .ad-highlight { color:var(--gold-light); font-weight:bold; }
+.footer-ad .qq-num { background:rgba(201,168,76,0.1); border:1px dashed var(--gold); border-radius:6px;
+  padding:6px 16px; color:var(--gold-light); font-size:1em; letter-spacing:0.08em; display:inline-block; margin:0 6px; }
+.footer-ad .ad-note { font-size:0.78em; color:var(--text-dim); margin-top:8px; }
+
+/* 历史记录 */
+.history { margin-top:30px; }
+.history-item { background:var(--card-bg); border:1px solid var(--border); border-radius:10px;
+  padding:14px 18px; margin:8px 0; cursor:pointer; transition:var(--transition); display:flex;
+  justify-content:space-between; align-items:center; }
+.history-item:hover { border-color:var(--gold); }
+.history-item .hist-date { color:var(--text-dim); font-size:0.8em; }
+.history-item .hist-type { color:var(--gold-light); }
+
+/* Toast */
+.toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:var(--card-bg);
+  border:1px solid var(--gold); border-radius:30px; padding:12px 28px; color:var(--gold-light);
+  z-index:100; animation:toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards; pointer-events:none; }
+@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:200;
+  display:flex; align-items:center; justify-content:center; padding:20px; }
+.modal { background:var(--card-bg); border:1px solid var(--gold); border-radius:16px;
+  padding:30px; max-width:500px; width:100%; max-height:80vh; overflow-y:auto; }
+.modal h3 { color:var(--gold-light); margin-bottom:16px; }
+
+/* 响应式 */
+@media (max-width:640px) {
+  .tarot-card { width:110px; height:172px; }
+  .header h1 { font-size:1.8em; }
+  .reading { padding:18px; }
+  .spread-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+  .moon { width:50px; height:50px; top:20px; right:20px; }
+}
+
+/* 选中指示 */
+.shuffle-indicator { text-align:center; color:var(--gold-light); font-size:1.1em;
+  animation:pulse 1.5s ease-in-out infinite; margin:20px 0; }
+@keyframes pulse { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+
+/* 加载动画 */
+.loading-cards { display:flex; gap:8px; justify-content:center; padding:40px; }
+.loading-cards span { width:8px; height:8px; background:var(--gold); border-radius:50%;
+  animation:bounce 0.6s ease-in-out infinite; }
+.loading-cards span:nth-child(2) { animation-delay:0.1s; }
+.loading-cards span:nth-child(3) { animation-delay:0.2s; }
+.loading-cards span:nth-child(4) { animation-delay:0.3s; }
+.loading-cards span:nth-child(5) { animation-delay:0.4s; }
+@keyframes bounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-16px); } }
+
+/* 提示 */
+.tooltip { position:relative; }
+.tooltip::after { content:attr(data-tip); position:absolute; bottom:120%; left:50%;
+  transform:translateX(-50%); background:var(--card-bg); border:1px solid var(--gold);
+  border-radius:6px; padding:4px 12px; font-size:0.7em; white-space:nowrap; opacity:0;
+  transition:opacity 0.2s; pointer-events:none; }
+.tooltip:hover::after { opacity:1; }
+</style>
+</head>
+<body>
+
+<div class="stars" id="stars"></div>
+<div class="moon"></div>
+
+<div class="container">
+  <div class="header">
+    <h1>✦ 神秘塔罗 · 命运指引 ✦</h1>
+    <div class="sub">A R C A N A · T A R O T</div>
+  </div>
+
+  <div class="steps" id="steps">
+    <div class="step active" data-label="提问"></div>
+    <div class="step" data-label="选阵"></div>
+    <div class="step" data-label="抽牌"></div>
+    <div class="step" data-label="解读"></div>
+  </div>
+
+  <!-- Step 1: 提问 & 氛围 -->
+  <div class="section visible" id="sec-question">
+    <div style="max-width:600px;margin:0 auto;">
+      <p style="text-align:center;color:var(--text-dim);margin-bottom:16px;">静心思索，将你的问题或心愿写在下方</p>
+      <textarea class="q-input" id="question" placeholder="例如：我最近的事业发展会如何？我和TA的关系走向？我该如何面对当前的选择？...（也可留空，塔罗会为你揭示最需要了解的事）" rows="3"></textarea>
+      <p style="text-align:center;color:var(--text-dim);margin-top:16px;">选择你当下的心境（可选）</p>
+      <div class="mood-grid" id="mood-grid">
+        <span class="mood-tag" data-mood="confused">🌫️ 迷茫困惑</span>
+        <span class="mood-tag" data-mood="anxious">💫 焦虑不安</span>
+        <span class="mood-tag" data-mood="hopeful">🌟 充满期待</span>
+        <span class="mood-tag" data-mood="calm">🍃 平静淡然</span>
+        <span class="mood-tag" data-mood="determined">🔥 意志坚定</span>
+        <span class="mood-tag" data-mood="broken">💔 心碎受伤</span>
+        <span class="mood-tag" data-mood="curious">🔍 好奇探索</span>
+        <span class="mood-tag" data-mood="grateful">🙏 感恩知足</span>
+      </div>
+      <div class="btn-group" style="margin-top:20px;">
+        <button class="btn btn-primary" onclick="nextToSpread()">选择牌阵 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: 牌阵选择 -->
+  <div class="section" id="sec-spread">
+    <p style="text-align:center;color:var(--text-dim);margin-bottom:10px;">选择适合你问题的牌阵</p>
+    <div class="spread-grid" id="spread-grid">
+      <div class="spread-card selected" data-spread="single">
+        <span class="badge">入门</span>
+        <div class="icon">🃏</div>
+        <h3>单张指引</h3>
+        <p>快速获得当下最重要的提示与指引，适合日常反思</p>
+      </div>
+      <div class="spread-card" data-spread="three">
+        <span class="badge">经典</span>
+        <div class="icon">🔮</div>
+        <h3>三牌之阵</h3>
+        <p>过去·现在·未来，清晰洞察事情全貌与发展趋势</p>
+      </div>
+      <div class="spread-card" data-spread="celtic">
+        <span class="badge">专业</span>
+        <div class="icon">✧</div>
+        <h3>凯尔特十字</h3>
+        <p>10张牌深度解读，最全面的塔罗阵型，适合重大抉择</p>
+      </div>
+      <div class="spread-card" data-spread="horseshoe">
+        <span class="badge">进阶</span>
+        <div class="icon">🐴</div>
+        <h3>马蹄铁阵</h3>
+        <p>7张牌分析过去到未来的发展趋势与阻碍</p>
+      </div>
+      <div class="spread-card" data-spread="relationship">
+        <span class="badge">情感</span>
+        <div class="icon">💕</div>
+        <h3>关系之镜</h3>
+        <p>5张牌深入解读你与TA的关系本质与发展</p>
+      </div>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-outline" onclick="prevToQuestion()">← 返回</button>
+      <button class="btn btn-primary" onclick="nextToDraw()">开始抽牌 →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: 抽牌 -->
+  <div class="section" id="sec-draw">
+    <div id="draw-instruction" style="text-align:center;color:var(--text-dim);margin-bottom:16px;">
+      <p id="draw-prompt">请从下方牌堆中凭直觉选择 <strong id="draw-count">1</strong> 张牌</p>
+      <p style="font-size:0.8em;">闭上眼睛深呼吸，用直觉感受哪张牌在呼唤你</p>
+    </div>
+    <div class="draw-area" id="draw-area"></div>
+    <div id="shuffle-msg" class="shuffle-indicator" style="display:none;">✦ 正在为您洗牌，请稍候... ✦</div>
+    <div class="btn-group" id="draw-btns" style="display:none;">
+      <button class="btn btn-outline" onclick="reshuffle()">🔄 重新洗牌</button>
+      <button class="btn btn-gold" id="btn-reveal" onclick="revealAll()" disabled>✨ 揭晓解读</button>
+    </div>
+  </div>
+
+  <!-- Step 4: 解读 -->
+  <div class="section" id="sec-reading">
+    <div id="reading-content"></div>
+    <div class="btn-group" style="margin-top:20px;">
+      <button class="btn btn-outline" onclick="saveReading()">💾 保存解读</button>
+      <button class="btn btn-outline" onclick="shareReading()">📋 复制解读</button>
+      <button class="btn btn-primary" onclick="newReading()">🔮 重新测试</button>
+    </div>
+    <!-- 历史记录 -->
+    <div class="history" id="history"></div>
+  </div>
+
+  <!-- 页脚广告 -->
+  <div class="footer-ad" id="footer-ad">
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+      <span>✦</span>
+      <span>更多测试、文游加Q群：</span>
+      <span class="qq-num">1095932194</span>
+      <span>✦</span>
+    </div>
+    <div class="ad-note">🌟 低价接个人定制 · 占卜程序 · 文字游戏 · 网页应用 · 个性化需求欢迎咨询</div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast" style="display:none;"></div>
+
+<script>
+// ==================== 塔罗数据 ====================
+const TAROT_DECK = [
+  // ---- 大阿尔卡纳 Major Arcana ----
+  { id:0,  arcana:'major', name:'愚者', en:'The Fool',         emoji:'🌟', num:'0',
+    up:'新的开始，冒险的勇气，无限的可能性。你正站在旅程的起点，不必过度思考，相信直觉，迈出那一步。这是一张代表纯真与信任的牌，提醒你放下包袱，以开放的心态迎接未知。',
+    rev:'鲁莽冲动，缺乏计划，过于天真。你可能忽略了重要细节或风险，需要停下来审视现实。不要因为害怕错过而盲目行动。',
+    kw:['新开始','冒险','自由','无限可能','直觉','纯真'] },
+  { id:1,  arcana:'major', name:'魔术师', en:'The Magician',    emoji:'🪄', num:'I',
+    up:'力量与智慧的结合，你拥有创造现实所需的一切资源和能力。时机已到，集中意志力，将想法转化为行动。这是一张充满信心与掌控力的牌，你能够自如地运用宇宙能量。',
+    rev:'能力被浪费或滥用，缺乏专注力。可能有人在操纵局势，或者你对自己的力量缺乏信心。注意不要成为夸夸其谈却不行动的人。',
+    kw:['创造力','技能','意志力','掌控','行动','自信'] },
+  { id:2,  arcana:'major', name:'女祭司', en:'The High Priestess', emoji:'🌙', num:'II',
+    up:'内在智慧觉醒，相信你的直觉和潜意识。某些答案不在外部，而在你内心深处。静心倾听内在的声音，神秘的面纱即将揭开。保持耐心，不必急于行动。',
+    rev:'忽视直觉，隐藏的秘密即将暴露。可能过于理性而忽略了心灵的感受，或者有人在隐瞒真相。内心的声音被杂音淹没。',
+    kw:['直觉','潜意识','神秘','内在智慧','耐心','灵性'] },
+  { id:3,  arcana:'major', name:'皇后', en:'The Empress',       emoji:'👑', num:'III',
+    up:'丰饶、创造力与母性的滋养。事业或感情将进入丰收期，享受生活的美好。这是孕育新生命、新项目或新关系的绝佳时机。拥抱你的感性与温柔。',
+    rev:'过度依赖，创造力受阻，或在关系中失去自我。可能过于注重物质而忽略精神成长。需要重新找回内在的平衡。',
+    kw:['丰收','滋养','母性','创造力','丰饶','感性'] },
+  { id:4,  arcana:'major', name:'皇帝', en:'The Emperor',       emoji:'🏛️', num:'IV',
+    up:'秩序、权威与稳定。你需要以理性与纪律来掌控局面。这是建立规则、巩固地位的时刻。展现领导力，用坚定而智慧的方式达成目标。',
+    rev:'专制、滥用权力或缺乏纪律。可能过于僵化保守，或者被权威人物压制。需要反思你是否过度控制或完全失控。',
+    kw:['权威','秩序','领导力','稳定','理性','规则'] },
+  { id:5,  arcana:'major', name:'教皇', en:'The Hierophant',    emoji:'📿', num:'V',
+    up:'遵循传统与精神指引，寻求导师或权威的建议。这是学习与传承的时刻，团体归属感带来力量。按照既定的道路前行，你将获得认可。',
+    rev:'打破传统，质疑权威。你可能需要走自己的路，不再盲从。注意不要被过时的规则所束缚，勇于创新。',
+    kw:['传统','精神导师','学习','规则','信仰','归属'] },
+  { id:6,  arcana:'major', name:'恋人', en:'The Lovers',        emoji:'💕', num:'VI',
+    up:'重要的选择摆在面前，不仅是爱情，更是价值观的抉择。真诚面对自己的内心，做出忠于自我的决定。美好的关系与和谐即将到来。',
+    rev:'错误的选择，关系破裂或价值观冲突。可能面临诱惑或背叛。需要重新审视你的承诺与真正想要的东西。',
+    kw:['爱情','选择','和谐','关系','价值观','承诺'] },
+  { id:7,  arcana:'major', name:'战车', en:'The Chariot',       emoji:'⚡', num:'VII',
+    up:'意志力的胜利，克服困难勇往直前。通过自律与决心，你将战胜一切阻碍。这是一张关于"前进"的牌，不要停下来，胜利在望。',
+    rev:'失控、失败或方向错误。你可能过于激进导致翻车，或者被内心的冲突撕裂。需要停下来调整方向。',
+    kw:['胜利','意志力','前进','掌控','决心','突破'] },
+  { id:8,  arcana:'major', name:'力量', en:'Strength',          emoji:'🦁', num:'VIII',
+    up:'内在的力量与勇气，用温柔而非暴力驯服野兽。你拥有超过自己想象的内在韧性。以耐心和同情心面对困境，真正的力量源于内心的平静。',
+    rev:'自我怀疑，软弱无力，或被原始冲动控制。你可能在压抑愤怒或恐惧，导致内在失衡。重新连接你的内在力量。',
+    kw:['勇气','内在力量','耐心','温柔','韧性','慈悲'] },
+  { id:9,  arcana:'major', name:'隐士', en:'The Hermit',        emoji:'🏔️', num:'IX',
+    up:'沉潜反思，向内探索真理。暂时离开喧嚣，寻找内在的光明。这是一段必要的独处时光，深刻的洞见即将浮现。不要害怕孤独，它是智慧的土壤。',
+    rev:'过度孤立，逃避现实，或陷入固执的自我世界。可能需要走出舒适区，向他人寻求帮助。孤独变成了寂寞。',
+    kw:['内省','孤独','智慧','沉思','指引','灵性探索'] },
+  { id:10, arcana:'major', name:'命运之轮', en:'Wheel of Fortune', emoji:'🎡', num:'X',
+    up:'命运的转折点，好运即将来临。接受变化，顺应宇宙的节奏。一切都在循环之中，此刻你正处于上升阶段。保持乐观，抓住机遇。',
+    rev:'厄运降临，抗拒变化，或陷入恶性循环。你可能感到身不由己。但记住轮子总在转动，坏运气不会永远持续。',
+    kw:['命运','转折','机遇','循环','变化','运气'] },
+  { id:11, arcana:'major', name:'正义', en:'Justice',           emoji:'⚖️', num:'XI',
+    up:'公平公正，真相大白。你的行动将得到应有的回报。做出理性客观的判断，权衡利弊再做决定。法律事务有利，因果法则在运作。',
+    rev:'不公平、偏见或逃避责任。可能面临不公正的对待，或者你对自己不够诚实。法律事务需格外谨慎。',
+    kw:['公平','正义','真相','因果','责任','平衡'] },
+  { id:12, arcana:'major', name:'倒吊人', en:'The Hanged Man',   emoji:'🙃', num:'XII',
+    up:'换个角度看世界，心甘情愿的牺牲与等待。暂停行动，在静止中获得新的领悟。这不是终点，而是转化的过程。释放控制，让更高的力量引领。',
+    rev:'无谓的牺牲，僵持不下，不愿放手。可能陷入了自我怜悯或拖延的陷阱。需要打破僵局，做出真正的改变。',
+    kw:['牺牲','暂停','新视角','放手','等待','转化'] },
+  { id:13, arcana:'major', name:'死神', en:'Death',             emoji:'💀', num:'XIII',
+    up:'结束即是开始，彻底的转变与重生。旧的事物必须结束，为新生的到来腾出空间。不要恐惧改变，它是自然循环的一部分。拥抱蜕变。',
+    rev:'抗拒改变，停滞不前，恐惧失去。你可能紧紧抓住已经死去的事物不放。改变虽然痛苦，但拒绝改变会带来更大的痛苦。',
+    kw:['结束','转变','重生','净化','释放','新生'] },
+  { id:14, arcana:'major', name:'节制', en:'Temperance',        emoji:'🌊', num:'XIV',
+    up:'平衡与调和，中庸之道带来和谐。将对立元素融合，找到内在的平静。耐心等待，一切都会在对的时间就位。健康与疗愈正在发生。',
+    rev:'失衡、过度或缺乏节制。生活某个方面失去了平衡，需要做出调整。可能陷入极端行为或上瘾模式。',
+    kw:['平衡','调和','耐心','中庸','疗愈','融合'] },
+  { id:15, arcana:'major', name:'恶魔', en:'The Devil',          emoji:'😈', num:'XV',
+    up:'直面欲望与阴影，打破束缚你的锁链。你可能陷入了某种上瘾或控制关系中。但请记住，牢笼的门是开着的一你有力量解放自己。',
+    rev:'挣脱束缚，觉醒，拒绝诱惑。你正在摆脱不健康的模式或关系。这是解放与重获自由的时刻。',
+    kw:['欲望','束缚','物质主义','阴影','成瘾','觉醒'] },
+  { id:16, arcana:'major', name:'高塔', en:'The Tower',          emoji:'🗼', num:'XVI',
+    up:'突如其来的剧变，旧结构的崩塌。虽然令人震惊，但这是必要的清理。建立在虚假之上的东西终将倒塌。废墟之上，你将重建更坚实的根基。',
+    rev:'避免了一场灾难但问题未解决，或者内在的崩溃。你可能在竭力维持即将倒塌的局面。放手让它倒掉也许是更好的选择。',
+    kw:['剧变','崩塌','觉醒','释放','重建','震撼'] },
+  { id:17, arcana:'major', name:'星星', en:'The Star',           emoji:'⭐', num:'XVII',
+    up:'希望与疗愈，暴风雨后的宁静。宇宙在眷顾着你，保持信念。这是灵感与精神指引充沛的时期。内心的光芒将照亮前路。',
+    rev:'失去希望，缺乏信心，感到迷茫。可能暂时看不到光明的出口。但请记住，星星永远在天上，只是被云遮住了。',
+    kw:['希望','疗愈','灵感','信念','宁静','指引'] },
+  { id:18, arcana:'major', name:'月亮', en:'The Moon',           emoji:'🌑', num:'XVIII',
+    up:'面对内心的恐惧与幻象。事情并非表面所见，需要深入潜意识探索真相。信任直觉而非理性分析。这是创造力与梦境活跃的时期。',
+    rev:'恐惧消散，真相大白，混乱结束。隐藏的秘密被揭露。焦虑逐渐消退，你开始看到真实的道路。',
+    kw:['潜意识','幻象','恐惧','直觉','梦境','迷惑'] },
+  { id:19, arcana:'major', name:'太阳', en:'The Sun',            emoji:'☀️', num:'XIX',
+    up:'喜悦、成功与生命力。这是塔罗中最积极的一张牌。温暖与光明照耀你的一切。享受当下的幸福，分享你的快乐。一切都清晰明朗。',
+    rev:'暂时的阴霾，快乐被遮蔽但不曾消失。可能过于乐观而忽视问题。内在的小孩需要被关注和照顾。',
+    kw:['快乐','成功','光明','活力','纯真','喜悦'] },
+  { id:20, arcana:'major', name:'审判', en:'Judgement',          emoji:'📯', num:'XX',
+    up:'觉醒与重生，回应内心的召唤。过去的努力得到评价与回报。这是释怀旧债、宽恕与自我接纳的时刻。听从更高使命的召唤。',
+    rev:'逃避内心的召唤，自我怀疑，拒绝面对真相。可能陷入后悔和自责。需要原谅自己，给自己一个新的开始。',
+    kw:['觉醒','召唤','审判','重生','宽恕','使命'] },
+  { id:21, arcana:'major', name:'世界', en:'The World',          emoji:'🌍', num:'XXI',
+    up:'圆满成就，旅程的完成。一个周期圆满结束，你已掌握人生的课题。庆祝你的成就，准备迎接新的循环。万物合一，完美和谐。',
+    rev:'未完成的课题，延迟的成功，或不愿结束。可能感觉缺少了什么，离圆满还差一步。审视还有什么需要放下或完成。',
+    kw:['完成','圆满','成就','旅行','整合','新循环'] },
+  // ---- 小阿尔卡纳 - 权杖 Wands ----
+  { id:22, arcana:'wands', name:'权杖王牌', en:'Ace of Wands',     emoji:'🪵', num:'Ace',
+    up:'新的灵感与热情蓬勃而出。抓住这个机会开启新项目或冒险。创造力与勇气处于高峰，宇宙给了你火种。',
+    rev:'创意受阻，热情消退，计划延期。可能需要重新审视你的方向。新机会可能被错过。',
+    kw:['灵感','新开始','热情','创造力','勇气','冒险'] },
+  { id:23, arcana:'wands', name:'权杖二', en:'Two of Wands',       emoji:'🗺️', num:'2',
+    up:'规划未来，扩展视野。你手握世界，只需做出选择。远见与野心驱动你前行。考虑长远目标并迈出步伐。',
+    rev:'犹豫不决，缺乏规划，害怕未知。可能过于谨慎而错失良机。重新评估你的目标。',
+    kw:['规划','远见','选择','野心','扩展','决策'] },
+  { id:24, arcana:'wands', name:'权杖三', en:'Three of Wands',     emoji:'⛵', num:'3',
+    up:'计划开始见效，扩展与增长。你的远见正在变为现实。贸易、旅行和国际事务有利。继续保持耐心与信心。',
+    rev:'计划受挫，视野狭窄，或冒险失败。可能需要调整策略。不要因为小挫折放弃整体方向。',
+    kw:['扩展','远航','贸易','预见','增长','耐心'] },
+  { id:25, arcana:'wands', name:'权杖四', en:'Four of Wands',      emoji:'🎉', num:'4',
+    up:'庆祝、和谐与稳定的家园。是时候享受劳动成果了。婚礼、乔迁、节庆等喜事临近。内心的归属感与安全感增强。',
+    rev:'家庭不和，缺乏稳定，或庆祝被推迟。可能需要更多努力来建立安全基石。',
+    kw:['庆祝','家园','稳定','和谐','成果','归属'] },
+  { id:26, arcana:'wands', name:'权杖五', en:'Five of Wands',      emoji:'⚔️', num:'5',
+    up:'竞争与冲突带来成长。不同意见的碰撞激发出最好的方案。这是良性竞争的时刻。挑战让你更强大。',
+    rev:'恶性竞争，内耗严重，冲突升级。避免无意义的争斗，寻找合作的可能。',
+    kw:['竞争','冲突','挑战','成长','分歧','活力'] },
+  { id:27, arcana:'wands', name:'权杖六', en:'Six of Wands',       emoji:'🏆', num:'6',
+    up:'胜利与公众认可。你的努力得到了应有的赞赏。自信地前行，你是众人的榜样。荣誉和提升即将到来。',
+    rev:'失败，骄傲自大，或认可被撤回。团队中可能存在嫉妒。保持谦逊，真正的胜利不需要证明。',
+    kw:['胜利','认可','荣耀','自信','成功','领导'] },
+  { id:28, arcana:'wands', name:'权杖七', en:'Seven of Wands',     emoji:'🛡️', num:'7',
+    up:'坚守立场，捍卫你的信念与成果。虽然面临挑战，但你有力量保护自己。坚持就是胜利，不要轻易放弃。',
+    rev:'被压倒，无力防御，放弃立场。可能感到四面楚歌。评估哪些战斗值得打，哪些应该放手。',
+    kw:['坚守','捍卫','勇气','抗争','立场','韧性'] },
+  { id:29, arcana:'wands', name:'权杖八', en:'Eight of Wands',     emoji:'🏹', num:'8',
+    up:'快速进展，信息与事件纷至沓来。阻碍已经解除，一切都开始加速。旅行与通讯方面特别有利。保持开放迎接变化。',
+    rev:'延迟、混乱或方向错误。事情进展太快可能失控。需要暂停并重新对准目标。',
+    kw:['速度','进展','讯息','旅行','行动','突破'] },
+  { id:30, arcana:'wands', name:'权杖九', en:'Nine of Wands',      emoji:'💪', num:'9',
+    up:'最后的坚守，韧性与毅力。你已经历了许多，但还剩最后一道防线。虽然疲惫但不放弃，胜利在望。',
+    rev:'精疲力竭，偏执多疑，或放弃抵抗。需要给自己休息的空间。不要把所有情况都视为威胁。',
+    kw:['毅力','坚守','韧性','最后防线','谨慎','耐力'] },
+  { id:31, arcana:'wands', name:'权杖十', en:'Ten of Wands',       emoji:'🏋️', num:'10',
+    up:'负担沉重但即将完成。你承担了太多责任。学会分派任务，不要一个人扛所有。终点就在眼前。',
+    rev:'被压力压垮，不懂得放手。过重的负担正在损害你的健康。立即减负，优先处理最重要的事。',
+    kw:['负担','责任','压力','完成','过度','释放'] },
+  { id:32, arcana:'wands', name:'权杖侍从', en:'Page of Wands',    emoji:'🔥', num:'Page',
+    up:'新的灵感与热情，探索未知的勇气。一个好消息或创意即将到来。保持好奇心，大胆尝试新事物。代表一个充满活力的年轻人。',
+    rev:'缺乏方向，热情来得快去得也快。想法很多但难以落地。幼稚或不成熟的行为可能带来麻烦。',
+    kw:['探索','新灵感','热情','冒险','青春','讯息'] },
+  { id:33, arcana:'wands', name:'权杖骑士', en:'Knight of Wands',  emoji:'🐎', num:'Knight',
+    up:'行动力爆棚，充满魅力与冒险精神。说走就走的旅程或果断的决定。激情驱动你前行，但也要注意不要三分钟热度。',
+    rev:'鲁莽冲动，缺乏耐心，半途而废。热情可能导致不计后果的行为。慢下来更稳妥。',
+    kw:['行动','冒险','激情','果断','魅力','冲动'] },
+  { id:34, arcana:'wands', name:'权杖王后', en:'Queen of Wands',   emoji:'🐱', num:'Queen',
+    up:'自信温暖的女性形象，充满魅力和领导力。以热情与慷慨感染他人。独立自主，掌控自己的人生。代表一个充满活力的成熟女性。',
+    rev:'嫉妒、控制欲强或缺乏安全感。热情变成了暴躁。需要重新找回内在的自信与平衡。',
+    kw:['自信','魅力','热情','独立','领导力','温暖'] },
+  { id:35, arcana:'wands', name:'权杖国王', en:'King of Wands',    emoji:'🦁', num:'King',
+    up:'远见卓识的领导者，企业家精神。以创意和热情驱动事业成功。成熟稳重但不失冒险心。代表一个有影响力的权威人物。',
+    rev:'独裁专横，期望过高，或滥用权力。雄心变成了不择手段。需要检视你的领导方式。',
+    kw:['领导力','远见','企业家','创意','权威','成就'] },
+  // ---- 小阿尔卡纳 - 圣杯 Cups ----
+  { id:36, arcana:'cups', name:'圣杯王牌', en:'Ace of Cups',       emoji:'🏆', num:'Ace',
+    up:'新的情感开端，爱的涌出。打开心扉接受爱与喜悦。这是情感丰盈、灵感充沛的时期。新的关系或创意项目开始。',
+    rev:'情感堵塞，爱的流失，或压抑感受。可能需要处理未解决的情感创伤。新的开始被推迟。',
+    kw:['爱','新情感','喜悦','直觉','丰盈','开启'] },
+  { id:37, arcana:'cups', name:'圣杯二', en:'Two of Cups',         emoji:'💑', num:'2',
+    up:'平等的伙伴关系，灵魂的连接。互相尊重与理解的关系正在建立。商业合作或恋爱关系都极为有利。真诚的交流带来和谐。',
+    rev:'关系失衡，分手或不信任。沟通断裂，一方付出多于另一方。需要重新建立平等的连接。',
+    kw:['伙伴','平等','和谐','爱情','连接','合作'] },
+  { id:38, arcana:'cups', name:'圣杯三', en:'Three of Cups',       emoji:'🥂', num:'3',
+    up:'友谊与庆祝，分享幸福。与朋友欢聚的时刻，团队合作愉快。创造力在欢乐中流动。感恩身边的美好关系。',
+    rev:'过度放纵，流言蜚语，或友谊出现问题。聚会变成了负担。注意社交中的嫉妒与排挤。',
+    kw:['友谊','庆祝','欢乐','分享','社交','合作'] },
+  { id:39, arcana:'cups', name:'圣杯四', en:'Four of Cups',         emoji:'😴', num:'4',
+    up:'沉思与不满，对现状感到厌倦。可能忽视了身边的机会。需要重新评估什么才是真正让你满足的东西。',
+    rev:'觉醒，接受新机会，走出麻木。开始注意到生活中的美好。新的动机正在萌发。',
+    kw:['沉思','不满','冷淡','内省','机会','觉醒'] },
+  { id:40, arcana:'cups', name:'圣杯五', en:'Five of Cups',         emoji:'😢', num:'5',
+    up:'失落与悲伤，但仍有希望留存。不要只看到被打翻的杯子，还有两杯是满的。允许自己哀悼，但不要忘记残余的美好。',
+    rev:'接受损失，走出悲伤，看到新的可能。从失败中学到宝贵经验。希望正在回归。',
+    kw:['失落','悲伤','遗憾','希望','哀悼','复原'] },
+  { id:41, arcana:'cups', name:'圣杯六', en:'Six of Cups',         emoji:'🌸', num:'6',
+    up:'怀旧与善意，童年的纯真回归。旧友重逢或回忆带来温暖。给予和接受无条件的关怀。一份来自过去的礼物或帮助。',
+    rev:'沉溺过去，无法前行，或童年阴影。需要告别过去才能拥抱未来。不要被困在回忆中。',
+    kw:['怀旧','回忆','善意','纯真','过去','重逢'] },
+  { id:42, arcana:'cups', name:'圣杯七', en:'Seven of Cups',       emoji:'🌈', num:'7',
+    up:'众多选择与幻想。一切看起来都美好但需要脚踏实地。分辨真正的愿望与虚幻的诱惑。想象力丰富但需要落地。',
+    rev:'做出选择，清晰明了，现实检验。从幻想中醒来，选择最实际的道路。',
+    kw:['幻想','选择','想象','迷惑','愿望','幻象'] },
+  { id:43, arcana:'cups', name:'圣杯八', en:'Eight of Cups',       emoji:'🚶', num:'8',
+    up:'离开熟悉走向未知。虽然已有成就，但灵魂呼唤更深的意义。这需要勇气，但你必须追随内心的指引。',
+    rev:'害怕离开，徘徊不定，或拒绝成长。可能回到了并不满意的旧模式。需要更大的勇气迈出那一步。',
+    kw:['离开','追寻','勇气','探索','转变','远行'] },
+  { id:44, arcana:'cups', name:'圣杯九', en:'Nine of Cups',         emoji:'😊', num:'9',
+    up:'愿望成真，心满意足。这是塔罗中的"愿望牌"。享受当下的幸福与成就。物质与情感双双丰盛。自信地展示你的成果。',
+    rev:'愿望未达成，内在空虚。表面的满足掩盖了深层的不快乐。检查你真正渴望的是什么。',
+    kw:['满足','愿望','幸福','丰盛','享受','成就'] },
+  { id:45, arcana:'cups', name:'圣杯十', en:'Ten of Cups',         emoji:'🌈', num:'10',
+    up:'完美的家庭幸福，情感圆满。爱与被爱的感觉充盈生活。这是关系中最理想的状态。感恩与分享带来更多快乐。',
+    rev:'家庭不和，情感不满足，理想破灭。可能对关系抱有不切实际的期望。重新沟通可以修复裂痕。',
+    kw:['幸福','家庭','圆满','爱','和谐','理想'] },
+  { id:46, arcana:'cups', name:'圣杯侍从', en:'Page of Cups',      emoji:'🐟', num:'Page',
+    up:'创意灵感与情感讯息。一个充满想象力的年轻人或好消息。跟随心的指引，表达你的感受。艺术创作的好时机。',
+    rev:'情感不成熟，创意受阻，或坏消息。过于敏感容易受伤。需要保护自己的情感边界。',
+    kw:['创意','灵感','情感','讯息','梦想','敏感'] },
+  { id:47, arcana:'cups', name:'圣杯骑士', en:'Knight of Cups',    emoji:'🦄', num:'Knight',
+    up:'浪漫的追求者，艺术的灵魂。跟随梦想与直觉前行。一个充满魅力的人或浪漫的邀约。诗意与优雅并存的时期。',
+    rev:'不切实际的幻想，情绪化，或虚假的浪漫。甜言蜜语背后可能是空洞的承诺。',
+    kw:['浪漫','梦想','追求','艺术','魅力','邀约'] },
+  { id:48, arcana:'cups', name:'圣杯王后', en:'Queen of Cups',     emoji:'🧜', num:'Queen',
+    up:'情感深邃的成熟女性，直觉敏锐且充满同理心。用爱和智慧照顾身边的人。灵性与情感的深度结合。代表一个善解人意的女性。',
+    rev:'情绪失控，过度依赖，或过于敏感。情感操控他人的倾向。需要建立健康的情感边界。',
+    kw:['同理心','直觉','关爱','深邃','灵性','温柔'] },
+  { id:49, arcana:'cups', name:'圣杯国王', en:'King of Cups',      emoji:'🌊', num:'King',
+    up:'情感成熟的权威人物，慈悲而智慧。以爱与宽容领导他人。艺术与灵性的赞助者。代表一个稳重而富有同理心的男性。',
+    rev:'情绪操控，压抑情感，或滥用权力。表面冷静但内心波涛汹涌。需要健康的情绪表达渠道。',
+    kw:['慈悲','智慧','情感成熟','宽容','艺术','领袖'] },
+  // ---- 小阿尔卡纳 - 宝剑 Swords ----
+  { id:50, arcana:'swords', name:'宝剑王牌', en:'Ace of Swords',    emoji:'⚔️', num:'Ace',
+    up:'清晰的思维与真理的胜利。一刀斩断迷雾，看到事情的本质。新想法或沟通方式的突破。正义与你同在。',
+    rev:'思维混乱，错误判断，或真相被扭曲。沟通出现障碍。可能在回避一个必须面对的事实。',
+    kw:['清晰','真理','洞见','沟通','正义','突破'] },
+  { id:51, arcana:'swords', name:'宝剑二', en:'Two of Swords',      emoji:'🤞', num:'2',
+    up:'两难抉择，闭眼不看真相。需要做出艰难决定但还在拖延。平衡理性与感性的考量。暂时回避是有意识的暂停。',
+    rev:'做出决定，打破僵局，看清真相。不再逃避选择。信息不足的局面正在明朗。',
+    kw:['抉择','僵局','逃避','平衡','暂停','犹豫'] },
+  { id:52, arcana:'swords', name:'宝剑三', en:'Three of Swords',    emoji:'💔', num:'3',
+    up:'心碎与悲伤，面对痛苦的真相。这是疗愈的必经阶段——感受痛苦才能释放它。允许自己哀伤，但不要永远沉溺其中。',
+    rev:'从伤痛中恢复，释怀，或拒绝面对痛苦。悲伤正在消解，阳光将再次照进。',
+    kw:['心碎','悲伤','痛苦','真相','疗愈','释放'] },
+  { id:53, arcana:'swords', name:'宝剑四', en:'Four of Swords',     emoji:'😴', num:'4',
+    up:'休息与恢复，暂离战场。你需要一段安静的时光来充电。冥想和深度睡眠将有帮助。在平静中积蓄力量。',
+    rev:'准备好重新行动，但恢复不足。可能过早回归导致透支。需要更多耐心。',
+    kw:['休息','恢复','冥想','退隐','平静','充电'] },
+  { id:54, arcana:'swords', name:'宝剑五', en:'Five of Swords',     emoji:'😤', num:'5',
+    up:'空洞的胜利，赢了争论输了关系。冲突虽然获胜但代价惨重。考虑是否值得为胜利牺牲和谐。',
+    rev:'和解的可能，放下争执，从失败中学习。冲突之后迎来反思。选择和平而非胜利。',
+    kw:['冲突','胜利','代价','争论','失败','反思'] },
+  { id:55, arcana:'swords', name:'宝剑六', en:'Six of Swords',      emoji:'⛵', num:'6',
+    up:'过渡与疗愈，离开困境走向平静。虽然路途遥远但方向正确。带着必要的行李（经验与教训）前行。更好的未来在前方。',
+    rev:'拒绝离开困境，或过渡充满波折。可能回到了问题的源头。需要重新找到正确的方向。',
+    kw:['过渡','离开','疗愈','前行','平静','转变'] },
+  { id:56, arcana:'swords', name:'宝剑七', en:'Seven of Swords',    emoji:'🦊', num:'7',
+    up:'策略与机智，有时需要走不寻常的路。但注意方法是否正当。灵活应对困难局面。秘密行动或需要保密的计划。',
+    rev:'欺骗暴露，计划失败，或被背叛。不诚实的行为正在被揭穿。需要坦诚面对。',
+    kw:['策略','机智','隐秘','计谋','灵活','谨慎'] },
+  { id:57, arcana:'swords', name:'宝剑八', en:'Eight of Swords',    emoji:'🔒', num:'8',
+    up:'自我禁锢，感到被困但锁链是思想的产物。你比自己想象的更自由。限制大多来自内心的恐惧与负面的自我对话。',
+    rev:'挣脱束缚，找到自由，打破思维牢笼。开始看到事物的新视角。力量正在回归。',
+    kw:['束缚','恐惧','限制','无助','思想','挣脱'] },
+  { id:58, arcana:'swords', name:'宝剑九', en:'Nine of Swords',     emoji:'😰', num:'9',
+    up:'噩梦与焦虑的折磨。深夜的担忧可能被放大。你的恐惧大多不会成真。寻求支持，不要独自承担所有压力。',
+    rev:'焦虑缓解，找到希望的曙光。最坏的阶段已经过去。学会了正确看待自己的恐惧。',
+    kw:['焦虑','噩梦','担忧','恐惧','压力','失眠'] },
+  { id:59, arcana:'swords', name:'宝剑十', en:'Ten of Swords',      emoji:'💀', num:'10',
+    up:'彻底结束，跌入谷底但触底反弹。最糟糕的已经过去。虽然痛苦但这是一个干净的了结。黎明前的黑暗。',
+    rev:'从谷底爬起，复原与重生。情况开始好转。经历过最坏之后，什么都不再可怕。',
+    kw:['结束','谷底','了结','痛苦','反弹','重生'] },
+  { id:60, arcana:'swords', name:'宝剑侍从', en:'Page of Swords',   emoji:'🕵️', num:'Page',
+    up:'好奇心与智力探索。一个善于观察和提问的年轻人。追寻真理与知识。保持警觉，收集信息。沟通与学习的好时机。',
+    rev:'闲言碎语，流言，或滥用信息。幼稚的言论可能造成伤害。注意你分享的信息是否可信。',
+    kw:['好奇','探索','真相','沟通','学习','警觉'] },
+  { id:61, arcana:'swords', name:'宝剑骑士', en:'Knight of Swords', emoji:'⚡', num:'Knight',
+    up:'快速行动与坚定决心。以雷霆之势冲向目标。思维敏捷，辩论有力。但也要注意不要过于莽撞伤人。',
+    rev:'鲁莽冒进，言语伤人，或缺乏策略。速度太快导致失控。需要慢下来思考。',
+    kw:['行动','决心','速度','辩论','果断','急躁'] },
+  { id:62, arcana:'swords', name:'宝剑王后', en:'Queen of Swords',  emoji:'🦅', num:'Queen',
+    up:'智慧独立的成熟女性，以理性与正直行事。清晰的判断力和敏锐的洞察力。能够做出艰难但正确的决定。代表一个有智慧的女性。',
+    rev:'冷酷无情，过于理智压抑情感，或心怀怨恨。智慧变成了尖刻。需要重新连接内心的温柔。',
+    kw:['智慧','独立','理性','正直','洞察','果断'] },
+  { id:63, arcana:'swords', name:'宝剑国王', en:'King of Swords',   emoji:'👨‍⚖️', num:'King',
+    up:'公正权威的决策者，逻辑与智慧的代表。以清晰的头脑和坚定的道德观领导。法律、咨询、学术领域的权威人物。',
+    rev:'权力滥用，冷酷独裁，或判断偏颇。理智变成了冷酷无情。滥用信息或权力控制他人。',
+    kw:['公正','智慧','权威','逻辑','决断','正直'] },
+  // ---- 小阿尔卡纳 - 星币 Pentacles ----
+  { id:64, arcana:'pentacles', name:'星币王牌', en:'Ace of Pentacles', emoji:'🪙', num:'Ace',
+    up:'新的财富与机会降临。投资、新工作或商业机会到来。稳固的基础正在建立。这是将梦想化为实质的时刻。',
+    rev:'错失良机，财务问题，或计划不稳。可能需要重新审视花钱的方式。投资需谨慎。',
+    kw:['财富','机会','新开始','物质','稳固','繁荣'] },
+  { id:65, arcana:'pentacles', name:'星币二', en:'Two of Pentacles',  emoji:'🤹', num:'2',
+    up:'平衡多重事务，灵活变通。在收支、工作与生活之间寻找平衡。适应变化是当下的关键。保持轻松弹性。',
+    rev:'失衡，超负荷运转，财务混乱。可能在拆东墙补西墙。需要重新整理优先次序。',
+    kw:['平衡','灵活','变通','适应','多任务','财务'] },
+  { id:66, arcana:'pentacles', name:'星币三', en:'Three of Pentacles', emoji:'🏗️', num:'3',
+    up:'团队协作，技能精进。你的专业能力得到认可。合作项目进展顺利。这是学习与成长的好时机，工匠精神的体现。',
+    rev:'团队矛盾，缺乏协作，或技能不被认可。工作质量下滑。需要重新聚焦于基础。',
+    kw:['合作','技能','团队','专业','成长','认可'] },
+  { id:67, arcana:'pentacles', name:'星币四', en:'Four of Pentacles', emoji:'💰', num:'4',
+    up:'节俭与守财，控制资源。安全感源于对物质的掌控。但注意不要因过度守财而失去生活乐趣。稳定的积累期。',
+    rev:'过度吝啬或挥霍无度。对金钱的执着正在伤害你。或者是过度消费带来的问题。',
+    kw:['节俭','守财','稳定','控制','安全','积累'] },
+  { id:68, arcana:'pentacles', name:'星币五', en:'Five of Pentacles', emoji:'🥶', num:'5',
+    up:'物质或精神上的困乏。感到被排斥或无家可归。但希望近在咫尺——你并非真正孤立无援。寻求帮助不可耻。',
+    rev:'走出贫困，找到归属，获得帮助。经济或精神状态开始好转。困境即将结束。',
+    kw:['贫困','困乏','无助','孤立','希望','求助'] },
+  { id:69, arcana:'pentacles', name:'星币六', en:'Six of Pentacles',  emoji:'🤲', num:'6',
+    up:'给予与接受，慷慨与感恩。财富的流动与分享。你可能在给予者或接受者的角色。无论哪方，都要心怀感恩与尊严。',
+    rev:'施舍中的不平等，债务问题，或被利用。假慷慨或依赖他人。注意权力不对等的关系。',
+    kw:['给予','接受','慷慨','感恩','分享','平衡'] },
+  { id:70, arcana:'pentacles', name:'星币七', en:'Seven of Pentacles', emoji:'🌱', num:'7',
+    up:'耐心等待成果成熟。审视目前为止的投入与产出。可能需要调整策略或继续等待。收获季节还未完全到来。',
+    rev:'投资失利，急功近利，或对成果不满。努力似乎没有回报。需要重新评估是否值得继续。',
+    kw:['等待','评估','耐心','成长','投资','收获'] },
+  { id:71, arcana:'pentacles', name:'星币八', en:'Eight of Pentacles', emoji:'🔨', num:'8',
+    up:'精进技艺，勤奋工作。专注投入于打磨你的能力。这是学徒精神的体现——重复练习带来真正的精通。技能变现的好时机。',
+    rev:'枯燥乏味，缺乏动力，或匠气过重缺乏创造。工作变成了机械重复。需要重新找到热情。',
+    kw:['勤奋','技能','专注','精进','工匠','投入'] },
+  { id:72, arcana:'pentacles', name:'星币九', en:'Nine of Pentacles',  emoji:'🦚', num:'9',
+    up:'独立与自我享受。通过自身努力获得的舒适生活。优雅且自给自足。享受独处的美好时光。这是对自己努力的奖赏。',
+    rev:'经济依赖他人，表面光鲜内在空虚。过度追求物质而忽略精神。独立可能建立在脆弱的基础上。',
+    kw:['独立','享受','优雅','自足','成就','舒适'] },
+  { id:73, arcana:'pentacles', name:'星币十', en:'Ten of Pentacles',  emoji:'🏰', num:'10',
+    up:'财富传承与家族繁荣。长期的积累与稳固的基础。不仅是金钱，更是家族价值观的传承。物质生活的终极圆满。',
+    rev:'家族纷争，遗产问题，或财富流失。家庭的稳定被打破。可能需要处理代际之间的冲突。',
+    kw:['富足','传承','家族','繁荣','稳固','遗产'] },
+  { id:74, arcana:'pentacles', name:'星币侍从', en:'Page of Pentacles', emoji:'📚', num:'Page',
+    up:'踏实学习的新手，对知识和技能充满渴望。一个务实上进的年轻人。专注细节，打好基础。教育或新技能学习的好时机。',
+    rev:'缺乏进取心，学习困难，或不切实际。过于物质主义而失去学习的乐趣。需要重新找到方向。',
+    kw:['学习','务实','上进','新技能','基础','专注'] },
+  { id:75, arcana:'pentacles', name:'星币骑士', en:'Knight of Pentacles', emoji:'🐂', num:'Knight',
+    up:'踏实可靠的前进。虽然缓慢但步步为营。以耐心和毅力完成目标。这是最可靠的骑士——不花哨但必定到达终点。',
+    rev:'停滞不前，过于保守，或懒惰。缺乏改变的动力，陷入舒适区的陷阱。',
+    kw:['可靠','耐心','坚持','踏实','稳重','毅力'] },
+  { id:76, arcana:'pentacles', name:'星币王后', en:'Queen of Pentacles', emoji:'🌸', num:'Queen',
+    up:'丰饶务实的成熟女性，擅长经营家庭与事业。以实用智慧照顾身边的人。物质与精神同样充盈。代表一个温暖而能干的女性。',
+    rev:'过度物质化，忽视家庭，或缺乏安全感。照顾他人却忘了照顾自己。需要在付出与自爱间找到平衡。',
+    kw:['丰饶','务实','滋养','能干','温暖','经营'] },
+  { id:77, arcana:'pentacles', name:'星币国王', en:'King of Pentacles', emoji:'👑', num:'King',
+    up:'稳健富足的权威人物，商业与金融的成功者。以务实和经验积累财富。可靠、慷慨且值得信赖。代表一个成熟稳重的成功人士。',
+    rev:'金钱至上，贪婪，或利用财富控制他人。过度追求物质而腐蚀了灵魂。需要反思财富的真正意义。',
+    kw:['富足','稳健','成功','可靠','财富','务实'] }
+];
+
+// ==================== 牌阵定义 ====================
+const SPREADS = {
+  single: {
+    name:'单张指引', cards:1,
+    positions:[
+      { pos:'今日指引', desc:'宇宙此刻给你的最重要的讯息' }
+    ]
+  },
+  three: {
+    name:'三牌之阵', cards:3,
+    positions:[
+      { pos:'过去', desc:'影响当前局面的过往因素' },
+      { pos:'现在', desc:'当前的核心状况与挑战' },
+      { pos:'未来', desc:'事态发展的可能方向' }
+    ]
+  },
+  celtic: {
+    name:'凯尔特十字', cards:10,
+    positions:[
+      { pos:'现状核心', desc:'你当前所处的位置与核心问题' },
+      { pos:'横跨之障', desc:'横在面前的障碍或助力' },
+      { pos:'根源之基', desc:'问题在过去的根源' },
+      { pos:'过往近事', desc:'刚刚过去的近因' },
+      { pos:'可能之冠', desc:'可能达成的最高目标' },
+      { pos:'近未来', desc:'即将到来的近期事件' },
+      { pos:'自我视角', desc:'你对自己的看法与态度' },
+      { pos:'外界环境', desc:'他人与环境对你的影响' },
+      { pos:'希望与恐惧', desc:'你内心的希望与担忧' },
+      { pos:'最终结果', desc:'综合所有因素的可能结果' }
+    ]
+  },
+  horseshoe: {
+    name:'马蹄铁阵', cards:7,
+    positions:[
+      { pos:'过去影响', desc:'塑造当前局面的过往' },
+      { pos:'当前状况', desc:'你此刻所处的实际情况' },
+      { pos:'隐藏影响', desc:'你不了解或未察觉的因素' },
+      { pos:'挑战障碍', desc:'需要克服的困难与阻碍' },
+      { pos:'外界态度', desc:'他人对这件事的看法' },
+      { pos:'你的建议', desc:'你应该采取的最佳行动' },
+      { pos:'最终结果', desc:'按照当前趋势的可能结果' }
+    ]
+  },
+  relationship: {
+    name:'关系之镜', cards:5,
+    positions:[
+      { pos:'你的状态', desc:'你在这段关系中的位置与感受' },
+      { pos:'TA的状态', desc:'对方在这段关系中的位置与感受' },
+      { pos:'关系本质', desc:'这段关系的核心本质与纽带' },
+      { pos:'挑战与机遇', desc:'关系面临的困难与成长空间' },
+      { pos:'关系未来', desc:'这段关系的发展方向与可能结果' }
+    ]
+  }
+};
+
+// ==================== 全局状态 ====================
+let state = {
+  question:'',
+  mood:'',
+  spread:'single',
+  drawnCards:[],       // { cardObj, reversed }
+  readingDone:false,
+  step:1
+};
+
+// ==================== 初始化 ====================
+function init() {
+  createStars();
+  // 加载历史
+  loadHistory();
+  // Mood选择事件
+  document.querySelectorAll('#mood-grid .mood-tag').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('#mood-grid .mood-tag').forEach(e => e.classList.remove('selected'));
+      this.classList.add('selected');
+      state.mood = this.dataset.mood;
+    });
+  });
+  // 牌阵选择事件
+  document.querySelectorAll('#spread-grid .spread-card').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('#spread-grid .spread-card').forEach(e => e.classList.remove('selected'));
+      this.classList.add('selected');
+      state.spread = this.dataset.spread;
+    });
+  });
+}
+
+function createStars() {
+  const container = document.getElementById('stars');
+  const count = 120;
+  let html = '';
+  for(let i=0; i<count; i++) {
+    const x = Math.random()*100;
+    const y = Math.random()*100;
+    const size = Math.random()*2+1;
+    const dur = Math.random()*4+3;
+    const delay = Math.random()*5;
+    html += `<div class="star" style="left:${x}%;top:${y}%;width:${size}px;height:${size}px;--dur:${dur}s;--delay:${delay}s;"></div>`;
+  }
+  container.innerHTML = html;
+}
+
+// ==================== 导航 ====================
+function setStep(n) {
+  state.step = n;
+  document.querySelectorAll('#steps .step').forEach((el,i) => {
+    el.classList.remove('active','done');
+    if(i+1 < n) el.classList.add('done');
+    if(i+1 === n) el.classList.add('active');
+  });
+  ['sec-question','sec-spread','sec-draw','sec-reading'].forEach((id,i) => {
+    document.getElementById(id).classList.toggle('visible', i+1 === n);
+  });
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function nextToSpread() {
+  state.question = document.getElementById('question').value.trim();
+  setStep(2);
+}
+
+function prevToQuestion() { setStep(1); }
+
+function nextToDraw() {
+  setStep(3);
+  state.drawnCards = [];
+  state.readingDone = false;
+  initDrawArea();
+}
+
+function reshuffle() {
+  state.drawnCards = [];
+  state.readingDone = false;
+  initDrawArea();
+  document.getElementById('draw-btns').style.display = 'none';
+}
+
+// ==================== 抽牌区 ====================
+function initDrawArea() {
+  const area = document.getElementById('draw-area');
+  const spread = SPREADS[state.spread];
+  const count = spread.cards;
+  document.getElementById('draw-count').textContent = count;
+  document.getElementById('draw-prompt').innerHTML = `请从下方牌堆中凭直觉选择 <strong id="draw-count">${count}</strong> 张牌`;
+  document.getElementById('shuffle-msg').style.display = 'none';
+  document.getElementById('draw-btns').style.display = 'none';
+  document.getElementById('btn-reveal').disabled = true;
+
+  // 生成随机牌面用于选择
+  const pool = shuffleDeck();
+  const displayCards = pool.slice(0, Math.min(15, pool.length));
+
+  area.innerHTML = '';
+  displayCards.forEach((card, i) => {
+    const div = document.createElement('div');
+    div.className = 'tarot-card';
+    div.style.animationDelay = `${i*0.05}s`;
+    div.innerHTML = `
+      <div class="card-inner">
+        <div class="card-back">
+          <div class="back-design">
+            <span class="star-icon">✧</span>
+            ✦
+            <span class="star-icon">✧</span>
+          </div>
+        </div>
+        <div class="card-front">
+          <div class="reversed-badge">逆位</div>
+          <div class="card-emoji">?</div>
+          <div class="card-name">?</div>
+        </div>
+      </div>
+    `;
+    div.addEventListener('click', () => selectCard(card, div));
+    div.style.animation = `fadeIn 0.4s ease ${i*0.05}s both`;
+    area.appendChild(div);
+  });
+}
+
+function shuffleDeck() {
+  const arr = [...TAROT_DECK];
+  for(let i=arr.length-1; i>0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function selectCard(card, element) {
+  if(state.readingDone) return;
+  const spread = SPREADS[state.spread];
+  if(state.drawnCards.length >= spread.cards) {
+    showToast(`你只需选择 ${spread.cards} 张牌`);
+    return;
+  }
+  if(state.drawnCards.find(d => d.card.id === card.id)) {
+    showToast('你已经选择了这张牌，请选另一张');
+    return;
+  }
+
+  // 随机决定是否逆位
+  const reversed = Math.random() < 0.3;
+  state.drawnCards.push({ card, reversed });
+
+  // 翻转动画
+  element.classList.add('flipped');
+  if(reversed) element.classList.add('reversed');
+
+  // 更新牌面显示
+  const front = element.querySelector('.card-front');
+  front.innerHTML = `
+    <div class="reversed-badge">${reversed ? '逆位' : ''}</div>
+    <div class="card-num">${card.num}</div>
+    <div class="card-emoji">${card.emoji}</div>
+    <div class="card-name">${card.name}</div>
+    <div class="card-title-en">${card.en}</div>
+  `;
+  if(reversed) {
+    front.querySelector('.reversed-badge').style.display = 'block';
+  }
+
+  // 音效般的视觉反馈
+  element.style.boxShadow = '0 0 30px rgba(201,168,76,0.5)';
+
+  if(state.drawnCards.length >= spread.cards) {
+    document.getElementById('draw-btns').style.display = 'flex';
+    document.getElementById('btn-reveal').disabled = false;
+    document.getElementById('draw-prompt').innerHTML = '✨ 你已凭直觉选好了所有牌，准备好揭晓命运的指引了吗？';
+  } else {
+    document.getElementById('draw-prompt').innerHTML = `请继续凭直觉选择，还需选 <strong>${spread.cards - state.drawnCards.length}</strong> 张牌`;
+  }
+}
+
+// ==================== 解读 ====================
+function revealAll() {
+  if(state.drawnCards.length < SPREADS[state.spread].cards) {
+    showToast('请先选完所有牌');
+    return;
+  }
+  state.readingDone = true;
+  setStep(4);
+  generateReading();
+  saveToHistory();
+}
+
+function generateReading() {
+  const spread = SPREADS[state.spread];
+  const container = document.getElementById('reading-content');
+
+  let html = `<div class="reading">`;
+  html += `<h2>🔮 ${spread.name} · 解读</h2>`;
+  html += `<div class="reading-meta">`;
+  if(state.question) html += `你的问题：「${escapeHtml(state.question)}」 · `;
+  if(state.mood) html += `当下心境：${getMoodLabel(state.mood)} · `;
+  html += `牌阵：${spread.name} (${spread.cards}张牌) · ${new Date().toLocaleString('zh-CN')}`;
+  html += `</div>`;
+
+  // 各牌位解读
+  html += `<div class="card-result">`;
+  state.drawnCards.forEach((dc, i) => {
+    const pos = spread.positions[i];
+    const card = dc.card;
+    const meaning = dc.reversed ? card.rev : card.up;
+    const posLabel = dc.reversed ? '(逆位)' : '(正位)';
+
+    html += `<div class="result-card">`;
+    html += `<div class="position">📍 第${i+1}张：${pos.pos}</div>`;
+    html += `<h4>${card.emoji} ${card.name} ${posLabel} <span style="font-size:0.8em;color:var(--text-dim)">${card.en}</span></h4>`;
+    html += `<p style="color:var(--text-dim);font-size:0.78em;">牌位含义：${pos.desc}</p>`;
+    html += `<div class="meaning">${meaning}</div>`;
+    html += `<div class="keyword-tags">${card.kw.map(k => `<span>${k}</span>`).join('')}</div>`;
+    if(dc.reversed) {
+      html += `<p style="color:var(--accent);font-size:0.75em;margin-top:6px;">⚠ 此牌以逆位出现，暗示该能量被阻塞或表现为其阴影面</p>`;
+    }
+    html += `</div>`;
+  });
+  html += `</div>`;
+
+  // 综合解读（多维度）
+  html += generateSynthesis();
+
+  // 牌面统计
+  html += `<div style="margin-top:16px;color:var(--text-dim);font-size:0.8em;">`;
+  const stats = getCardStats();
+  html += `牌面构成：${stats}`;
+  html += `</div>`;
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function generateSynthesis() {
+  const spread = SPREADS[state.spread];
+  const cards = state.drawnCards;
+  const total = cards.length;
+  const majorCards = cards.filter(dc => dc.card.arcana === 'major');
+  const reversedCards = cards.filter(dc => dc.reversed);
+  const majorCount = majorCards.length;
+  const reversedCount = reversedCards.length;
+  const majorRatio = majorCount / total;
+  const reversedRatio = reversedCount / total;
+
+  const elemCount = { major:0, wands:0, cups:0, swords:0, pentacles:0 };
+  cards.forEach(dc => { elemCount[dc.card.arcana]++; });
+
+  const dominantElement = Object.entries(elemCount).filter(([k])=>k!=='major').sort((a,b)=>b[1]-a[1])[0];
+  const dominantArcanaName = dominantElement ? getArcanaName(dominantElement[0]) : '';
+
+  const numMeanings = {
+    '0':'无限潜能之数——空无中蕴藏着一切可能，起点亦是终点。零是宇宙的子宫，是灵魂还未显化为物质之前的纯粹状态。它代表着你正站在一道门前，而门的另一边，是整个未被书写的未来。',
+    'I':'一是一切的开始——主动的创造意志、独立的自我意识、从混沌中劈出光明的第一道闪电。这是一个"说做就做"的频率，它推动你不再观望，而是以魔法师般的专注将想法化为现实。',
+    'II':'二是一的裂变——两极的诞生带来了张力与平衡。光与影、阴与阳、意识与潜意识。女祭司守护着这道门：有些答案不能用逻辑推导，只能由直觉送达。二的出现呼唤你同时看见事物的两面。',
+    'III':'三是创生的完成——种子落土，新芽破土。三的振动关联着创造力、自我表达与丰饶的扩展。皇后微笑着说：你值得拥有丰盛。接纳生命中的美好，并允许自己成为创造者而非等待者。',
+    'IV':'四是结构的基石——四根柱子撑起庙宇，四个方向绘制地图。皇帝端坐其中，以秩序驯服混乱。四的能量是稳定、安全与边界。当四出现时，它在问：你的基础牢靠吗？你的规则是在保护你，还是在束缚你？',
+    'V':'五是变革的催化剂——四平八稳之后必然迎来动荡。五的振动撕开稳定的表象，将冲突、挑战与成长的可能一并带到你面前。它不舒服，但必要。正如没有摩擦就没有抓地力，没有五就没有真正的前进。',
+    'VI':'六是和谐与选择——美与爱在六中找到了共鸣。恋人之牌不仅仅是关于爱情，更是关于价值的选择。六的振动温柔而深刻，它邀请你在两个真我之间做出抉择，而非在好坏之间做取舍。',
+    'VII':'七是意志的胜利——战车冲破一切的阻挡。七是行动的数字、是战士的勇气、是"即便困难重重我亦向前"的宣言。但七也提醒：胜利需要驾驭内心的对立力量，否则战车将在狂奔中翻覆。',
+    'VIII':'八是内在力量的觉醒——力量之牌以温柔驯服雄狮。八的振动不是外在的征服，而是内在的转化。它是耐心、是慈悲、是以柔克刚的最高智慧。八提醒你：真正的力量从不喧嚣。',
+    'IX':'九是隐士手中的灯火——在黑暗中向内探索。九是接近圆满却仍差一步的品质。它代表独处的智慧、深邃的反思、以及那些只能在寂静中听见的真相。九说：不要害怕孤独，它是通往内在圣殿的唯一道路。',
+    'X':'十是圆满也是新的起点——命运之轮转到最高处，随之而来的是下一个循环的开始。十的振动完成了从一到十的整个旅程，却又在终点处发现新的起点。十教会我们：没有什么永驻，也没有什么永逝。',
+    'XI':'十一超越了十的完满——进入更高层面的正义与平衡。它是因果法则的具象化表现：每一个行动都有其回响，每一个选择都有其后果。十一的振动冷静而客观，如同宇宙的天平。',
+    'XII':'十二是倒吊人的视角——悬置、牺牲、以全然不同的角度观看世界。十二的能量是"反逻辑"的：在无为中实现有为，在舍弃中获得更多。它邀请你暂停一切努力，让答案自己来找你。',
+    'XIII':'十三是死神带来的转化——结束、清空、为新生的到来扫除一切障碍。十三并不代表肉体的死亡，而是旧身份、旧模式、旧关系的必然终结。每一次结束都是灵魂在说：我已经准备好迎接下一个版本的自己。',
+    'XIV':'十四是节制的炼金术——将对立元素融合成金色的中和之道。十四的振动是艺术家的手，调配着生命中的各种能量，寻找那恰到好处的平衡点。它不急不躁，因为它知道：真正的融合需要时间和耐心。',
+    'XV':'十五是恶魔的试炼——物质世界的诱惑、上瘾的模式、以及你最深的恐惧。十五的振动将光照入阴影最浓密的地方。它不是来吓唬你的，而是来告诉你：那道你以为是牢笼的门，其实从未上锁。',
+    'XVI':'十六是高塔的闪电——突如其来的崩塌，将建立在虚假地基上的一切悉数摧毁。十六的能量令人恐惧，却也最为诚实。闪电击中的地方，正是你内心深处早已知道需要改变却一直逃避的那部分。',
+    'XVII':'十七是星星的疗愈——暴风雨后的第一缕光。十七的振动是希望、是灵感、是灵魂在被暴风骤雨冲刷之后的平静与澄明。星星不承诺一切都会变好，但它承诺：你拥有从废墟中重新站起所需的一切力量。',
+    'XVIII':'十八是月亮的幻境——潜意识的大海掀起浪潮。十八的振动模糊了现实与想象的边界。在这片月光下，事物并非总是它们看上去的样子。十八邀请你深入自己的梦境、直觉和恐惧，因为那里藏着通往真相的暗门。',
+    'XIX':'十九是太阳的光芒万丈——意识的完全照亮、生命的全然绽放。十九是塔罗中最明亮的振动。它说：你已经穿越了月亮的迷雾，现在请尽情享受阳光的温暖。赤子之心、纯粹的喜悦、不被阴影笼罩的自信——这些都是太阳的礼物。',
+    'XX':'二十是审判的号角——灵魂被唤醒，过去的篇章被重新审视。二十的振动如同晨曦中的第一声钟鸣，穿透沉睡，直达最深处的意识。它说：是时候了——原谅该原谅的，放下该放下的，回应你此生真正的召唤。',
+    'XXI':'二十一——世界的圆满舞步。二十一的振动将全部的旅程编织成一个完满的圆。它告诉你：你已经完成了你来到这里要学习的课题。万物一体，你与宇宙之间不再有距离。这是庆祝的时刻，也是准备迎接全新循环的时刻。',
+    'Ace':'王牌是所有牌组中最纯粹的能量形态。它如同一颗种子，蕴含着整个生命周期的一切可能。王牌的振动是"开始"的原始冲动——还未被任何条件所限定，还未被任何经验所磨损。这是一份来自宇宙的空白邀请函。',
+    'Page':'侍从牌的振动是青春的好奇——一个睁大眼睛看世界的初学者。它代表着学习的姿态、讯息的抵达、以及那种"虽然还不熟练但充满热忱"的可贵品质。侍从提醒你：成为学生是一生中最美好的角色之一。',
+    'Knight':'骑士牌的振动是极致的追求——元素能量被推至行动的高峰。它代表着冲动、冒险精神、以及对目标的英勇奔赴。骑士的优点是无所畏惧，缺点是可能过于极端。它的出现常常意味着"该出发了"。',
+    'Queen':'王后牌的振动是内在的掌控——成熟的阴性能量以滋养和智慧的方式运作。王后不问"我能征服什么"，而是问"我能培育什么"。她代表着情感上的成熟、创造力的自如表达、以及对生命节奏的深刻理解。',
+    'King':'国王牌的振动是外在的掌控——成熟的阳性能量以权威和责任感的方式运作。国王不问"我能得到什么"，而是问"我能守护什么"。他代表着事业的顶峰、稳健的判断力、以及被时间淬炼过的务实智慧。'
+  };
+
+  let html = '';
+
+  // ================================================================
+  // 一、整体能量概览
+  // ================================================================
+  html += `<div class="synthesis"><h3>🌟 一、整体能量概览</h3>`;
+
+  if(total === 1) {
+    const dc = cards[0];
+    html += `<p>你选择的是最简洁的单张牌阵——<strong>${dc.card.name}（${dc.card.en}）</strong>${dc.reversed ? '，以逆位形式出现' : '，正位'}。单张牌的解读不需要在牌与牌之间寻找关联，它的优势恰恰在于聚焦：宇宙将全部讯息浓缩进这一张牌里，没有冗余，只有核心。</p>`;
+
+    html += `<p>`;
+    if(dc.card.arcana === 'major') {
+      html += `${dc.card.name}属于22张大阿尔卡纳。在塔罗体系中，大阿尔卡纳描绘的是灵魂层面的原型事件——不是日常琐事的注脚，而是一个人在某个生命阶段中无法绕开的核心命题。这张牌的能量不会在几天内消散，它会在接下来的数周甚至数月里，持续影响你对事件的感知方式和选择倾向。`;
+    } else {
+      html += `${dc.card.name}属于小阿尔卡纳的${getArcanaName(dc.card.arcana)}牌组。与大牌关注灵魂主线不同，小阿尔卡纳的领域在具体的生活层面——工作、财务、人际关系、日常决策。它要告诉你的不是远方的高山，而是你脚下这一步该怎么走。`;
+    }
+    html += `</p>`;
+
+    html += `<p>`;
+    if(dc.reversed) {
+      html += `逆位意味着这张牌所代表的能量在当下是以内敛、被阻或延迟的方式运作的。它指向的通常不是外在的困境，而是一个内在的节点——一段尚未处理完的情绪、一个被回避太久的真相、或一种不再适用于当下的旧有模式。逆位不是对你个人的否定，它只是在标记一个需要你回看和松动的领域。`;
+    } else {
+      html += `正位说明这股能量在你目前的生命中流通顺畅。你不需要和它对抗，它也不在暗处拉扯你。正位牌的出现是一种确认：你当前的方向和节奏与这股能量的流动方向是一致的。`;
+    }
+    html += `</p>`;
+  } else {
+    html += `<p><strong>${spread.name}</strong>，共${total}张牌。在逐张深入之前，先从宏观角度审视这${total}张牌作为一个整体的能量特征。</p>`;
+
+    html += `<p>`;
+    if(majorRatio >= 0.7) {
+      html += `大阿尔卡纳在此次解读中占据了绝对比例（${majorCount}/${total}张）——在78张牌的完整塔罗体系中，22张大阿尔卡纳的出现概率本就偏低，集中出现更是少见。这不是日常琐事的映射，而是一个明确信号：你当前正处于一个具有分水岭意义的人生节点。某些深层的结构性变化正在发生，其影响范围和时间跨度都值得你以更审慎和开放的态度去面对。`;
+    } else if(majorRatio >= 0.4) {
+      html += `大阿尔卡纳${majorCount}张，小阿尔卡纳${total-majorCount}张，比例均衡。这意味着你当下的处境同时具备了两个层面的特质：既有需要从灵性高度去理解的核心命题，也有需要在日常层面去落实的具体事务。两套系统同时运转，互不矛盾。`;
+    } else if(majorCount > 0) {
+      html += `牌面以日常生活的小阿尔卡纳为主体，其中穿插了${majorCount}张大阿尔卡纳。这${majorCount}张大牌就是你本次解读中的锚点——它们不多，但指向了最本质的方向。在读小牌的细节时，始终记得回看这几张大牌提供的框架，它们会帮你避免在细枝末节中迷失主线。`;
+    } else {
+      html += `本次牌面完全由小阿尔卡纳构成，无一例外。在塔罗解读的实践中，这种"纯小牌"的配置本身就是一条重要信息：当下不需要过度追问形而上的"为什么"，重心在于具体的、可操作的"怎么做"。神圣不在抽象的概念里，在你每天早晨起床后需要面对的那些实实在在的事务中。`;
+    }
+    html += `</p>`;
+
+    html += `<p>`;
+    if(reversedCount === 0) {
+      html += `${total}张牌全部正位，没有一张逆位。在概率上这并不常见，在解读上这是一个值得注意的积极信号。所有牌面代表的能量都处于顺畅流通的状态——没有内部的拉扯，没有暗处的阻碍。当前阶段是你的"顺风期"，建议抓住这个窗口把该推进的事往前推。`;
+    } else if(reversedRatio <= 0.3) {
+      html += `绝大部分牌面以正位出现，仅${reversedCount}张逆位。整体基调是向好的，少量的逆位精准地标记出需要你额外关注的领域。把这${reversedCount}张逆位视为导航中的"注意路况"提示——不是前方封路，而是前方有个弯需要你减速看一眼。`;
+    } else if(reversedRatio <= 0.5) {
+      html += `接近半数的牌面呈逆位状态。从专业解读的角度来看，这种配比往往比"全正位"更具分析价值——逆位牌揭露的不是厄运，而是水面之下的暗流：那些你尚未完全觉察的内在冲突、被理性压制的情绪、或是一直在绕开的关键问题。正视这些内容，远比只看顺利的部分更能推动真正的改变。`;
+    } else {
+      html += `逆位牌占据了多数（${reversedCount}/${total}张）。如果你感到最近诸事不顺、阻力重重，牌面与你感受到的是吻合的。但逆位的集中出现，在塔罗语言中并非"一切很糟"的判决——它在描述的是一个深度内省的阶段：外在的推进在放缓，内在的重组在加速。种子破土之前有很长一段时间是在黑暗中向下扎根的，你现在要做的就是不要因为地面上的暂时沉寂而放弃浇水。`;
+    }
+    html += `</p>`;
+  }
+  html += `</div>`;
+
+  // ================================================================
+  // 二、元素能量解析
+  // ================================================================
+  if(total > 1) {
+    html += `<div class="synthesis"><h3>🔥💧⚔️🪙 二、元素能量深度解析</h3>`;
+    html += `<p>在塔罗体系的四元素理论中，火、水、风、土分别对应人类经验的四个基本维度——火元素（权杖）关联行动力、创造力与生命热情；水元素（圣杯）统摄情感、直觉与人际关系；风元素（宝剑）掌管思维、沟通与理性判断；土元素（星币）涵盖物质、健康与安全根基。通过对此次牌面中四元素的分布进行分析，可以清晰地识别出你当前能量投入的重心所在，以及哪些维度可能需要被重新唤醒。</p>`;
+
+    html += `<ul>`;
+
+    if(elemCount.major > 0) {
+      html += `<li><strong>🌟 第五元素·精神/大阿尔卡纳（${elemCount.major}张）：</strong>在四元素之外，大阿尔卡纳代表着统摄万物的"第五元素"——精神（Spirit/Ether）。它不是火水风土中的任何一个，却含纳了它们全部。大牌的出现是超越元素的——它意味着在你当下的人生叙事中，有一个超越了物质和情感层面的"元叙事"正在展开。这是一条灵魂主线的浮现。在接下来的日子中，当你面对任何具体的选择时，不妨问自己：这个选择是否在服务于我的灵魂主线？</li>`;
+    }
+
+    if(elemCount.wands > 0) {
+      const pct = Math.round(elemCount.wands/total*100);
+      html += `<li><strong>🔥 火元素·权杖（${elemCount.wands}张，占${pct}%）：</strong>火是行动、是热情、是那股推动你从"想"到"做"的原始驱力。权杖牌组关联着你的事业、创造力、冒险精神，以及你对生命本身的热忱。`;
+      if(elemCount.wands >= total*0.4) {
+        html += `<br><br>火元素在这次牌面中熊熊燃烧，占据了主导地位。这意味着你正处于一个动能极为充沛的时期——也许你的日程表排得满满当当，也许你的大脑里塞满了各种新想法和新计划。这是一种珍贵的"点火期"，但火元素的阴影面也值得警惕：燃烧过快会耗尽燃料，热情过头会变成焦躁。请在积极行动的同时，定期检查自己是否还带着觉知在行动，还是已经陷入了机械的"做做做"模式。火是用来照亮和温暖的，不是用来吞噬一切的。给自己留一点空白的时间——哪怕每天十分钟——让火焰在可控的范围内持续燃烧，而非一次性燃尽。`;
+      }
+      html += `</li>`;
+    }
+
+    if(elemCount.cups > 0) {
+      const pct = Math.round(elemCount.cups/total*100);
+      html += `<li><strong>💧 水元素·圣杯（${elemCount.cups}张，占${pct}%）：</strong>水是情感、是直觉、是流动的爱与被爱的体验。圣杯牌组关联着你的人际关系、内在感受、艺术灵感，以及你与你自己内心世界的连接品质。`;
+      if(elemCount.cups >= total*0.4) {
+        html += `<br><br>水元素如此充沛，说明你的心湖此刻正处于活跃时期——或波澜壮阔，或暗流涌动。你可能是高度敏感且富有同理心的，能够感知到他人微妙的情绪变化，也能深深地沉浸在自己的情感世界之中。这种敏感度是天赋，也是挑战。水能容纳万物，却也可能在暴雨中泛滥成灾。请学会在保持敏感的同时，也建立自己的情感堤坝——你的感受是重要的信使，但你不必让每一个信使都住进你的客厅。瑜伽、冥想、艺术创作，以及与能够理解你的人的真诚交流，都是疏导丰沛水元素的美好方式。`;
+      }
+      html += `</li>`;
+    }
+
+    if(elemCount.swords > 0) {
+      const pct = Math.round(elemCount.swords/total*100);
+      html += `<li><strong>⚔️ 风元素·宝剑（${elemCount.swords}张，占${pct}%）：</strong>风是思维、是沟通、是锋利的理性分析。宝剑牌组关联着你的决策、言语、逻辑判断，以及你在必要时为自己和真理挺身而出的勇气。`;
+      if(elemCount.swords >= total*0.4) {
+        html += `<br><br>宝剑的能量在此次牌面中格外突出——你的头脑此刻如同一台高速运转的处理器。你可能正在面临需要大量分析的局面，或者在脑海中反复推演着某个问题的各种可能性。这本身是力量，但宝剑牌组的阴影面众所周知：过度思考。当风元素过强时，头脑会变成一个无法停止的漩涡，将你卷入焦虑与失眠的深谷。请记得：宝剑是工具，不是主人。给它设定"工作时间"，到点就放下。身体需要睡眠来恢复，头脑同样需要"关机"来保持清明。运动、散步、或任何能将注意力从头脑转移到身体的练习，对你来说都是极为重要的平衡手段。`;
+      }
+      html += `</li>`;
+    }
+
+    if(elemCount.pentacles > 0) {
+      const pct = Math.round(elemCount.pentacles/total*100);
+      html += `<li><strong>🪙 土元素·星币（${elemCount.pentacles}张，占${pct}%）：</strong>土是物质、是身体、是所有可以触摸和度量的现实。星币牌组关联着你的金钱、工作、健康、居住环境，以及那些通过持续努力积累而来的成果。`;
+      if(elemCount.pentacles >= total*0.4) {
+        html += `<br><br>土元素浓厚扎实——金钱、事业或身体健康是你当前最关心的议题。这不是"俗气"——这是根基。一棵树如果根没有扎好，上面的枝叶都是空中楼阁。星币牌的集中出现表明你现在正处于一个重要的"筑基期"。请用工匠般的耐心对待手头的每一件事：把该签的文件核对清楚、把该做的体检约上、把财务好好地整理一遍。土元素的能量虽然不如火那样刺激、不像水那样浪漫、不比风那样轻盈——但它是最忠诚可靠的。你现在为根基投入的每一分精力，都将在未来以数倍的安全感和财富回报于你。只是别忘了：城堡需要窗户。不要因为埋头砌墙而忘了抬头看天。`;
+      }
+      html += `</li>`;
+    }
+
+    if(elemCount.wands === 0) html += `<li style="color:var(--text-dim)"><strong>🔥 火元素暂时缺席：</strong>权杖牌在此次牌面中处于缺席状态，提示行动力与内在热忱可能是当前需要被重新激活的领域。你可能正在经历一种"想做但难以启动"的动能迟滞。值得自省的一个问题是：你是否在等待一个完美时机，而那个时机可能并不存在？行动心理学的研究反复证实：启动往往先于准备就绪——许多事不是等完全准备好了才能开始，而是开始之后才逐渐进入状态。从一个极小的行动切入——整理一个抽屉、慢跑十分钟、发出一条你已斟酌许久的讯息——微小的火种也足以点燃整片原野。</li>`;
+    if(elemCount.cups === 0) html += `<li style="color:var(--text-dim)"><strong>💧 水元素暂时缺席：</strong>圣杯牌的缺位提示了一个值得关注的现象：情感与直觉的频道在当前阶段可能被你有意或无意地调低了。是否存在这样的倾向——将日程填满以回避独处时的情绪浮现？是否在用理性分析和效率追求来绕过那些可能让自己柔软下来的时刻？情绪不会因为被忽略而消失，它们会在无法被意识直接观测到的层面持续运作并影响行为。建议为自己建立常规的情感出口：写日记、听音乐、或与一位你信任的人进行不以"解决问题"为目的的纯粹交流。</li>`;
+    if(elemCount.swords === 0) html += `<li style="color:var(--text-dim)"><strong>⚔️ 风元素暂时缺席：</strong>宝剑牌的缺席暗示了一种可能的失衡——近期的注意力可能过多地投注在感受体验与行动执行上，而理性层面的系统梳理则被暂时搁置。你上一次坐下来，拿出一张纸，将一个问题从多个角度做结构性分析，是什么时候？清晰的思维不是情感的敌人——它是深度自我负责的体现。</li>`;
+    if(elemCount.pentacles === 0) html += `<li style="color:var(--text-dim)"><strong>🪙 土元素暂时缺席：</strong>星币牌的缺位提示：现实层面的根基建设在当前阶段可能被低估或搁置。精神探索与情感体验的价值毋庸置疑，但肉身的养护、财务的梳理、居住空间的整理同样不可偏废。关注实际生活并不会降低灵性的品质——恰恰相反，最深层的灵性洞见往往扎根于最平凡的日常实践之中。今天，请为自己做一顿饭、整理一处生活空间、或检视一次财务状况。这些行动本身，就是最朴素也最有效的修行。</li>`;
+
+    html += `</ul>`;
+
+    // 主导元素总结
+    if(dominantElement && dominantElement[1] > 0) {
+      html += `<p>整体而言，<strong>${dominantArcanaName}（${dominantElement[0]==='wands'?'火':dominantElement[0]==='cups'?'水':dominantElement[0]==='swords'?'风':'土'}元素）</strong>在此次解读中占据了最主要的能量份额。这意味着在当下的生命阶段，${dominantElement[0]==='wands'?'行动与创造是你最强大的语言':dominantElement[0]==='cups'?'情感与关系是你灵魂的主场':dominantElement[0]==='swords'?'思维与沟通是你的核心战场':'物质与实际的成就是你的主要关切'}。将主要的注意力放在这个领域，它会是你撬动整体运势的最佳支点。</p>`;
+    }
+
+    html += `</div>`;
+  }
+
+  // ================================================================
+  // 三、数字能量与灵数启示
+  // ================================================================
+  if(total > 1) {
+    const nums = cards.map(dc => dc.card.num).filter(Boolean);
+    const numSet = [...new Set(nums)];
+    if(numSet.length > 0) {
+      html += `<div class="synthesis"><h3>🔢 三、数字能量与灵数启示</h3>`;
+      html += `<p>塔罗牌面上的数字并非仅作为序号存在。在西方神秘学传统中，每个数字携带着独立的振动频率与原型意义——1为原初的创造意志，2为两极的张力与平衡，3为创生的展开与表达，依此类推。此次牌面中出现的数字构成了你当前能量场的"灵数指纹"，以下是对各数字振动在此次解读中具体呈现的分析：</p><ul>`;
+
+      numSet.forEach(num => {
+        const meaning = numMeanings[num] || '一种独特的数字振动，携带着只属于它的能量印记。';
+        const count = nums.filter(n => n === num).length;
+        html += `<li><strong>数字 ${num}</strong>（在此次牌面中出现 <strong>${count}</strong> 次）<br>${meaning}`;
+        if(count >= 3) {
+          html += `<br><br><em>数字${num}的能量在此次解读中被显著强化——出现了${count}次。当同一个数字的振动反复击打你的牌面时，宇宙其实是在用最直白的方式告诉你：请把注意力放在这个频率上。数字${num}所代表的品质——无论你当下感到它是你的天赋还是你的挑战——正是你目前灵魂成长的核心课题。</em>`;
+        } else if(count >= 2) {
+          html += `<br><br><em>数字${num}重复出现，如同一段旋律中的主音被敲了两次。它在提醒你：这个频率的能量正在加深。请在日常中留意与数字${num}相关的机缘——它可能以日期、时间、数量或其他形式在你的生活中反复闪现。</em>`;
+        }
+        html += `</li>`;
+      });
+
+      if(nums.length >= 2) {
+        html += `<li><strong>数字组合的整体共振：</strong>此次解读中所有${nums.length}张带数字的牌共同描绘了你的"数字气场"。不同数字之间的关系——相邻的、跨度的、互补的——反映了你生命内在的和谐与张力。请注意这些数字在牌阵位置中的排列顺序：如果它们呈现出递增的趋势（如3→5→7→9），意味着能量的渐进展开；如果数字之间跳跃较大（如2→8→18），则暗示着你可能需要跨越较大的内在距离来整合各个课题。你可以将这些数字放在一起冥想片刻——在静默中感受它们的振动在你身体中的回响。</li>`;
+      }
+      html += `</ul></div>`;
+    }
+  }
+
+  // ================================================================
+  // 四、牌面联动关系
+  // ================================================================
+  if(total >= 3) {
+    html += `<div class="synthesis"><h3>🔗 四、牌面之间——藏着的对话</h3>`;
+    html += `<p>${total}张牌并非${total}个孤立的符号——它们在同一牌阵中彼此对话，构成了一张立体的能量网络。部分牌面相互呼应、彼此加强，部分则形成张力、揭示内在矛盾。将牌面间的联动关系提取出来进行交叉分析，往往比逐张孤立的解读更具信息深度：</p><ul>`;
+
+    if(majorCount >= 2) {
+      const majorNames = majorCards.map(dc => `${dc.card.name}（${dc.card.en}）${dc.reversed?'逆':''}`).join(' 和 ');
+      html += `<li><strong>大阿尔卡纳共振：</strong>${majorNames}在同一牌阵中交汇。在塔罗解读实践中，两张大阿尔卡纳同时现身并非偶然——它们共同标记出一条贯穿你当前生命阶段的叙事主线。将这两张牌的原型主题并置阅读，你获得的将不是两个独立讯息，而是一个更为完整和立体的命运图景。</li>`;
+    }
+
+    const numGroups = {};
+    cards.forEach(dc => {
+      const n = dc.card.num;
+      if(n && n !== 'Ace' && n !== 'Page' && n !== 'Knight' && n !== 'Queen' && n !== 'King') {
+        if(!numGroups[n]) numGroups[n] = [];
+        numGroups[n].push(dc);
+      }
+    });
+    Object.entries(numGroups).forEach(([num, group]) => {
+      if(group.length >= 2) {
+        html += `<li><strong>数字${num}的跨牌组重复：</strong>${group.map(dc => `${dc.card.name}（${getArcanaName(dc.card.arcana)}·${dc.card.en}）`).join(' 和 ')}——分属不同牌组却共享数字${num}的振动频率。这一现象提示：同一个核心主题正在你生活的不同领域中以不同的形式显现。通过对比这两张牌在各自牌阵位置中的语境，可以拼合出这个主题更为完整的全貌。</li>`;
+      }
+    });
+
+    // 元素两两互动分析
+    const presentElements = Object.entries(elemCount).filter(([k,v]) => k !== 'major' && v > 0);
+    if(presentElements.length >= 2) {
+      html += `<li><strong>元素间的交互效应：</strong>`;
+      const elemNames = presentElements.map(([k]) => k==='wands'?'🔥火':k==='cups'?'💧水':k==='swords'?'⚔️风':'🪙土').join('、');
+      html += `${elemNames}在此次牌面中同时在场，不同元素的组合产生特定的交互效应。`;
+      if(elemCount.wands > 0 && elemCount.cups > 0) html += `火元素与水元素并存——行动驱力与情感体验同时活跃。二者协调时可实现"既有执行力又有温度"的理想状态；失衡时则表现为冲动淹没感受，或情绪消解行动力。当前阶段的关键在于：不使一方吞噬另一方，在两者之间建立动态平衡。`;
+      if(elemCount.swords > 0 && elemCount.pentacles > 0) html += `风元素与土元素并存——思维分析与现实落地同时在场。风提供判断与策略，土将可行性付诸实践。二者配合得当即为"谋定而后动"；分离则导致空想不落地或行动缺方向。请确保每一个重要决策都经过了思考与可行性的双重检验。`;
+      if(elemCount.wands > 0 && elemCount.swords > 0) html += `火元素与风元素并存——行动与思维相互催化。风助火势，思维驱动行动；火赋予风方向，行动检验思考。在适当的节奏控制下，此组合具有极强的推进效力；唯一需留意的是速度过快可能导致后劲不足。`;
+      if(elemCount.cups > 0 && elemCount.pentacles > 0) html += `水元素与土元素并存——情感与安全根基相互滋养。这是四元素组合中最为稳定的一对：水润土使根基更深，土涵水使情感不泛滥。二者共同指向了一个核心议题：你所渴望的踏实与温暖，需要通过情感上的真实连接与物质上的务实经营来共同构建。`;
+      html += `</li>`;
+    }
+
+    // 正逆位互动深度
+    if(reversedCount > 0 && reversedCount < total) {
+      html += `<li><strong>正逆位混合分布：</strong>${total-reversedCount}张正位，${reversedCount}张逆位。正位与逆位并存的格局，呈现的是一个真实的能量图景——任何生命阶段都同时包含顺畅与阻滞的面向。建议将逆位牌按其在牌阵中的位置做分类解读：位于"过去"位置者，指向尚未完全处理的历史因素；位于"未来"或"结果"位置者，提示的是通往目标之前需要先跨越的关卡，而非结果的否定。</li>`;
+    }
+
+    html += `</ul></div>`;
+  }
+
+  // ================================================================
+  // 五、牌阵专项深度分析
+  // ================================================================
+  html += `<div class="synthesis"><h3>📐 五、关于${spread.name}</h3>`;
+
+  switch(spread.name) {
+    case '单张指引':
+      const s = cards[0];
+      html += `<p>单张牌阵的优势在于聚焦——不需要在牌与牌之间建立复杂的关联，宇宙的讯息被浓缩至——<strong>${s.card.name}</strong>这一张牌中。在塔罗解读传统中，单张牌往往是最直接也最不易被误读的指引方式。</p>`;
+      html += `<p>建议在接下来的一周中，每天用一到两分钟在脑海中回观这张牌。不需要刻意分析其"含义"，仅需让它作为一幅内在图像安静地存在于意识背景中。同一张牌面，在不同日期、不同心境下的回响会有微妙差异——正是这种随着时间展开的多层体会，构成了单张牌阵真正的解读深度。持续品味，比一次性穷尽其意义更为有效。</p>`;
+      break;
+
+    case '三牌之阵':
+      html += `<p>过去→现在→未来，三张牌构成一条时间轴。这条时间线并非固定的宿命轨迹——你当下所做的每一个选择，都有力量改写未来牌所指的方向。</p>`;
+      html += `<p><strong>第一步——溯源因果：</strong>将"过去"与"现在"两张牌并置对照。二者之间是否存在清晰的因果链？是否能识别出过去的某个决定或经历直接塑造了当前的格局？若线索一目了然，说明你对自己这段历程已有清醒的认知；若两张牌之间似乎难以衔接，则暗示着某些过往因素尚未被你完全消化与整合。</p>`;
+      html += `<p><strong>第二步——聚焦当下：</strong>三张牌中，"现在"牌承载着最高的实践权重，因为它是唯一一个你能够直接干预的时间节点。若"未来"牌呈现的是你所期望的方向——加强当前的势能，使其持续向前推进。若"未来"牌的讯息令你感到不安——无需恐慌，它标记的是一个可以通过调整"现在"而改变的趋势，而非被锁定的终局。</p>`;
+      html += `<p><strong>第三步——整体审视：</strong>三张牌是否呈现出一致的内在逻辑（相似的元素属性、相近的数字振动），还是各自指向不同的维度？前者意味着你当前阶段有一条清晰的主线贯穿，应顺势而为；后者则表明你正处于过渡整合期——多个方向同时在场，尚未收敛至单一轨道。两种状态各有其阶段性意义，不存在优劣之分。</p>`;
+      break;
+
+    case '凯尔特十字':
+      html += `<p>凯尔特十字是塔罗体系中最具系统性的牌阵，十张牌构成了一套完整的分析结构。信息密度高，建议分层次阅读而非一次性全部消化。</p>`;
+      html += `<p><strong>纵轴（第1张·第3张·第5张）：</strong>第1张是你所处的位置，第3张指向根源，第5张标识可能抵达的高度。这三张构成了"根基→现状→潜能"的纵向轴线。审视根基与方向之间是否协调一致——若存在断裂，则卡点往往正位于此纵轴之上。</p>`;
+      html += `<p><strong>横轴（第4张·第1张·第6张）：</strong>左侧为近期过去，右侧为临近未来，第1张居中作为当下的支点。横轴揭示的是时间线层面的连续性——过去的事件是否已被整合与释放？近未来的趋势是否已做好了应对准备？</p>`;
+      html += `<p><strong>外圈三角（第7张·第8张·第9张）：</strong>自我认知、外部环境的投射、内心的希望与恐惧——这三个位置构成了一个关于"自我与世界关系"的三角分析框架。三张牌并置阅读，往往能精准地揭示出你与外界之间的认知落差。自我评价与环境反馈之间的差异，正是值得深度反思的切入点。</p>`;
+      html += `<p><strong>第10张·最终结果：</strong>这不是判决书，而是当前趋势下的可能性收敛。它描述的是：若你沿着现有轨迹继续前行，能量将自然汇聚至此。若对此方向不完全满意，前九张牌中已包含了可调整的线索——改变任何一张牌位的能量输入，都会对整个系统的输出产生影响。</p>`;
+      break;
+
+    case '马蹄铁阵':
+      html += `<p>马蹄铁牌阵以七张牌排列成弧线结构，模拟了事件从过去到未来的自然发展曲线。每一张牌都是弧线上的一个关键节点。</p>`;
+      html += `<p><strong>第3张——隐藏影响：</strong>马蹄铁阵中最关键的位置。它揭示的是提问者尚未觉察却正在起作用的因素——可能是一段被你遗漏的关键信息，一个被压抑在潜意识中的情绪，或是他人未向你透露的变量。将此牌理解透彻，许多此前在逻辑上无法解释的矛盾往往会豁然贯通。</p>`;
+      html += `<p><strong>第4张与第6张——障碍与建议的对位：</strong>一张标识挑战，一张提供行动建议。在马蹄铁的结构中，这两张牌具有内在的对偶关系——解决方案常常已经暗含在障碍的定义之中。仔细审视建议牌是否恰好在回应障碍牌所揭示的问题本质，答案往往就在这里。</p>`;
+      html += `<p><strong>弧线全览：</strong>从第1张到第7张，沿弧线依次审阅。留意牌面能量在弧线中段是否出现突然的调性转变——那个转折点正是你当前最值得投放注意力的节点，它往往是整个事态发展的关键枢纽。</p>`;
+      break;
+
+    case '关系之镜':
+      html += `<p>关系之镜的设计目标是以客观结构揭示两个人的真实互动模式——它呈现的是"实际如何"，而非"应该如何"。这是五张牌阵中最具关系洞察力的布局。</p>`;
+      html += `<p><strong>你（第1张）与TA（第2张）的并置对照：</strong>两张牌平行阅读。相似性高意味着双方在同一能量频率上运作，共鸣是关系的基础。差异性显著则提示：你们很可能正是被彼此的"不同"所吸引——这种差异既是吸引力的来源，也是冲突的潜在根源。差异本身并非问题，对差异的无视或否认才是。</p>`;
+      html += `<p><strong>关系本质（第3张）：</strong>这张牌定义的是这段关系的底层功能——它是来促成共同成长的，是来完成未竟业力的，是提供阶段性陪伴的，还是具有长期发展潜力的。在塔罗解读实践中，第3张揭示的往往正是提问者在内心深处早已隐约感知、却尚未愿意完全面对的那个答案。</p>`;
+      html += `<p><strong>第4张到第5张——从挑战到未来：</strong>当前面临的挑战（第4张），正是通往关系未来（第5张）的必经之门。回避这个关口，关系将停留在现有阶段；共同穿越它，关系才会进入下一个层面的发展。两张牌之间构成了一条明确的成长路径。</p>`;
+      break;
+  }
+  html += `</div>`;
+
+  // ================================================================
+  // 六、心境共鸣
+  // ================================================================
+  if(state.mood || state.question) {
+    html += `<div class="synthesis"><h3>💫 六、你的心境与这次解读</h3>`;
+
+    if(state.question) {
+      html += `<p>你在抽牌前提出的问题是：<em>"${escapeHtml(state.question)}"</em>。建议带着这个问题重新审视上文中每一张牌的解读——哪张牌正在以它特有的方式回应你的提问？哪一句解读直接触及了你内心深处最敏感的节点？在塔罗解读实践中有一个被反复验证的规律：牌面有时并不直接回答你提出的问题，而是回答你在这个阶段真正需要被告知的事情。两个答案可能指向不同的方向，但都具有其特定的参考价值。</p>`;
+    }
+
+    if(state.mood) {
+      html += `<p>你抽牌时处于<strong>${getMoodLabel(state.mood)}</strong>的状态。在塔罗解读中，提问者的心境是重要的解读变量——同样的牌面，在不同心境状态下会呈现出截然不同的意义面向。焦虑者眼中的"高塔"与平静者眼中的"高塔"，指向的可能是完全不同的讯息。以下是针对你当前心境的专门分析：</p>`;
+      const moodAdvice = {
+        confused: `<p>迷茫不是迷失——迷茫恰恰是觉察开始的第一个信号。只有当你从"自动驾驶"中醒来，你才会意识到自己并不确定方向。困惑是一张空白的画布，而塔罗刚刚为这张画布涂上了最初的轮廓。请不必急于"完全弄懂一切"。有些真理需要在你带着今天的牌面讯息去生活几天之后，才会以一种"原来如此"的恍然大悟浮现出来。困惑时最适合的练习是：把牌面中让你最有共鸣的一句解读写在手机备忘录里，接下来的三天里，每天看一遍。你会看见那句文字在你生命中不同场景下的不同映照。困惑是智慧的产道——请给自己一点时间。</p>`,
+        anxious: `<p>焦虑的本质不是"情况很糟"，而是"我不确定自己能否掌控"。它是对不确定性的恐惧，而非对事实的确认。当你在焦虑中抽取塔罗牌时，请注意到：这些牌面以图像和文字的形式，为你的不确定性提供了一个暂时的"容器"。它们并不是在预测灾难——事实上，如果你仔细再看一遍牌面，你可能会发现：许多让你害怕的东西其实只是可能性，而非必然性。塔罗对焦虑最温柔的回应是：把"无限的可能"——那正是焦虑的来源——重新框定为一个有线索、有方向的可导航地图。焦虑时最适合做的：把注意力从"万一发生什么"转向"此刻我能做的一小步"。牌面中的行动建议部分（第七节）为你准备了具体的方向。</p>`,
+        hopeful: `<p>你带着希望而来——希望不是盲目的乐观，而是内心深处对光明的坚定信任。这是一种珍贵的振动频率。在塔罗的传统中，希望是一种强大的显化力量：当你以希望为底色来接收牌面的讯息时，你实际上是在为这些讯息的实现打开最宽阔的通道。牌面中那些美好的预兆，会因为你的希望而更容易被实现；牌面中那些提醒和警告，也会因为你的希望而被转化——你不会被它们吓倒，而是将它们视为前进路上的普通路标。保持这份希望，它不只是情绪的装饰，而是实实在在地参与了你的命运塑造。</p>`,
+        calm: `<p>平心静气是你带给这次解读的最好礼物。在宁静中，牌面的每一条讯息都更清晰，每一个细微的提示都更响亮。你此刻的状态就像一片平静的湖面——牌面如同投下的石子，涟漪将一圈一圈地在你心中扩散很久。平静状态下的塔罗解读往往最为精准，因为你没有在"抗拒"任何讯息，也没有在"过度索取"任何答案。你只是在聆听。请保持这种状态，让牌面的话语自然地渗入你的内在。你可能不需要大动干戈地"做什么"——在平静中酝酿的洞见，其力量胜过在焦虑中逼迫出的行动。</p>`,
+        determined: `<p>坚定的意志是强大的、令人尊敬的。你的决心本身就值得塔罗的认真回应。但同时，也请留意塔罗牌面中那些温柔的建议——它们不是要削弱你的决心，而是要帮你的决心找到最好的土壤和方向。有些事适合迎着强风冲刺，有些事则适合顺水推舟。塔罗的智慧在于帮你分辨：哪些部分需要你坚如磐石地推进，哪些部分则可能需要你柔软地迂回。坚定不等于僵硬——最强大的大树在风中也会弯曲，它们的根在风暴后才更牢固。请将牌面解读作为一个"战略地图"来使用：你已经是出征的将军，塔罗则是你的侦察兵和参谋。</p>`,
+        broken: `<p>心碎来临的时候，语言似乎都变得苍白。我不想对你说"一切都会好起来的"——那些话在此刻可能毫无作用。但我想说：塔罗看见了你的碎裂，并把它容纳进了整个牌阵之中。在塔罗的世界里，"死神"牌并不代表终结而是转化，"高塔"的崩塌是为了重建，"星星"的疗愈永远紧随在风暴之后。你此刻抽到的牌面中，也许有些在回应你的伤痛，有些则在为你指出伤痛之外的方向。请以最温柔的方式对待自己——现在不是强迫自己"振作起来"的时刻。允许自己悲伤，允许自己慢慢来。当你准备好的时候（哪怕现在还不是此刻），牌面中的指引会在那里等你。疗愈有它自己的时间表，不需要被你催促。</p>`,
+        curious: `<p>好奇心是灵魂的探测器——它驱使你来到塔罗面前，驱使你追问生命更多可能的面貌。这是一种珍贵且需要被呵护的品质。在此次解读中，请让你的好奇心不仅停留在"答案是什么"的层面，而是继续深入追问：<em>为什么这个答案会触动我？我的反应本身透露了什么关于我的信息？</em>好奇心如果只停留在外部事件上，会让人成为信息的囤积者；好奇心转向内在时，则会让人成为智慧的拥有者。塔罗对你而言，不仅是了解未来的窗口，更是一面让你看见自己的镜子。在这面镜子前，保持你的好奇——但把它对准你自己。</p>`,
+        grateful: `<p>感恩是宇宙中最强大的能量放大器。你怀着感谢之心而来——无论你是感谢已经拥有的，还是感谢即将到来的——这本身就已经在牌面之外，为你创造了一个积极的能量场。感恩不是消极的满足，而是一种主动的频率选择：你把注意力放在了丰盛而非匮乏上，放在了可能性而非限制上。在这种状态下接收的塔罗讯息，其准确性和启发性会被显著增强。牌面中那些关于收获、圆满、丰盛的信息，会因为你的感恩之心而更容易被生命接收和放大。感谢你带着这样的心境坐在牌前。</p>`
+      };
+      html += moodAdvice[state.mood] || '';
+    }
+    html += `</div>`;
+  }
+
+  // ================================================================
+  // 七、行动指引
+  // ================================================================
+  html += `<div class="synthesis"><h3>🗺️ 七、你可以做的事</h3>`;
+  html += `<p>以上分析提供了多个层面的洞察。以下是基于牌面能量推导出的具体行动建议——选择其中最能与你当前状态产生共鸣的一条开始执行。在塔罗实践中，哪怕仅落实一个行动，其实际效用也远超浏览全部信息而不做任何改变。</p>`;
+
+  const actionAdvice = generateActionAdvice();
+  html += `<div style="background:rgba(201,168,76,0.05);border-radius:10px;padding:20px;margin:16px 0;">
+    <p style="font-size:1.05em;"><strong>🌱 第一步行动（从现在起48小时内可做）：</strong></p>
+    <p>${actionAdvice.action}</p>
+    <p style="margin-top:10px;color:var(--text-dim);font-size:0.85em;">塔罗传统认为，解读之后48小时内的第一个具体行动，其重要性远超其后任何宏大的计划——因为它打破的是"想"与"做"之间最坚硬的冰层。</p>
+  </div>`;
+
+  html += `<div style="background:rgba(192,80,80,0.05);border-radius:10px;padding:20px;margin:16px 0;">
+    <p style="font-size:1.05em;"><strong>⚠️ 预警信号——值得警惕的陷阱：</strong></p>
+    <p>${actionAdvice.caution}</p>
+    <p style="margin-top:10px;color:var(--text-dim);font-size:0.85em;">塔罗的警告并非对厄运的预言，而是对盲点的善意标注。被标注的陷阱，已经失去了一半的威力。</p>
+  </div>`;
+
+  html += `<div style="background:rgba(107,63,160,0.08);border-radius:10px;padding:20px;margin:16px 0;">
+    <p style="font-size:1.05em;"><strong>💎 力量宣言——你的每日默念词：</strong></p>
+    <p style="font-family:Georgia,serif;font-style:italic;color:var(--gold-light);">${actionAdvice.affirmation}</p>
+    <p style="margin-top:10px;color:var(--text-dim);font-size:0.85em;">在每天的清晨或睡前，将这段话对自己念一遍。坚持21天。大脑的神经回路会随着重复而被重新塑造——这不仅是心理学，更是神经科学。这些话语将成为你新的内在程序的源代码。</p>
+  </div>`;
+
+  html += `<p>塔罗对行动的核心原则是：<strong>不要试图同时推进所有方向</strong>。在上述建议中，请优先选择最能与当下状态产生共鸣的那一条。其余暂且搁置。当第一个行动内化为习惯之后，再考虑叠加下一个。真正的成长遵循复利曲线——它不是一场冲刺，而是一段需要耐心与持续投入的长程演化。</p>`;
+  html += `</div>`;
+
+  // ================================================================
+  // 八、时间与周期
+  // ================================================================
+  html += `<div class="synthesis"><h3>⏳ 八、时间感——事情的节奏</h3>`;
+  const timingAnalysis = generateTimingAnalysis();
+  html += `<p>${timingAnalysis.baseTiming}</p>`;
+  if(timingAnalysis.extraInsight) {
+    html += `<p>${timingAnalysis.extraInsight}</p>`;
+  }
+  if(timingAnalysis.specificCardTiming) {
+    html += `<p>${timingAnalysis.specificCardTiming}</p>`;
+  }
+  html += `<p style="margin-top:12px;color:var(--text-dim);font-size:0.9em;">需要说明的是：牌面提供的是一个基于元素振动的时间框架，而非精确的日程表。该推进的事务请继续推进，该等待的周期请耐心等待。正如种子在土壤中的发芽阶段——地表之上看似一片沉寂，地表之下却正发生着最为剧烈的生长。最深刻的转变，往往发生在尚不能被肉眼观测到的阶段。</p>`;
+  html += `</div>`;
+
+  // ================================================================
+  // 九、灵性成长维度
+  // ================================================================
+  html += `<div class="synthesis"><h3>🌌 九、灵魂课题——你正在经历的成长主题</h3>`;
+  html += generateSpiritualInsight();
+  html += `</div>`;
+
+  // ================================================================
+  // 十、总体寄语
+  // ================================================================
+  html += `<div class="synthesis"><h3>✨ 十、总结</h3>`;
+  html += generateFinalMessage();
+  html += `</div>`;
+
+  return html;
+}
+
+// ---- 辅助函数：行动建议 ----
+function generateActionAdvice() {
+  const cards = state.drawnCards;
+  const majorCards = cards.filter(dc => dc.card.arcana === 'major');
+  const reversedCards = cards.filter(dc => dc.reversed);
+
+  let action = '', caution = '', affirmation = '';
+
+  const superPositive = cards.find(dc => !dc.reversed && [19,17,21,14,9].includes(dc.card.id));
+  const challenging = cards.find(dc => [16,13,15,18,12].includes(dc.card.id));
+  const actionCard = cards.find(dc => !dc.reversed && [1,7,22,28,32,33,61].includes(dc.card.id));
+  const introspectCard = cards.find(dc => !dc.reversed && [2,9,14,17,39,53].includes(dc.card.id));
+
+  if(actionCard) {
+    action = `<strong>${actionCard.card.name}</strong>的能量充盈着你的牌面——它在明确地催促你：行动的时刻到了。塔罗哲学中有句话："当牌面给出了行动的信号，每一次犹豫都是在消耗运势的动能。"你已经具备了行动所需的内在资源和外部条件（即使你觉得自己还没完全准备好）。在未来48小时内，请至少做出一个具体的、哪怕微小的行动——发出那条你反复修改了十遍的消息、点下那个你犹豫了两个月的"提交"按钮、或者只是穿上跑鞋走出家门。这个行动的意义不在于它本身的大小，而在于它将打破"想"与"做"之间的那层薄膜。一旦薄膜破了，整个能量的河流就会开始流动。`;
+  } else if(introspectCard) {
+    action = `<strong>${introspectCard.card.name}</strong>的存在温柔地拉了拉你的衣袖——它说：此刻不是向外冲刺的时刻，而是向内沉潜的季节。在一切让你感到"应该去做点什么"的外在噪音中，塔罗给了你一个逆向的建议：停下来。具体而言，请在未来的三天中安排一段不被任何人打扰的独处时光——可以是清晨的一杯茶、黄昏的一段散步、或者夜晚的十分钟冥想。不为了"思考解决方案"，只是为了"让内在的智慧有机会浮出水面"。很多时候，我们最需要的不是更多的信息和分析，而是一个能让答案从内心深处浮现出来的安静空间。`;
+  } else if(superPositive) {
+    action = `<strong>${superPositive.card.name}</strong>是塔罗中最受祝福的牌面之一——它的出现标志着一段宇宙能量高度支持你的窗口期。你可以把这段时间理解为"顺风期"：同样的努力，在顺风期会比在逆风期走得更远。请大胆迈步——去申请那个职位、去表达那份心意、去启动那个计划。不要因为过度的谨慎而错过了宇宙为你铺平的道路。当然，行动的同时请带着觉知——顺风期不是"盲目期"。你仍然需要判断方向，只是不需要过多等待。`;
+  } else if(reversedCards.length >= 2) {
+    action = `逆位牌集中出现，这通常意味着一个重要的"内在清理期"已经来临。此时的行动方向不是向外的扩张，而是向内的整理。请拿出一支笔和一张纸，针对那${reversedCards.length}张逆位牌各自对应的生活领域，分别写下：<em>"在这个领域里，我感到卡住的是什么？如果有一件事是我可以放下的，那会是什么？"</em>不要编辑，不要评判，只是写。写完之后，把纸折叠起来放在枕头下。这个简单的仪式会启动你潜意识的处理程序——很多时候，答案不是在写的时候出现的，而是在写完之后的某个不经意的瞬间浮现的。`;
+  } else {
+    action = `请在这${cards.length}张牌中挑选一张——不一定是能量最强的，而是最触动你心弦的——将它写在一张便签上，贴在你这几天一定会看到的地方（浴室镜子、电脑屏幕边、冰箱门）。在接下来的七天里，每天经过它的时候，花三秒钟在心里重复它的核心关键词。这个微小的仪式会在你的潜意识中编织出新的神经联结。塔罗的智慧不是一次性领悟的——它需要时间的渗透，如同雨水慢慢浸润土壤。让这张牌成为你接下来一周的安静伴侣。`;
+  }
+
+  if(challenging && !challenging.reversed) {
+    caution = `牌面中的<strong>${challenging.card.name}</strong>以正位出现——它的挑战能量是直接的、不容回避的。请特别留意：这张牌并非在预告灾难，而是在揭示一个<em>即将发生的转变</em>。当${challenging.card.name}的能量活跃时，最大的危险不是变化本身，而是你对变化的抗拒。紧紧抓住一件正在碎掉的东西，只会让手受伤。如果你感觉生活中某个部分似乎正在走向结束或崩塌——请至少在内心开始练习"放手"的动作。你不需要立刻完全放下，但可以开始松动你的握紧。有时候，放手不是输，而是你终于有勇气腾出双手去接住更好的礼物。`;
+  } else if(challenging && challenging.reversed) {
+    caution = `<strong>${challenging.card.name}</strong>以逆位出现——这是一个非常特殊的信号。正位的挑战牌通常代表"外在的变化正在发生"，而逆位则常常意味着"内在正在疯狂地抗拒一个早该发生的转变"。这张牌在逆位时向你提出了一个深刻的问题：<em>你在害怕失去什么？如果你害怕失去的那个东西真的消失了，你会成为什么样的人？</em>有时候我们发现：我们并非害怕改变，而是害怕改变之后、没有了旧的束缚时，我们必须面对的那个更自由但也更需要承担责任的自己。`;
+  } else if(reversedCards.length >= 2) {
+    caution = `多个领域的逆位能量正在同时运作——这是过度用力的典型预警。当多个方面都需要关注时，最常见的错误是试图同时解决所有问题，结果每个地方都只分到了百分之二十的精力。请选择一个领域——可以是让你感觉最沉重的、也可以是最容易突破的——将你80%的注意力聚焦于此。其他方面暂时只做"维持"，不要强求推进。当你理顺了一个节点，整个网络往往会产生连锁的松动效应。这是一个被无数心理学研究所验证的策略：集中突破远胜于四处出击。`;
+  } else {
+    caution = `能量流畅的时期，最具隐蔽性的风险是一个看似无害的心理惯性：<strong>想当然</strong>。顺境之中人最容易忽略一个事实——水能载舟，亦能覆舟。当下的顺畅并非偶然降临的运气，而是你在特定频率上持续积累的自然呈现。请带着觉知与感恩来运转这段窗口期。不要因为局面顺利就松懈了内在的审视。每日的感恩练习——即便只是记录三件具体的小事——会帮助你将这份顺畅从"暂时的运势"固化为"持续的内在习惯"。`;
+  }
+
+  // 构建宣言
+  if(superPositive) {
+    affirmation = `"宇宙正以我能感知的方式支持着我。我敞开双臂接受祝福，也用这祝福去照亮身边的每一个人。丰盛与我是一体的。"`;
+  } else if(majorCards.length >= 2) {
+    affirmation = `"我正在经历一场灵魂深处的伟大蜕变。过程中的每一份感受——无论是轻松的还是沉重的——都是我内在成长的珍贵养分。我信任这场蜕变的进程，也信任我有能力穿越其中的每一个阶段。"`;
+  } else if(majorCards.length === 1) {
+    affirmation = `"我的生命正围绕着一个核心的主题展开。我允许这个主题以它独有的节奏和方式呈现，我不催促它，也不逃避它。我以觉知之心参与其中，以勇敢之心面对它带来的每一个功课。"`;
+  } else {
+    affirmation = `"我信任生命自然的节奏。每一个当下——无论看起来多平凡——都蕴藏着我成长所需的沃土。我一步一个脚印，不疾不徐，走在通向更完整自己的道路上。"`;
+  }
+
+  const numCard = cards.find(dc => dc.card.num === 'I' || dc.card.num === '1' || dc.card.num === '0');
+  if(numCard) affirmation += `"一个全新的篇章正在我生命中展开。过去的定义和标签不再能限制我——每一个此刻都是重新开始的契机。"`;
+
+  const worldCard = cards.find(dc => dc.card.id === 21);
+  if(worldCard) affirmation += `"我怀着深深的感恩，庆祝我已经走过的所有旅程。每一个终点都是对新起点的祝福。我准备好了。"`;
+
+  const starCard = cards.find(dc => dc.card.id === 17);
+  if(starCard) affirmation += `"我感到内在的光芒正从每一个裂缝中透出。疗愈正在发生，希望从未离开。"`;
+
+  return { action, caution, affirmation };
+}
+
+// ---- 辅助函数：时间周期分析 ----
+function generateTimingAnalysis() {
+  const cards = state.drawnCards;
+  const total = cards.length;
+  const wands = cards.filter(dc => dc.card.arcana === 'wands').length;
+  const swords = cards.filter(dc => dc.card.arcana === 'swords').length;
+  const cups = cards.filter(dc => dc.card.arcana === 'cups').length;
+  const pentacles = cards.filter(dc => dc.card.arcana === 'pentacles').length;
+
+  let baseTiming = '', extraInsight = '', specificCardTiming = '';
+
+  if(wands > swords && wands > cups && wands > pentacles) {
+    baseTiming = `火元素（权杖）在此次牌面中占据主导——火的节奏是"周"。这意味着相关的关键事件和变化很可能在<strong>1至4周内</strong>显现。火象能量是四种元素中最快速的，它不喜欢拖延。如果你希望加速事情的进展，现在就是最好的行动窗口——火的振动天然支持着"开始"和"推进"的能量。但请同时注意：火来得快去得也快，在积极行动的同时，也要确保你的"燃料"（精力、热情、资源）足以支撑你跑到第一个里程碑。给火焰规律地添加燃料——规律作息、小步快跑——比一次性燃烧殆尽要好得多。`;
+  } else if(swords > wands && swords > cups && swords > pentacles) {
+    baseTiming = `风元素（宝剑）的能量主导着牌面，风的速度甚至比火更快——相关事件可能在<strong>数天到两周内</strong>突然出现。宝剑的时间感是"刹那间"的：一个突然的消息、一次意想不到的对话、一个瞬间的顿悟。请保持警觉和弹性——风象变化不给你太多准备时间，但它的好处是干脆利落，不拖泥带水。同时也要注意：风来得快去得也快，确定你抓住的是真正重要的转折，而非一时的波澜。当风吹过的时候，问自己：这是需要我做决定的时刻，还是需要我以静制动的时刻？`;
+  } else if(cups > wands && cups > swords && cups > pentacles) {
+    baseTiming = `水元素（圣杯）的能量主导牌面，水的节奏是"月"——情感和关系的变化以<strong>一至三个月</strong>为自然周期。不要催促。水有自己的流动韵律：试图让河水加速是徒劳的。关系需要时间来建立信任，情感需要时间来沉淀和澄清——这都不是可以"快速搞定"的事。在等待期间，你可以做的最好的事是将注意力从"结果什么时候来"转移到"我此刻的感受在告诉我什么"。水象时间虽然慢，但它的成果是渗透到根部的——一旦转变发生，它就是深刻而持久的。`;
+  } else if(pentacles > wands && pentacles > swords && pentacles > cups) {
+    baseTiming = `土元素（星币）主导牌面——土的节奏是"季"和"年"。相关的转变可能需要<strong>数月甚至更长</strong>的时间来完全显现。这听起来也许让人有些泄气，但请将视角拉长：土象的能量回报是所有元素中最持久和最稳固的。其他元素的成果可能来得快也去得快，但土元素的成果如同盖房子——一旦建好，它会为你遮风挡雨许多年。如果你问的是事业或财务问题，请做好长期耕耘的心理准备。并非事情发展缓慢，而是它在以一种扎实到不可能被轻易动摇的方式在增长。`;
+  } else {
+    baseTiming = `牌面中各元素的分布较为均衡，暗示事情将以一个<strong>自然、不疾不徐的混合节奏</strong>展开。有些面向的变化可能在几周内就会显现（偏向火/风的牌位），而有些则可能需要几个月的酝酿（偏向水/土的牌位）。这种多元的时间线其实是一种祝福——它让你不会同时面对所有的转变，而是分批、有序地体验每一阶段。请你留意不同牌阵位置中所属的元素，将它们各自的时间感标注在心里，为自己绘制一张"个人时间地图"。`;
+  }
+
+  const majorCount = cards.filter(dc => dc.card.arcana === 'major').length;
+  if(majorCount >= total * 0.3) {
+    extraInsight = `此外，大阿尔卡纳的显著存在提示着我们超越钟表时间的视角：这里涉及的远远不只是"什么时候会发生什么"。大牌所代表的是命运级的事件——它们有自己神圣的时间表，不受你个人焦虑和期待的支配。你不能催熟一粒种子，也无法用焦虑让太阳提前升起。当大牌聚集时，最好的态度不是追问"还要等多久"，而是将注意力放在"在这段等待的时间里，我可以做哪些准备来迎接即将到来的转变"。神圣时机永远精准——它不迟到，也不早到。它在最恰好的时刻叩门。`;
+  }
+
+  const wheelCard = cards.find(dc => dc.card.id === 10);
+  if(wheelCard) specificCardTiming = `命运之轮（X）的出现是塔罗中最强烈的"时间信号"之一。它告诉你：转变不是在未来等待着你——它<em>正在此刻发生</em>。你可能还没有在外在现实中看到它的痕迹，但轮子已经开始转动了。命运之轮的时间是"现在进行时"——你不需要等待，也不需要着急。你只需保持觉察，因为轮子转动时，有些机会之窗会短暂打开。`;
+  const hangedMan = cards.find(dc => dc.card.id === 12);
+  if(hangedMan) specificCardTiming += (specificCardTiming?'<br><br>':'') + `倒吊人（XII）带来了一个至关重要的时间讯息：<strong>暂停。</strong>现在不是强力推进的时刻。有些事情需要在"悬置"中酝酿。想一想：当你把一壶水放在炉子上，你盯着它并不会让它更快沸腾。同样地，你现在最需要做的事可能是——暂时放下这个问题，让它在潜意识的深处被处理和发酵。当你不再用力时，答案反而更容易浮出水面。`;
+  const temperance = cards.find(dc => dc.card.id === 14);
+  if(temperance) specificCardTiming += (specificCardTiming?'<br><br>':'') + `节制（XIV）牌温和地提醒你：调和需要时间。油和水不是一瞬间就能融合成乳液的——它们需要持续的搅拌和耐心。你生命中的某些看似矛盾的面向，正在经历一个缓慢的融合过程。不要试图强行加速，融合有它自己的化学规律。`;
+
+  return { baseTiming, extraInsight, specificCardTiming };
+}
+
+// ---- 辅助函数：灵性成长洞察 ----
+function generateSpiritualInsight() {
+  const cards = state.drawnCards;
+  const majorCards = cards.filter(dc => dc.card.arcana === 'major');
+  const reversedCards = cards.filter(dc => dc.reversed);
+
+  let insight = '';
+
+  if(majorCards.length > 0) {
+    const names = majorCards.map(dc => `${dc.card.name}（${dc.card.en}）${dc.reversed?'逆位':''}`).join('、');
+    insight += `<p>大阿尔卡纳——${names}——在此次解读中出现。22张大阿卡纳，每一张都对应着一个人类灵魂在生命旅程中不可回避的原型课题。在荣格的分析心理学框架中，这些原型并非随机出现——它们是被你内在更深的自我（超越日常意识的那部分）所选择并召唤到牌面中，作为当前成长阶段的镜像与指引。</p>`;
+
+    const ids = majorCards.map(dc => dc.card.id).sort((a,b) => a-b);
+    if(ids.length >= 2) {
+      const minId = ids[0];
+      const maxId = ids[ids.length-1];
+      insight += `<p>`;
+      if(maxId - minId <= 10) {
+        insight += `这几张大牌的编号相对集中（第${minId}到第${maxId}），表明你当前并非在多个不相关的主题之间跳转，而是正在系统性地处理同一个核心课题的多个侧面。如同阅读一本书的连续章节——故事线是连贯统一的，每张牌都是同一叙事的不同段落。`;
+      } else {
+        insight += `大阿尔卡纳之间的跨度较大（第${minId}到第${maxId}），表明你当前同时在面对几个不同层面的重要生命课题。大阿尔卡纳的前半序列（0-10左右）偏重外在世界的建构——个体如何在社会中确立位置、如何将意志转化为行动；后半序列（12-21）则偏重内在世界的整合——个体如何与自我和解、如何理解超越逻辑的存在维度。两个序列的牌同时出现在当前牌面中，意味着你正处于一个内外双重整合的时期。这个过程可能带来一定程度的心理负荷，但也对应着加速成长的宝贵契机。`;
+      }
+      insight += `</p>`;
+    }
+
+    insight += `<p>这些大阿卡纳所描述的并非抽象概念——它们正是你日常经验中正在展开的主题。当你接下来遇到令你情绪剧烈波动或深感触动的瞬间时，回观牌面——你很可能会发现，正是这张牌所代表的原型能量，在现实中找到了它的具体表达形式。</p>`;
+  } else {
+    insight += `<p>本次牌面未出现大阿尔卡纳。在塔罗体系中，大牌标示灵魂层面的方向性主题，小牌则对应日常生活的具体实践。纯小牌的配置传达了一个清晰的讯息：当前阶段不需要过多追问宏大意义——将手头的每一件事以专注的态度做到位，以真诚的态度对待身边的人际关系，以务实的方式管理好物质资源，就是当下最实在的灵性修炼。</p>`;
+  }
+
+  if(reversedCards.length > 0) {
+    insight += `<p>逆位牌（${reversedCards.length}张）——在塔罗的语言中，逆位牌指向的是那些长期被回避或被压制、却一直在暗处施加影响的内在内容。它之所以在此刻出现在牌面中，本身就意味着你已具备了正视它的内在准备。逆位牌带来的不适感不是惩罚，而是一个明确的信号：这个课题已经成熟到可以被处理和转化了。</p>`;
+  }
+
+  const starCard = cards.find(dc => dc.card.id === 17);
+  if(starCard) insight += `<p><strong>星星（XVII）的庇护：</strong>你可能尚未明确感知，但某些事物已在悄无声息中转向了更为积极的方向。星星的能量不同于太阳的炽烈与全然照亮——它是暗夜中远处恒定的那一点微光，不刺目，但始终在位。你不需要用力去捕捉它，在安静中，它会自然进入你的视野。</p>`;
+  const moonCard = cards.find(dc => dc.card.id === 18);
+  if(moonCard) insight += `<p><strong>月亮（XVIII）——穿越不确定性的阶段：</strong>月亮牌映射的是你当前感知模糊、判断困难、内心缺乏确定锚点的状态。从发展心理学的角度来看，这种状态并非病态——某些内在的转化确实需要在意识的直接光照之外、在潜意识的暗室中完成其必要的酝酿。信任直觉——它不能提供条理清晰的论证，但在这种情境下，它往往比逻辑推理更为可靠。</p>`;
+  const judgmentCard = cards.find(dc => dc.card.id === 20);
+  if(judgmentCard) insight += `<p><strong>审判（XX）——内在召唤的觉醒：</strong>审判牌向你的意识深处提出了一个直接的问题：有什么是你早已知道该做、却一直在推迟的事情？——不是他人强加于你的期待，而是你内心深处那个未被回应的人生召唤。在接下来的时间里，请特别留意那些让你心跳加速、身体产生"就是它"生理反应的瞬间——那是你内在真实意志发出的信号，不是外界噪音。</p>`;
+  const hermitCard = cards.find(dc => dc.card.id === 9);
+  if(hermitCard) insight += `<p><strong>隐士（IX）——必要的独处与内观：</strong>隐士手中的灯火，不是用来引领你走向某个外在的目的地，而是照亮你脚下已经存在的道路。某些内在的认知，只有在独处的静默中才能被听见。不需要刻意进行"人生反思"——仅需为自己安排一段不被打扰的安静时光，答案会从深处自然浮现。</p>`;
+
+  return insight;
+}
+
+// ---- 辅助函数：最终寄语 ----
+function generateFinalMessage() {
+  const cards = state.drawnCards;
+  const total = cards.length;
+  const majorCards = cards.filter(dc => dc.card.arcana === 'major');
+  const reversedCards = cards.filter(dc => dc.reversed);
+  const spread = SPREADS[state.spread];
+
+  let msg = '';
+
+  // 开篇
+  msg += `<p>以上是对${total}张牌逐一的解读。现在把所有牌面收拢，从整体视角做一个归纳。</p>`;
+
+  // 核心提炼 —— 根据实际牌面动态生成
+  msg += `<p><strong>此次${spread.name}的核心脉络：</strong></p>`;
+  msg += `<ol style="line-height:2;padding-left:20px;">`;
+
+  // 提炼1: 主导能量牌
+  if(majorCards.length > 0) {
+    const mainMajor = majorCards[0];
+    msg += `<li><strong>${mainMajor.card.name}</strong>是整局解读的基调牌。${mainMajor.reversed ? '逆位状态下，' + mainMajor.card.name + '的能量并非缺席，而是以向内收敛的方式运作——它指向的并非外在事件，而是一个需要你向内审视的内在课题。' + mainMajor.card.rev.substring(0,50) + '……' : mainMajor.card.name + '所象征的原型力量，是你当下生命叙事中最活跃的频率。' + mainMajor.card.up.substring(0,50) + '……'}这张牌的影响不会在短期内消散，它将会是你未来一段时间内反复回味的主题。</li>`;
+  }
+
+  // 提炼2: 逆位牌的深层含义
+  if(reversedCards.length === 1) {
+    const rev = reversedCards[0];
+    msg += `<li><strong>${rev.card.name}逆位</strong>是本次解读中最需要留意的位置。在塔罗体系中，单一逆位往往精准地标记出当前课题的症结所在——能量在此处没有顺畅流通，说明这个领域存在着需要被正视和处理的阻力。建议回看该牌在牌阵中的具体位置，它指向的场景就是你当前最值得投入觉察的地方。</li>`;
+  } else if(reversedCards.length >= 2 && reversedCards.length <= 3) {
+    const revNames = reversedCards.map(dc => dc.card.name).join('、');
+    msg += `<li><strong>${revNames}的逆位</strong>构成了此次解读中的关键提示。${reversedCards.length}张逆位分别指向不同领域的能量阻塞，但它们之间很可能存在内在关联——建议将它们放在一起对照阅读，往往能发现一个贯穿多个生活层面的核心模式。</li>`;
+  } else if(reversedCards.length >= 4) {
+    msg += `<li>本次解读中逆位牌占比较高（${reversedCards.length}/${total}张）。从专业角度来看，逆位集中出现通常对应着人生中的<strong>深度调整期</strong>——外在的推进暂时放缓，内在的重组正在加速。这个阶段最有价值的行动往往不是向外扩张，而是向内梳理。建议不必急于同时处理所有逆位指向的问题，选择其中感受最强烈的一个领域优先深入。</li>`;
+  }
+
+  if(majorCards.length === 0) {
+    msg += `<li>本次牌面全部由小阿尔卡纳构成。在78张牌的体系中，这本身就是一个清晰的信号：当下不需要过多形而上的思辨，重心在于具体事务的处理和日常行动的落实。把每一件手头的事做到位，就是对这段运势最好的回应。</li>`;
+  }
+
+  // 提炼3: 牌阵专属洞察
+  if(spread.name === '三牌之阵') {
+    const past = cards[0], now = cards[1], future = cards[2];
+    const pastOk = !past.reversed, nowOk = !now.reversed, futureOk = !future.reversed;
+    if(pastOk && nowOk && futureOk) msg += `<li>过去—现在—未来的时间线呈现出一致性较高的正位能量。三张牌之间没有明显的断裂或冲突，说明你在当前事务上的方向和节奏是协调的。保持现有的判断和步调即可。</li>`;
+    else if(!nowOk) msg += `<li>时间线的张力集中在"现在"这张牌上。过去与未来之间，当下的节点是决定性的一环——当前的选择和态度，将在很大程度上左右后续的走向。</li>`;
+    else msg += `<li>时间线上正逆位交错，反映出这是一个充满变量的阶段。不必追求绝对的确定性——在变化中保持弹性，比试图控制一切更为实际。</li>`;
+  }
+
+  if(spread.name === '凯尔特十字') {
+    msg += `<li>凯尔特十字的十张牌构成了一套完整的分析结构。如果只选两个最关键的位置回看：建议聚焦<strong>第1张（现状核心）与第10张（最终结果）</strong>——前者定义了问题的本质，后者揭示了当前轨迹的收敛方向。两者之间的呼应关系，是整局解读中最具信息密度的部分。</li>`;
+  }
+
+  if(spread.name === '关系之镜') {
+    msg += `<li>关系解读的核心在于对比：第1张（你）与第2张（对方）之间的异同，直接反映了这段关系中能量的分布。而第3张（关系本质）往往揭示出双方在日常互动层面未必意识到、但在更深层面上真实存在的连接模式。</li>`;
+  }
+
+  if(spread.name === '马蹄铁阵') {
+    msg += `<li>马蹄铁阵的弧线结构中，第3张（隐藏影响）通常是最容易被忽略却最值得深究的位置。它揭示的因素——往往是提问者尚未察觉但确实在起作用的变量——理解这张牌，很多表面的矛盾会自然解开。</li>`;
+  }
+
+  msg += `</ol>`;
+
+  // 收尾
+  msg += `<p>最后，关于塔罗解读本身。</p>`;
+  msg += `<p>塔罗牌不是预言机器，它是一套精密的符号系统——通过78张牌面的排列组合，映射出你当下意识与潜意识中正在运作的能量结构。解读的价值不在于"预知未来"，而在于让你看见那些已经存在但尚未被你明确感知的趋势、阻力和可能性。看到之后如何选择，权力始终在你手里。</p>`;
+
+  if(reversedCards.length > 0) {
+    msg += `<p>这次牌面中出现的逆位值得重视，但不必以"吉凶"来理解它。在成熟塔罗师的认知框架中，逆位往往比正位更具启发性——因为它揭示了那些不在表面、却真正左右着局面的深层因素。正视逆位给出的提示，往往是一个人从"被运势推着走"转向"开始理解运势规律"的转折点。</p>`;
+  }
+
+  msg += `<p style="text-align:center;color:var(--gold-light);font-size:1.05em;margin-top:20px;">`;
+  msg += `解读至此完结。建议将此次解读保存下来——隔一段时间回看，你会发现自己对同一张牌的理解已经随着经历的积累而发生了微妙而深刻的变化。<br>那是塔罗真正开始与你对话的时刻。`;
+  msg += `</p>`;
+
+  if(state.question) {
+    msg += `<p style="text-align:center;color:var(--text-dim);font-size:0.85em;margin-top:14px;">你问："${escapeHtml(state.question)}"<br>以上是牌面对此的完整回应。</p>`;
+  }
+
+  return msg;
+}
+
+// ---- 辅助函数：元素/牌组中文名 ----
+function getArcanaName(arcana) {
+  const map = { major:'大阿尔卡纳', wands:'权杖', cups:'圣杯', swords:'宝剑', pentacles:'星币' };
+  return map[arcana] || arcana;
+}
+
+function getCardStats() {
+  const cards = state.drawnCards;
+  const majors = cards.filter(dc => dc.card.arcana === 'major').length;
+  const wands = cards.filter(dc => dc.card.arcana === 'wands').length;
+  const cups = cards.filter(dc => dc.card.arcana === 'cups').length;
+  const swords = cards.filter(dc => dc.card.arcana === 'swords').length;
+  const pentacles = cards.filter(dc => dc.card.arcana === 'pentacles').length;
+  const reversed = cards.filter(dc => dc.reversed).length;
+
+  let parts = [];
+  if(majors > 0) parts.push(`大阿尔卡纳 ${majors}张`);
+  if(wands > 0) parts.push(`权杖 ${wands}张`);
+  if(cups > 0) parts.push(`圣杯 ${cups}张`);
+  if(swords > 0) parts.push(`宝剑 ${swords}张`);
+  if(pentacles > 0) parts.push(`星币 ${pentacles}张`);
+  if(reversed > 0) parts.push(`逆位 ${reversed}张`);
+
+  return parts.join(' · ') || '混合牌面';
+}
+
+// ==================== 历史记录 ====================
+function saveToHistory() {
+  const history = getHistory();
+  const record = {
+    date: new Date().toISOString(),
+    question: state.question,
+    mood: state.mood,
+    spread: state.spread,
+    spreadName: SPREADS[state.spread].name,
+    cards: state.drawnCards.map(dc => ({
+      id: dc.card.id,
+      name: dc.card.name,
+      en: dc.card.en,
+      reversed: dc.reversed
+    }))
+  };
+  history.unshift(record);
+  if(history.length > 20) history.length = 20;
+  try {
+    localStorage.setItem('tarot_history', JSON.stringify(history));
+  } catch(e) {}
+  loadHistory();
+}
+
+function getHistory() {
+  try {
+    return JSON.parse(localStorage.getItem('tarot_history') || '[]');
+  } catch(e) { return []; }
+}
+
+function loadHistory() {
+  const history = getHistory();
+  const container = document.getElementById('history');
+  if(history.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  let html = '<h3 style="color:var(--gold-light);margin-bottom:12px;">📜 历史解读</h3>';
+  history.forEach((h, i) => {
+    const date = new Date(h.date).toLocaleString('zh-CN');
+    const cardsSummary = h.cards.map(c => `${c.name}${c.reversed?'(逆)':''}`).join(', ');
+    html += `<div class="history-item" onclick="loadHistoryReading(${i})" title="${escapeHtml(cardsSummary)}">
+      <div>
+        <span class="hist-type">${h.spreadName}</span>
+        ${h.question ? `<span style="color:var(--text-dim);margin-left:8px;">${escapeHtml(h.question.substring(0,30))}${h.question.length>30?'...':''}</span>` : ''}
+        <div style="font-size:0.78em;color:var(--text-dim);margin-top:2px;">${cardsSummary.substring(0,60)}</div>
+      </div>
+      <div class="hist-date">${date}</div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+function loadHistoryReading(index) {
+  const history = getHistory();
+  const record = history[index];
+  if(!record) return;
+
+  state.question = record.question || '';
+  state.mood = record.mood || '';
+  state.spread = record.spread;
+  state.drawnCards = record.cards.map(c => ({
+    card: TAROT_DECK.find(tc => tc.id === c.id),
+    reversed: c.reversed
+  }));
+  state.readingDone = true;
+  setStep(4);
+  generateReading();
+}
+
+// ==================== 分享与保存 ====================
+function saveReading() {
+  if(!state.readingDone) return;
+  const text = generateReadingText();
+  const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `塔罗解读_${new Date().toLocaleDateString('zh-CN').replace(/\//g,'-')}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('解读已保存为文本文件');
+}
+
+function shareReading() {
+  if(!state.readingDone) return;
+  const text = generateReadingText();
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('解读已复制到剪贴板，可以分享给朋友了！');
+  }).catch(() => {
+    showToast('复制失败，请检查浏览器权限');
+  });
+}
+
+function generateReadingText() {
+  const spread = SPREADS[state.spread];
+  let text = `✦ 神秘塔罗 · ${spread.name}解读 ✦\n`;
+  text += `══════════════════════════\n`;
+  text += `时间：${new Date().toLocaleString('zh-CN')}\n`;
+  if(state.question) text += `问题：${state.question}\n`;
+  if(state.mood) text += `心境：${getMoodLabel(state.mood)}\n`;
+  text += `牌阵：${spread.name} (${spread.cards}张牌)\n`;
+  text += `──────────────────────────\n\n`;
+
+  state.drawnCards.forEach((dc, i) => {
+    const pos = spread.positions[i];
+    text += `【第${i+1}张 · ${pos.pos}】\n`;
+    text += `${dc.card.name} (${dc.card.en}) ${dc.reversed ? '逆位 ⚠' : '正位'}\n`;
+    text += `牌位含义：${pos.desc}\n`;
+    text += `解读：${dc.reversed ? dc.card.rev : dc.card.up}\n`;
+    text += `关键词：${dc.card.kw.join('、')}\n\n`;
+  });
+
+  text += `──────────────────────────\n`;
+  text += `更多测试、文游加Q群：1095932194\n`;
+  text += `低价接个人定制 · 占卜程序 · 文字游戏\n`;
+  return text;
+}
+
+function newReading() {
+  state.question = '';
+  state.mood = '';
+  state.spread = 'single';
+  state.drawnCards = [];
+  state.readingDone = false;
+  document.getElementById('question').value = '';
+  document.querySelectorAll('#mood-grid .mood-tag').forEach(e => e.classList.remove('selected'));
+  document.querySelectorAll('#spread-grid .spread-card').forEach(e => e.classList.remove('selected'));
+  document.querySelector('#spread-grid .spread-card[data-spread="single"]').classList.add('selected');
+  document.getElementById('reading-content').innerHTML = '';
+  setStep(1);
+}
+
+// ==================== 工具函数 ====================
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function getMoodLabel(mood) {
+  const map = {
+    confused:'🌫️ 迷茫困惑', anxious:'💫 焦虑不安', hopeful:'🌟 充满期待',
+    calm:'🍃 平静淡然', determined:'🔥 意志坚定', broken:'💔 心碎受伤',
+    curious:'🔍 好奇探索', grateful:'🙏 感恩知足'
+  };
+  return map[mood] || mood;
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.style.display = 'block';
+  toast.style.animation = 'none';
+  toast.offsetHeight;
+  toast.style.animation = 'toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards';
+  setTimeout(() => { toast.style.display = 'none'; }, 2800);
+}
+
+// ==================== 键盘快捷操作 ====================
+document.addEventListener('keydown', function(e) {
+  if(e.key === 'Enter' && e.ctrlKey && state.step === 3 && state.drawnCards.length >= SPREADS[state.spread].cards) {
+    revealAll();
+  }
+});
+
+// ==================== 启动 ====================
+init();
+</script>
+</body>
+</html>
