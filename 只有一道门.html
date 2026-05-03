@@ -1,0 +1,1785 @@
+<!doctype html>
+<html lang="zh-CN">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+        <title>只有一道门</title>
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;700;900&amp;display=swap" rel="stylesheet">
+        <style>
+            :root {
+                --bg: #ede8df;
+                --surface: rgba(255, 255, 255, .75);
+                --plat: #3a3530;
+                --spike: #e63946;
+                --door: #2a9d8f;
+                --mov: #d4a03c;
+                --text: #2d2a26;
+                --dim: #918a80;
+                --player: #264653;
+                --bs: clamp(50px, 12.5vw, 74px);
+                --js: clamp(64px, 16vw, 92px)
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                touch-action: none;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+                -webkit-tap-highlight-color: transparent
+            }
+
+            body {
+                overflow: hidden;
+                background: var(--bg);
+                font-family: 'Outfit', sans-serif;
+                color: var(--text);
+                touch-action: none;
+                width: 100vw;
+                height: 100vh
+            }
+
+            canvas {
+                display: block;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%)
+            }
+
+            #ui {
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                z-index: 10;
+                opacity: 0;
+                transition: opacity .4s
+            }
+
+            #ui.show {
+                opacity: 1
+            }
+
+            .hud {
+                padding: 14px 18px;
+                padding-top: max(14px, env(safe-area-inset-top));
+                display: flex;
+                justify-content: space-between;
+                align-items: center
+            }
+
+            .ht {
+                background: var(--surface);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(58, 53, 48, .08);
+                padding: 7px 16px;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: .4px;
+                color: var(--dim)
+            }
+
+            .ht span {
+                color: var(--text)
+            }
+
+            .hd {
+                background: rgba(230, 57, 70, .1);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(230, 57, 70, .15);
+                color: var(--spike);
+                padding: 7px 16px;
+                font-size: 13px;
+                font-weight: 700;
+                letter-spacing: .4px
+            }
+
+            .ctrl {
+                padding: 18px 24px;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
+                pointer-events: auto;
+                padding-bottom: max(22px, env(safe-area-inset-bottom))
+            }
+
+            .dp {
+                display: flex;
+                gap: clamp(8px, 2.5vw, 16px)
+            }
+
+            .cb {
+                width: var(--bs);
+                height: var(--bs);
+                background: var(--surface);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(58, 53, 48, .08);
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background .08s, transform .08s
+            }
+
+            .cb:active,
+            .cb.p {
+                background: rgba(58, 53, 48, .12);
+                transform: scale(.92)
+            }
+
+            .cb svg {
+                width: 20px;
+                height: 20px;
+                stroke: var(--text);
+                stroke-width: 2.5;
+                fill: none;
+                stroke-linecap: round;
+                stroke-linejoin: round
+            }
+
+            .jb {
+                width: var(--js);
+                height: var(--js);
+                background: rgba(42, 157, 143, .1);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(42, 157, 143, .15);
+                border-radius: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: background .08s, transform .08s
+            }
+
+            .jb:active,
+            .jb.p {
+                background: rgba(42, 157, 143, .22);
+                transform: scale(.92)
+            }
+
+            .jb svg {
+                width: 22px;
+                height: 22px;
+                stroke: var(--door);
+                stroke-width: 2.5;
+                fill: none;
+                stroke-linecap: round;
+                stroke-linejoin: round
+            }
+
+            #ss {
+                position: fixed;
+                inset: 0;
+                background: var(--bg);
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+                padding: 36px 32px;
+                padding-bottom: max(44px, env(safe-area-inset-bottom));
+                z-index: 100;
+                transition: opacity .5s, transform .5s
+            }
+
+            #ss.hide {
+                opacity: 0;
+                transform: translateY(30px);
+                pointer-events: none
+            }
+
+            .sd {
+                position: absolute;
+                top: 46%;
+                left: 32px;
+                transform: translateY(-50%)
+            }
+
+            .sl {
+                width: 44px;
+                height: 2px;
+                background: var(--plat);
+                margin-bottom: 10px;
+                opacity: .18
+            }
+
+            .sl:nth-child(2) {
+                width: 28px;
+                opacity: .1
+            }
+
+            .sla {
+                font-size: 11px;
+                font-weight: 300;
+                letter-spacing: 3px;
+                text-transform: uppercase;
+                color: var(--dim);
+                margin-bottom: 6px
+            }
+
+            .sti {
+                font-size: clamp(38px, 9.5vw, 58px);
+                font-weight: 900;
+                line-height: 1;
+                letter-spacing: -1.5px
+            }
+
+            .stb {
+                font-size: clamp(12px, 3vw, 15px);
+                font-weight: 300;
+                color: var(--dim);
+                margin-top: 10px;
+                line-height: 1.7;
+                max-width: 260px
+            }
+
+            .sh {
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+                margin-top: 36px
+            }
+
+            .shi {
+                font-size: 12px;
+                color: var(--dim);
+                display: flex;
+                align-items: center;
+                gap: 9px
+            }
+
+            .shd {
+                width: 3px;
+                height: 3px;
+                background: var(--plat);
+                border-radius: 50%;
+                flex-shrink: 0;
+                opacity: .5
+            }
+
+            #sb {
+                margin-top: 32px;
+                background: var(--plat);
+                color: #f0ebe3;
+                border: none;
+                padding: 14px 44px;
+                font-family: 'Outfit', sans-serif;
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: .4px;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform .12s;
+                width: fit-content
+            }
+
+            #sb:active {
+                transform: scale(.95)
+            }
+
+            .fl {
+                position: fixed;
+                inset: 0;
+                pointer-events: none;
+                z-index: 50;
+                opacity: 0;
+                transition: opacity .12s
+            }
+
+            .fl.r {
+                background: var(--spike);
+                opacity: .2
+            }
+
+            .fl.g {
+                background: var(--door);
+                opacity: .18
+            }
+
+            #ld {
+                position: fixed;
+                inset: 0;
+                background: rgba(237, 232, 223, .92);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                z-index: 80;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity .4s
+            }
+
+            #ld.show {
+                opacity: 1;
+                pointer-events: auto
+            }
+
+            .dt {
+                font-size: clamp(26px, 6.5vw, 38px);
+                font-weight: 900;
+                color: var(--door);
+                letter-spacing: -1px
+            }
+
+            .ds {
+                font-size: 14px;
+                color: var(--dim);
+                margin-top: 8px;
+                font-weight: 300
+            }
+
+            .ds span {
+                color: var(--spike);
+                font-weight: 700
+            }
+
+            #nb {
+                margin-top: 28px;
+                background: var(--door);
+                color: #fff;
+                border: none;
+                padding: 13px 40px;
+                font-family: 'Outfit', sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform .12s
+            }
+
+            #nb:active {
+                transform: scale(.95)
+            }
+
+            #ws {
+                position: fixed;
+                inset: 0;
+                background: var(--bg);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                z-index: 90;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity .5s
+            }
+
+            #ws.show {
+                opacity: 1;
+                pointer-events: auto
+            }
+
+            .wi {
+                width: 52px;
+                height: 76px;
+                border: 3px solid var(--door);
+                border-radius: 6px 6px 0 0;
+                position: relative;
+                margin-bottom: 24px
+            }
+
+            .wi::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                right: 10px;
+                width: 6px;
+                height: 6px;
+                background: var(--door);
+                border-radius: 50%;
+                transform: translateY(-50%)
+            }
+
+            .wm {
+                font-size: clamp(22px, 5.5vw, 32px);
+                font-weight: 900;
+                letter-spacing: -1px;
+                text-align: center
+            }
+
+            .wt {
+                font-size: 14px;
+                color: var(--dim);
+                margin-top: 10px;
+                font-weight: 300
+            }
+
+            .wt span {
+                color: var(--spike);
+                font-weight: 700
+            }
+
+            #rb {
+                margin-top: 32px;
+                background: transparent;
+                color: var(--text);
+                border: 1.5px solid rgba(58, 53, 48, .15);
+                padding: 13px 36px;
+                font-family: 'Outfit', sans-serif;
+                font-size: 14px;
+                font-weight: 700;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: transform .12s, border-color .12s
+            }
+
+            #rb:active {
+                transform: scale(.95);
+                border-color: rgba(58, 53, 48, .35)
+            }
+
+            #dtx {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: clamp(30px, 7.5vw, 48px);
+                font-weight: 900;
+                color: var(--spike);
+                z-index: 55;
+                pointer-events: none;
+                opacity: 0;
+                transition: opacity .18s
+            }
+
+            @media(prefers-reduced-motion:reduce) {
+                * {
+                    transition-duration: 0s !important;
+                    animation-duration: 0s !important
+                }
+            }
+        </style>
+    </head>
+
+    <body>
+        <canvas id="c"></canvas>
+        <div id="ui">
+            <div class="hud">
+                <div class="ht">
+                    LV <span id="ln">1</span>
+                </div>
+                <div class="hd" id="dh">
+                    0
+                </div>
+            </div>
+            <div class="ctrl">
+                <div class="dp">
+                    <div class="cb" id="bL">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                    </div>
+                    <div class="cb" id="bR">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="9 18 15 12 9 6" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="jb" id="bJ">
+                    <svg viewBox="0 0 24 24">
+                        <polyline points="6 15 12 9 18 15" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div id="ss">
+            <div class="sd">
+                <div class="sl"></div>
+                <div class="sl"></div>
+            </div>
+            <div class="sla">
+                Puzzle Platformer
+            </div>
+            <h1 class="sti">只有一道门 2</h1>
+            <p class="stb">找到门。别相信脚下的东西。有些危险你看不见。死了就再来。</p>
+            <div class="sh">
+                <div class="shi">
+                    <span class="shd"></span>左右移动 跳跃
+                </div>
+                <div class="shi">
+                    <span class="shd"></span>红色是陷阱
+                </div>
+                <div class="shi">
+                    <span class="shd"></span>有些路走不通
+                </div>
+                <div class="shi">
+                    <span class="shd"></span>有些危险会藏起来
+                </div>
+            </div><button id="sb">开始</button>
+        </div>
+        <div id="ld">
+            <div class="dt">
+                过了
+            </div>
+            <div class="ds">
+                这关死了 <span id="lvd">0</span> 次
+            </div><button id="nb">下一关</button>
+        </div>
+        <div id="ws">
+            <div class="wi"></div>
+            <div class="wm">
+                你居然做到了
+            </div>
+            <div class="wt">
+                总共死了 <span id="td">0</span> 次
+            </div><button id="rb">再来一遍</button>
+        </div>
+        <div class="fl" id="fe"></div>
+        <div id="dtx"></div>
+        <script>
+            /* ═══ 常量 ═══ */
+            const GW = 1200,
+                GH = 800,
+                GRAV = .55,
+                JF = -12.5,
+                AC = .6,
+                FR = .78,
+                MV = 7.5,
+                PW = 26,
+                PH = 26;
+            const DM = ['碎了', '没了', '又', '...', '痛', '再见', '哎', '嘿', '哦不', '完了'];
+
+            /* ═══ 跳跃安全余量: 垂直≤120px 水平≤260px ═══ */
+
+            const LV = [
+                /* 1 入门 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 400, 100],
+                        [500, 620, 180, 20],
+                        [780, 540, 420, 260]
+                    ],
+                    k: [],
+                    hs: [],
+                    f: [],
+                    m: [],
+                    sw: [],
+                    vp: [],
+                    d: [1100, 490, 40, 50]
+                },
+                /* 2 尖刺 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 220, 100],
+                        [340, 700, 120, 100],
+                        [560, 700, 120, 100],
+                        [780, 700, 420, 100]
+                    ],
+                    k: [
+                        [220, 678, 120, 22],
+                        [460, 678, 100, 22],
+                        [680, 678, 100, 22]
+                    ],
+                    hs: [],
+                    f: [],
+                    m: [],
+                    sw: [],
+                    vp: [],
+                    d: [1110, 650, 40, 50]
+                },
+                /* 3 假象 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 180, 100],
+                        [280, 620, 90, 20],
+                        [470, 540, 90, 20],
+                        [650, 460, 90, 20],
+                        [820, 380, 380, 420]
+                    ],
+                    k: [
+                        [180, 778, 640, 22]
+                    ],
+                    hs: [],
+                    f: [
+                        [310, 490, 80, 20]
+                    ],
+                    m: [],
+                    sw: [],
+                    vp: [],
+                    d: [1110, 330, 40, 50]
+                },
+                /* 4 漂流 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 160, 100],
+                        [1000, 220, 200, 580]
+                    ],
+                    k: [
+                        [160, 778, 840, 22]
+                    ],
+                    hs: [],
+                    f: [],
+                    m: [
+                        [200, 620, 90, 20, 2, 200, 400],
+                        [400, 540, 90, 20, -2, 400, 600],
+                        [620, 460, 90, 20, 2, 620, 800],
+                        [820, 380, 90, 20, -2, 740, 920],
+                        [880, 280, 90, 20, 2, 880, 980]
+                    ],
+                    sw: [],
+                    vp: [],
+                    d: [1120, 170, 40, 50]
+                },
+                /* 5 混沌 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 140, 100],
+                        [220, 620, 70, 20],
+                        [400, 540, 70, 20],
+                        [1050, 260, 150, 540]
+                    ],
+                    k: [
+                        [140, 778, 910, 22],
+                        [340, 612, 30, 8]
+                    ],
+                    hs: [],
+                    f: [
+                        [490, 490, 55, 20]
+                    ],
+                    m: [
+                        [680, 430, 75, 20, -2, 640, 800],
+                        [860, 340, 75, 20, 2, 860, 1020]
+                    ],
+                    sw: [],
+                    vp: [],
+                    d: [1110, 210, 40, 50]
+                },
+                /* 6 捷径 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 160, 100],
+                        [300, 700, 80, 20],
+                        [560, 700, 80, 20],
+                        [820, 700, 80, 20],
+                        [1060, 700, 140, 100]
+                    ],
+                    k: [
+                        [160, 778, 900, 22]
+                    ],
+                    hs: [],
+                    f: [
+                        [220, 700, 60, 20],
+                        [420, 700, 60, 20],
+                        [680, 700, 60, 20],
+                        [940, 700, 60, 20]
+                    ],
+                    m: [],
+                    sw: [],
+                    vp: [],
+                    d: [1130, 650, 40, 50]
+                },
+                /* 7 长河 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 140, 100],
+                        [1060, 700, 140, 100]
+                    ],
+                    k: [
+                        [140, 778, 920, 22]
+                    ],
+                    hs: [],
+                    f: [],
+                    m: [
+                        [190, 640, 80, 20, 1.8, 190, 370],
+                        [400, 600, 80, 20, -1.8, 360, 560],
+                        [580, 560, 80, 20, 1.8, 580, 780],
+                        [740, 600, 80, 20, -1.8, 740, 940],
+                        [960, 640, 80, 20, 1.8, 960, 1050]
+                    ],
+                    sw: [],
+                    vp: [],
+                    d: [1130, 650, 40, 50]
+                },
+                /* 8 攀登 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 120, 100],
+                        [200, 600, 70, 20],
+                        [400, 500, 70, 20],
+                        [600, 400, 70, 20],
+                        [800, 300, 70, 20],
+                        [960, 200, 240, 600]
+                    ],
+                    k: [
+                        [120, 778, 840, 22]
+                    ],
+                    hs: [],
+                    f: [
+                        [300, 548, 55, 20],
+                        [500, 448, 55, 20],
+                        [700, 348, 55, 20]
+                    ],
+                    m: [],
+                    sw: [],
+                    vp: [],
+                    d: [1130, 150, 40, 50]
+                },
+                /* 9 迷阵 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 80, 100],
+                        [180, 640, 50, 20],
+                        [320, 580, 50, 20],
+                        [460, 520, 50, 20],
+                        [600, 580, 50, 20],
+                        [740, 520, 50, 20],
+                        [880, 460, 50, 20],
+                        [1020, 400, 180, 400]
+                    ],
+                    k: [
+                        [80, 778, 940, 22]
+                    ],
+                    hs: [],
+                    f: [
+                        [180, 580, 50, 20],
+                        [320, 520, 50, 20],
+                        [460, 580, 50, 20],
+                        [600, 520, 50, 20],
+                        [740, 460, 50, 20],
+                        [880, 400, 50, 20]
+                    ],
+                    m: [],
+                    sw: [],
+                    vp: [],
+                    d: [1140, 350, 40, 50]
+                },
+                /* 10 终审 */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 100, 100],
+                        [180, 620, 55, 20],
+                        [360, 540, 55, 20],
+                        [900, 240, 300, 560]
+                    ],
+                    k: [
+                        [80, 778, 820, 22],
+                        [280, 608, 30, 8],
+                        [870, 280, 30, 8]
+                    ],
+                    hs: [],
+                    f: [
+                        [260, 540, 40, 20],
+                        [460, 470, 40, 20],
+                        [640, 380, 40, 20]
+                    ],
+                    m: [
+                        [540, 440, 65, 20, -2, 480, 640],
+                        [700, 350, 65, 20, 2, 700, 840],
+                        [850, 280, 60, 20, -2, 830, 950]
+                    ],
+                    sw: [],
+                    vp: [],
+                    d: [1130, 190, 40, 50]
+                },
+
+                /* ─── 11 隐藏尖刺入门 — 看似安全的连续地面 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 250, 100],
+                        [410, 700, 120, 100],
+                        [690, 700, 120, 100],
+                        [970, 700, 230, 100]
+                    ],
+                    k: [],
+                    hs: [
+                        [250, 678, 160, 22],
+                        [530, 678, 160, 22],
+                        [810, 678, 160, 22]
+                    ],
+                    f: [],
+                    m: [],
+                    sw: [],
+                    vp: [],
+                    d: [1120, 650, 40, 50]
+                },
+
+                /* ─── 12 锯齿入门 — 等时机 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 200, 100],
+                        [350, 700, 500, 100],
+                        [1000, 700, 200, 100]
+                    ],
+                    k: [],
+                    hs: [],
+                    f: [],
+                    m: [],
+                    sw: [
+                        [400, 672, 18, 3, 350, 800]
+                    ],
+                    vp: [],
+                    d: [1130, 650, 40, 50]
+                },
+
+                /* ─── 13 消失平台 — 快跑 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 150, 100],
+                        [700, 700, 500, 100]
+                    ],
+                    k: [
+                        [150, 778, 550, 22]
+                    ],
+                    hs: [],
+                    f: [],
+                    m: [],
+                    sw: [],
+                    vp: [
+                        [230, 700, 80, 20],
+                        [380, 700, 80, 20],
+                        [530, 700, 80, 20]
+                    ],
+                    d: [1120, 650, 40, 50]
+                },
+
+                /* ─── 14 隐藏尖刺+假平台 — 两条路都是坑 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 120, 100],
+                        [200, 640, 60, 20],
+                        [400, 580, 60, 20],
+                        [600, 520, 60, 20],
+                        [800, 460, 60, 20],
+                        [960, 400, 240, 400]
+                    ],
+                    k: [],
+                    hs: [
+                        [120, 778, 840, 22]
+                    ],
+                    f: [
+                        [310, 600, 50, 20],
+                        [510, 540, 50, 20],
+                        [710, 480, 50, 20],
+                        [870, 420, 50, 20]
+                    ],
+                    m: [],
+                    sw: [],
+                    vp: [],
+                    d: [1130, 350, 40, 50]
+                },
+
+                /* ─── 15 锯齿走廊 — 连续三个锯齿 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 150, 100],
+                        [250, 700, 700, 100],
+                        [1100, 700, 100, 100]
+                    ],
+                    k: [],
+                    hs: [],
+                    f: [],
+                    m: [],
+                    sw: [
+                        [300, 672, 16, 2.5, 250, 500],
+                        [550, 672, 16, -3, 480, 750],
+                        [800, 672, 16, 2.5, 730, 920]
+                    ],
+                    vp: [],
+                    d: [1130, 650, 40, 50]
+                },
+
+                /* ─── 16 消失阶梯 — 垂直上升，平台会消失 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 100, 100],
+                        [800, 340, 400, 460]
+                    ],
+                    k: [
+                        [100, 778, 700, 22]
+                    ],
+                    hs: [],
+                    f: [],
+                    m: [],
+                    sw: [],
+                    vp: [
+                        [170, 630, 70, 20],
+                        [340, 560, 70, 20],
+                        [510, 490, 70, 20],
+                        [670, 420, 70, 20]
+                    ],
+                    d: [1120, 290, 40, 50]
+                },
+
+                /* ─── 17 隐藏尖刺+锯齿 — 入口有暗雷 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 180, 100],
+                        [300, 700, 600, 100],
+                        [1050, 700, 150, 100]
+                    ],
+                    k: [],
+                    hs: [
+                        [180, 678, 120, 22]
+                    ],
+                    f: [],
+                    m: [],
+                    sw: [
+                        [350, 672, 16, 2.5, 300, 550],
+                        [650, 672, 16, -3, 580, 850]
+                    ],
+                    vp: [],
+                    d: [1130, 650, 40, 50]
+                },
+
+                /* ─── 18 假平台+消失平台 — 真假难辨 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 100, 100],
+                        [900, 400, 300, 400]
+                    ],
+                    k: [
+                        [100, 778, 800, 22]
+                    ],
+                    hs: [],
+                    f: [
+                        [200, 630, 50, 20],
+                        [340, 560, 50, 20],
+                        [480, 490, 50, 20],
+                        [620, 440, 50, 20],
+                        [760, 400, 50, 20]
+                    ],
+                    m: [],
+                    sw: [],
+                    vp: [
+                        [200, 610, 50, 20],
+                        [340, 540, 50, 20],
+                        [480, 470, 50, 20],
+                        [620, 420, 50, 20],
+                        [760, 380, 50, 20]
+                    ],
+                    d: [1130, 350, 40, 50]
+                },
+
+                /* ─── 19 三重陷阱 — 隐藏尖刺+锯齿+消失平台 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 120, 100],
+                        [300, 620, 70, 20],
+                        [550, 540, 70, 20],
+                        [800, 460, 70, 20],
+                        [1000, 340, 200, 460]
+                    ],
+                    k: [],
+                    hs: [
+                        [120, 778, 180, 22],
+                        [370, 778, 180, 22],
+                        [620, 778, 180, 22]
+                    ],
+                    f: [
+                        [750, 440, 40, 20]
+                    ],
+                    m: [],
+                    sw: [
+                        [350, 580, 14, 2, 300, 480],
+                        [600, 500, 14, -2, 540, 700]
+                    ],
+                    vp: [
+                        [200, 680, 50, 20],
+                        [440, 600, 50, 20],
+                        [690, 520, 50, 20]
+                    ],
+                    d: [1120, 290, 40, 50]
+                },
+
+                /* ─── 20 终极 — 全要素 ─── */
+                {
+                    s: [50, 640],
+                    p: [
+                        [0, 700, 80, 100],
+                        [160, 640, 50, 20],
+                        [340, 570, 50, 20],
+                        [520, 500, 50, 20],
+                        [950, 280, 250, 520]
+                    ],
+                    k: [
+                        [920, 330, 30, 8]
+                    ],
+                    hs: [
+                        [80, 778, 870, 22]
+                    ],
+                    f: [
+                        [170, 570, 40, 20],
+                        [350, 500, 40, 20],
+                        [530, 440, 40, 20],
+                        [720, 340, 40, 20]
+                    ],
+                    m: [],
+                    sw: [
+                        [300, 540, 14, 2, 250, 400],
+                        [500, 470, 14, -2, 440, 600],
+                        [700, 380, 14, 2, 650, 820]
+                    ],
+                    vp: [
+                        [240, 600, 50, 20],
+                        [430, 530, 50, 20],
+                        [620, 460, 50, 20],
+                        [800, 380, 50, 20]
+                    ],
+                    d: [1120, 230, 40, 50]
+                }
+            ];
+
+            /* ═══ Canvas ═══ */
+            const cv = document.getElementById('c'),
+                cx = cv.getContext('2d');
+            cv.width = GW;
+            cv.height = GH;
+
+            function resize() {
+                const s = Math.min(innerWidth / GW, innerHeight / GH);
+                cv.style.width = (GW * s) + 'px';
+                cv.style.height = (GH * s) + 'px'
+            }
+            addEventListener('resize', resize);
+            resize();
+
+            /* ═══ 状态 ═══ */
+            let st = 'menu',
+                cL = 0,
+                tD = 0,
+                lD = 0,
+                fr = 0,
+                rT = 0;
+            const P = {
+                x: 0,
+                y: 0,
+                vx: 0,
+                vy: 0,
+                gnd: false,
+                on: null,
+                dead: false
+            };
+            let lv = null;
+            const pts = [];
+            let sA = 0,
+                sD = 0;
+
+            /* ═══ 输入 ═══ */
+            const ip = {
+                l: false,
+                r: false,
+                j: false
+            };
+
+            function bn(id, k) {
+                const el = document.getElementById(id);
+                const on = () => {
+                    ip[k] = true;
+                    el.classList.add('p')
+                };
+                const off = () => {
+                    ip[k] = false;
+                    el.classList.remove('p')
+                };
+                el.addEventListener('pointerdown', e => {
+                    e.preventDefault();
+                    on()
+                });
+                el.addEventListener('pointerup', e => {
+                    e.preventDefault();
+                    off()
+                });
+                el.addEventListener('pointerleave', off);
+                el.addEventListener('pointercancel', off)
+            }
+            bn('bL', 'l');
+            bn('bR', 'r');
+            bn('bJ', 'j');
+            document.getElementById('bJ').addEventListener('pointerdown', () => {
+                ip.j = true
+            });
+            addEventListener('keydown', e => {
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') ip.l = true;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') ip.r = true;
+                if (e.code === 'ArrowUp' || e.code === 'Space' || e.code === 'KeyW') ip.j = true
+            });
+            addEventListener('keyup', e => {
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') ip.l = false;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') ip.r = false
+            });
+
+            /* ═══ 工具 ═══ */
+            function ov(a, b, c, d, e, f, g, h) {
+                return a < e + g && a + c > e && b < f + h && b + d > f
+            }
+
+            function th(h) {
+                return h <= 25
+            }
+
+            function cr(cx2, cy2, cr2, rx, ry, rw, rh) {
+                let tx = cx2,
+                    ty = cy2;
+                if (cx2 < rx) tx = rx;
+                else if (cx2 > rx + rw) tx = rx + rw;
+                if (cy2 < ry) ty = ry;
+                else if (cy2 > ry + rh) ty = ry + rh;
+                return (cx2 - tx) * (cx2 - tx) + (cy2 - ty) * (cy2 - ty) <= cr2 * cr2
+            }
+
+            function sP(x, y, c, n, sp) {
+                sp = sp || 8;
+                for (let i = 0; i < n; i++) pts.push({
+                    x,
+                    y,
+                    vx: (Math.random() - .5) * sp * 2,
+                    vy: (Math.random() - .5) * sp * 2 - 2,
+                    life: 25 + Math.random() * 25,
+                    ml: 50,
+                    sz: 2 + Math.random() * 3.5,
+                    c
+                })
+            }
+
+            function fl(t) {
+                const el = document.getElementById('fe');
+                el.className = 'fl ' + t;
+                setTimeout(() => {
+                    el.className = 'fl'
+                }, 140)
+            }
+
+            function sDT() {
+                const el = document.getElementById('dtx');
+                el.textContent = DM[Math.random() * DM.length | 0];
+                el.style.opacity = '1';
+                setTimeout(() => {
+                    el.style.opacity = '0'
+                }, 420)
+            }
+
+            /* ═══ 初始化关卡 ═══ */
+            function iL(i) {
+                const s = LV[i];
+                lv = {
+                    s: [...s.s],
+                    p: s.p.map(a => [...a]),
+                    k: s.k.map(a => [...a]),
+                    hs: (s.hs || []).map(a => [...a]),
+                    f: s.f.map(a => ({
+                        x: a[0],
+                        y: a[1],
+                        w: a[2],
+                        h: a[3],
+                        oy: a[1],
+                        trig: false,
+                        shT: 0,
+                        fV: 0,
+                        shO: 0
+                    })),
+                    m: s.m.map(a => ({
+                        x: a[0],
+                        y: a[1],
+                        w: a[2],
+                        h: a[3],
+                        dx: a[4],
+                        mn: a[5],
+                        mx: a[6],
+                        px: a[0],
+                        ddx: 0
+                    })),
+                    sw: (s.sw || []).map(a => ({
+                        x: a[0],
+                        y: a[1],
+                        r: a[2],
+                        dx: a[3],
+                        mn: a[4],
+                        mx: a[5]
+                    })),
+                    vp: (s.vp || []).map(a => ({
+                        x: a[0],
+                        y: a[1],
+                        w: a[2],
+                        h: a[3],
+                        tm: 0,
+                        gone: false,
+                        rT: 0,
+                        shO: 0
+                    })),
+                    d: [...s.d]
+                };
+                P.x = lv.s[0];
+                P.y = lv.s[1];
+                P.vx = 0;
+                P.vy = 0;
+                P.gnd = false;
+                P.on = null;
+                P.dead = false;
+                rT = 0;
+            }
+
+            /* ═══ 死亡/完成 ═══ */
+            function die() {
+                if (P.dead) return;
+                P.dead = true;
+                st = 'dead';
+                tD++;
+                lD++;
+                document.getElementById('dh').textContent = tD;
+                sP(P.x + PW / 2, P.y + PH / 2, '#3a3530', 16, 7);
+                sP(P.x + PW / 2, P.y + PH / 2, '#e63946', 8, 5);
+                sA = 5;
+                sD = 10;
+                fl('r');
+                sDT();
+                rT = 55
+            }
+
+            function comp() {
+                if (st !== 'playing') return;
+                st = 'levelDone';
+                fl('g');
+                sP(lv.d[0] + 20, lv.d[1] + 25, '#2a9d8f', 28, 10);
+                document.getElementById('lvd').textContent = lD;
+                setTimeout(() => {
+                    document.getElementById('ld').classList.add('show')
+                }, 350)
+            }
+
+            function goN() {
+                document.getElementById('ld').classList.remove('show');
+                cL++;
+                lD = 0;
+                if (cL >= LV.length) {
+                    st = 'win';
+                    document.getElementById('td').textContent = tD;
+                    document.getElementById('ws').classList.add('show');
+                    document.getElementById('ui').classList.remove('show')
+                } else {
+                    document.getElementById('ln').textContent = cL + 1;
+                    iL(cL);
+                    st = 'playing'
+                }
+            }
+
+            /* ═══ 更新 ═══ */
+            function up() {
+                if (st === 'dead') {
+                    rT--;
+                    if (rT <= 0) {
+                        iL(cL);
+                        st = 'playing'
+                    }
+                    uP();
+                    return
+                }
+                if (st !== 'playing') {
+                    uP();
+                    return
+                }
+
+                /* 移动平台 */
+                const pO = P.on;
+                for (const mp of lv.m) {
+                    mp.px = mp.x;
+                    mp.x += mp.dx;
+                    if (mp.x <= mp.mn) {
+                        mp.x = mp.mn;
+                        mp.dx = Math.abs(mp.dx)
+                    }
+                    if (mp.x >= mp.mx) {
+                        mp.x = mp.mx;
+                        mp.dx = -Math.abs(mp.dx)
+                    }
+                    mp.ddx = mp.x - mp.px
+                }
+                if (pO) P.x += pO.ddx;
+                P.on = null;
+
+                /* 锯齿移动 */
+                for (const sw of lv.sw) {
+                    sw.x += sw.dx;
+                    if (sw.x <= sw.mn) {
+                        sw.x = sw.mn;
+                        sw.dx = Math.abs(sw.dx)
+                    }
+                    if (sw.x >= sw.mx) {
+                        sw.x = sw.mx;
+                        sw.dx = -Math.abs(sw.dx)
+                    }
+                }
+
+                /* 假平台掉落 */
+                for (const fk of lv.f) {
+                    if (!fk.trig) continue;
+                    if (fk.y > GH + 200) continue;
+                    if (fk.shT > 0) {
+                        fk.shT--;
+                        fk.shO = (Math.random() - .5) * 5
+                    } else {
+                        fk.fV = Math.min(fk.fV + .35, 14);
+                        fk.y += fk.fV;
+                        fk.shO = 0
+                    }
+                }
+
+                /* 消失平台更新 */
+                for (const vp of lv.vp) {
+                    if (vp.gone) {
+                        vp.rT--;
+                        if (vp.rT <= 0) {
+                            vp.gone = false;
+                            vp.shO = 0
+                        }
+                    } else if (vp.tm > 0) {
+                        vp.tm--;
+                        vp.shO = (Math.random() - .5) * 4;
+                        if (vp.tm === 0) {
+                            vp.gone = true;
+                            vp.rT = 100;
+                            vp.shO = 0
+                        }
+                    }
+                }
+
+                /* 输入 */
+                if (ip.l) P.vx -= AC;
+                else if (ip.r) P.vx += AC;
+                else P.vx *= FR;
+                P.vx = Math.max(-MV, Math.min(MV, P.vx));
+                if (ip.j && P.gnd) {
+                    P.vy = JF;
+                    P.gnd = false;
+                    P.on = null;
+                    sP(P.x + PW / 2, P.y + PH, 'rgba(58,53,48,.3)', 4, 3)
+                }
+                ip.j = false;
+                P.vy += GRAV;
+
+                /* X碰撞 */
+                P.x += P.vx;
+                if (P.x < 0) {
+                    P.x = 0;
+                    P.vx = 0
+                }
+                if (P.x > GW - PW) {
+                    P.x = GW - PW;
+                    P.vx = 0
+                }
+                for (const pl of lv.p) {
+                    if (th(pl[3])) continue;
+                    if (ov(P.x, P.y, PW, PH, pl[0], pl[1], pl[2], pl[3])) {
+                        if (P.vx > 0) P.x = pl[0] - PW;
+                        else if (P.vx < 0) P.x = pl[0] + pl[2];
+                        P.vx = 0
+                    }
+                }
+                for (const mp of lv.m) {
+                    if (ov(P.x, P.y, PW, PH, mp.x, mp.y, mp.w, mp.h)) {
+                        if (P.vx > 0) P.x = mp.x - PW;
+                        else if (P.vx < 0) P.x = mp.x + mp.w;
+                        P.vx = 0
+                    }
+                }
+
+                /* Y碰撞 */
+                P.y += P.vy;
+                P.gnd = false;
+                for (const pl of lv.p) {
+                    if (!ov(P.x, P.y, PW, PH, pl[0], pl[1], pl[2], pl[3])) continue;
+                    if (th(pl[3])) {
+                        if (P.vy >= 0 && P.y + PH - P.vy <= pl[1] + 4) {
+                            P.y = pl[1] - PH;
+                            P.vy = 0;
+                            P.gnd = true
+                        }
+                    } else {
+                        if (P.vy > 0) {
+                            P.y = pl[1] - PH;
+                            P.vy = 0;
+                            P.gnd = true
+                        } else if (P.vy < 0) {
+                            P.y = pl[1] + pl[3];
+                            P.vy = 0
+                        }
+                    }
+                }
+                for (const fk of lv.f) {
+                    if (fk.fV > 1) continue;
+                    if (!ov(P.x, P.y, PW, PH, fk.x + fk.shO, fk.y, fk.w, fk.h)) continue;
+                    if (P.vy >= 0 && P.y + PH - P.vy <= fk.y + 6) {
+                        P.y = fk.y - PH;
+                        P.vy = 0;
+                        P.gnd = true;
+                        if (!fk.trig) {
+                            fk.trig = true;
+                            fk.shT = 16
+                        }
+                    }
+                }
+                for (const mp of lv.m) {
+                    if (!ov(P.x, P.y, PW, PH, mp.x, mp.y, mp.w, mp.h)) continue;
+                    if (P.vy >= 0 && P.y + PH - P.vy <= mp.y + 6) {
+                        P.y = mp.y - PH;
+                        P.vy = 0;
+                        P.gnd = true;
+                        P.on = mp
+                    } else if (P.vy < 0) {
+                        P.y = mp.y + mp.h;
+                        P.vy = 0
+                    }
+                }
+                /* 消失平台碰撞 */
+                for (const vp of lv.vp) {
+                    if (vp.gone) continue;
+                    if (!ov(P.x, P.y, PW, PH, vp.x, vp.y, vp.w, vp.h)) continue;
+                    if (P.vy >= 0 && P.y + PH - P.vy <= vp.y + 6) {
+                        P.y = vp.y - PH;
+                        P.vy = 0;
+                        P.gnd = true;
+                        if (vp.tm === 0) vp.tm = 22
+                    }
+                }
+
+                /* 尖刺碰撞（普通+隐藏） */
+                for (const sp of lv.k) {
+                    if (ov(P.x + 3, P.y + 3, PW - 6, PH - 6, sp[0] + 4, sp[1] + 6, sp[2] - 8, sp[3] - 6)) {
+                        die();
+                        return
+                    }
+                }
+                for (const sp of lv.hs) {
+                    if (ov(P.x + 3, P.y + 3, PW - 6, PH - 6, sp[0] + 4, sp[1] + 6, sp[2] - 8, sp[3] - 6)) {
+                        die();
+                        return
+                    }
+                }
+
+                /* 锯齿碰撞 */
+                for (const sw of lv.sw) {
+                    if (cr(sw.x, sw.y, sw.r - 3, P.x, P.y, PW, PH)) {
+                        die();
+                        return
+                    }
+                }
+
+                if (P.y > GH + 60) {
+                    die();
+                    return
+                }
+                const dd = lv.d;
+                if (ov(P.x, P.y, PW, PH, dd[0], dd[1], dd[2], dd[3])) comp();
+                if (P.gnd && Math.abs(P.vx) > 3 && fr % 5 === 0) sP(P.x + PW / 2, P.y + PH, 'rgba(58,53,48,.2)', 1, 2);
+                uP();
+            }
+
+            function uP() {
+                for (let i = pts.length - 1; i >= 0; i--) {
+                    const p = pts[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += .15;
+                    p.vx *= .97;
+                    p.life--;
+                    if (p.life <= 0) pts.splice(i, 1)
+                }
+            }
+
+            /* ═══ 绘制 ═══ */
+            function dr() {
+                cx.save();
+                if (sD > 0) {
+                    cx.translate((Math.random() - .5) * sA * 2, (Math.random() - .5) * sA * 2);
+                    sD--;
+                    sA *= .85
+                }
+                cx.fillStyle = '#f5f1ea';
+                cx.fillRect(-10, -10, GW + 20, GH + 20);
+                cx.strokeStyle = 'rgba(58,53,48,.04)';
+                cx.lineWidth = 1;
+                for (let x = 0; x <= GW; x += 40) {
+                    cx.beginPath();
+                    cx.moveTo(x, 0);
+                    cx.lineTo(x, GH);
+                    cx.stroke()
+                }
+                for (let y = 0; y <= GH; y += 40) {
+                    cx.beginPath();
+                    cx.moveTo(0, y);
+                    cx.lineTo(GW, y);
+                    cx.stroke()
+                }
+                cx.fillStyle = 'rgba(58,53,48,.08)';
+                cx.font = '10px monospace';
+                cx.textAlign = 'left';
+                cx.fillText('0,0', 6, 14);
+                cx.textAlign = 'right';
+                cx.fillText(GW + ',' + GH, GW - 6, GH - 6);
+                if (!lv) {
+                    cx.restore();
+                    return
+                }
+
+                /* 平台 */
+                for (const pl of lv.p) dP(pl[0], pl[1], pl[2], pl[3]);
+
+                /* 假平台 */
+                for (const fk of lv.f) {
+                    if (fk.y > GH + 50) continue;
+                    dP(fk.x + fk.shO, fk.y, fk.w, fk.h);
+                    if (!fk.trig) {
+                        cx.strokeStyle = 'rgba(255,255,255,.07)';
+                        cx.lineWidth = 1;
+                        cx.setLineDash([3, 5]);
+                        cx.beginPath();
+                        cx.moveTo(fk.x + fk.w * .3 + fk.shO, fk.y + 3);
+                        cx.lineTo(fk.x + fk.w * .65 + fk.shO, fk.y + fk.h - 3);
+                        cx.stroke();
+                        cx.setLineDash([])
+                    } else if (fk.shT > 0) {
+                        cx.strokeStyle = 'rgba(230,57,70,.25)';
+                        cx.lineWidth = 1;
+                        cx.beginPath();
+                        cx.moveTo(fk.x + fk.shO, fk.y);
+                        cx.lineTo(fk.x + fk.w + fk.shO, fk.y + fk.h);
+                        cx.stroke()
+                    }
+                }
+
+                /* 消失平台 */
+                for (const vp of lv.vp) {
+                    if (vp.gone) continue;
+                    if (vp.tm > 0) cx.globalAlpha = .4 + .6 * Math.random();
+                    dP(vp.x + vp.shO, vp.y, vp.w, vp.h);
+                    cx.globalAlpha = 1;
+                    /* 微妙的虚线底边提示 */
+                    cx.strokeStyle = 'rgba(42,157,143,.12)';
+                    cx.lineWidth = 1;
+                    cx.setLineDash([2, 4]);
+                    cx.beginPath();
+                    cx.moveTo(vp.x, vp.y + vp.h);
+                    cx.lineTo(vp.x + vp.w, vp.y + vp.h);
+                    cx.stroke();
+                    cx.setLineDash([]);
+                }
+
+                /* 移动平台 */
+                for (const mp of lv.m) {
+                    cx.fillStyle = '#d4a03c';
+                    cx.fillRect(mp.x, mp.y, mp.w, mp.h);
+                    cx.fillStyle = 'rgba(255,255,255,.18)';
+                    cx.fillRect(mp.x, mp.y, mp.w, 2);
+                    cx.fillStyle = 'rgba(0,0,0,.12)';
+                    cx.fillRect(mp.x, mp.y + mp.h - 2, mp.w, 2);
+                    cx.fillStyle = 'rgba(255,255,255,.45)';
+                    const mcx = mp.x + mp.w / 2,
+                        mcy = mp.y + mp.h / 2;
+                    cx.beginPath();
+                    if (mp.dx > 0) {
+                        cx.moveTo(mcx + 12, mcy);
+                        cx.lineTo(mcx - 4, mcy - 6);
+                        cx.lineTo(mcx - 4, mcy + 6)
+                    } else {
+                        cx.moveTo(mcx - 12, mcy);
+                        cx.lineTo(mcx + 4, mcy - 6);
+                        cx.lineTo(mcx + 4, mcy + 6)
+                    }
+                    cx.closePath();
+                    cx.fill()
+                }
+
+                /* 普通尖刺 */
+                for (const sp of lv.k) dSp(sp[0], sp[1], sp[2], sp[3], 1);
+
+                /* 隐藏尖刺 - 根据距离渐显 */
+                for (const sp of lv.hs) {
+                    const pcx = P.x + PW / 2,
+                        pcy = P.y + PH / 2,
+                        scx = sp[0] + sp[2] / 2,
+                        scy = sp[1] + sp[3] / 2;
+                    const dist = Math.sqrt((pcx - scx) ** 2 + (pcy - scy) ** 2);
+                    const a = dist < 180 ? 1 - dist / 180 : 0;
+                    if (a > .01) {
+                        cx.globalAlpha = a;
+                        dSp(sp[0], sp[1], sp[2], sp[3], 1);
+                        cx.globalAlpha = 1
+                    }
+                    /* 足够近时地面微微发红 */
+                    if (a > .3) {
+                        cx.globalAlpha = a * .15;
+                        cx.fillStyle = '#e63946';
+                        cx.fillRect(sp[0] - 4, sp[1] + sp[3], sp[2] + 8, 6);
+                        cx.globalAlpha = 1
+                    }
+                }
+
+                /* 锯齿 */
+                for (const sw of lv.sw) dSw(sw.x, sw.y, sw.r);
+
+                /* 门 */
+                const dd = lv.d,
+                    gl = .5 + .5 * Math.sin(fr * .06);
+                cx.shadowBlur = 10 + gl * 16;
+                cx.shadowColor = '#2a9d8f';
+                cx.fillStyle = '#2a9d8f';
+                cx.fillRect(dd[0] - 4, dd[1] - 4, dd[2] + 8, dd[3] + 8);
+                cx.shadowBlur = 0;
+                cx.fillStyle = '#1f7a6f';
+                cx.fillRect(dd[0], dd[1], dd[2], dd[3]);
+                cx.strokeStyle = 'rgba(255,255,255,.12)';
+                cx.lineWidth = 1;
+                cx.beginPath();
+                cx.moveTo(dd[0] + dd[2] / 2, dd[1] + 4);
+                cx.lineTo(dd[0] + dd[2] / 2, dd[1] + dd[3] - 4);
+                cx.stroke();
+                cx.fillStyle = '#f4d35e';
+                cx.beginPath();
+                cx.arc(dd[0] + dd[2] - 8, dd[1] + dd[3] / 2, 3, 0, Math.PI * 2);
+                cx.fill();
+
+                /* 玩家 */
+                if (!P.dead) {
+                    cx.fillStyle = '#264653';
+                    cx.fillRect(P.x, P.y, PW, PH);
+                    const eo = Math.min(Math.max(P.vx * .4, -3), 3),
+                        ey = P.vy < -2 ? -2 : 0;
+                    cx.fillStyle = '#f5f1ea';
+                    cx.fillRect(P.x + 6 + eo, P.y + 8 + ey, 4, 5);
+                    cx.fillRect(P.x + 16 + eo, P.y + 8 + ey, 4, 5);
+                    if (P.on) {
+                        cx.fillStyle = 'rgba(212,160,60,.5)';
+                        cx.fillRect(P.x, P.y + PH - 3, PW, 3)
+                    }
+                }
+
+                /* 粒子 */
+                for (const p of pts) {
+                    cx.globalAlpha = Math.max(0, p.life / p.ml);
+                    cx.fillStyle = p.c;
+                    cx.fillRect(p.x - p.sz / 2, p.y - p.sz / 2, p.sz, p.sz)
+                }
+                cx.globalAlpha = 1;
+                cx.restore();
+            }
+
+            /* 绘制平台 */
+            function dP(x, y, w, h) {
+                cx.fillStyle = '#3a3530';
+                cx.fillRect(x, y, w, h);
+                cx.fillStyle = 'rgba(255,255,255,.14)';
+                cx.fillRect(x, y, w, 2);
+                cx.fillStyle = 'rgba(0,0,0,.1)';
+                cx.fillRect(x, y + h - 2, w, 2);
+                if (h > 30) {
+                    cx.strokeStyle = 'rgba(0,0,0,.05)';
+                    cx.lineWidth = 1;
+                    for (let ly = y + 12; ly < y + h - 4; ly += 10) {
+                        cx.beginPath();
+                        cx.moveTo(x + 4, ly);
+                        cx.lineTo(x + w - 4, ly);
+                        cx.stroke()
+                    }
+                }
+            }
+
+            /* 绘制尖刺 */
+            function dSp(sx, sy, sw2, sh, a) {
+                const n = Math.max(1, Math.floor(sw2 / 14)),
+                    sww = sw2 / n;
+                for (let i = 0; i < n; i++) {
+                    const s = sx + i * sww;
+                    cx.fillStyle = '#e63946';
+                    cx.beginPath();
+                    cx.moveTo(s, sy + sh);
+                    cx.lineTo(s + sww / 2, sy);
+                    cx.lineTo(s + sww, sy + sh);
+                    cx.closePath();
+                    cx.fill();
+                    cx.fillStyle = 'rgba(255,255,255,.15)';
+                    cx.beginPath();
+                    cx.moveTo(s + sww * .35, sy + sh);
+                    cx.lineTo(s + sww / 2, sy + 3);
+                    cx.lineTo(s + sww * .5, sy + sh);
+                    cx.closePath();
+                    cx.fill();
+                }
+            }
+
+            /* 绘制锯齿 */
+            function dSw(x, y, r) {
+                const teeth = 8,
+                    rot = fr * .08;
+                cx.fillStyle = '#e63946';
+                cx.beginPath();
+                for (let i = 0; i < teeth * 2; i++) {
+                    const a = (i / (teeth * 2)) * Math.PI * 2 + rot;
+                    const d = i % 2 === 0 ? r : r * .7;
+                    cx.lineTo(x + Math.cos(a) * d, y + Math.sin(a) * d)
+                }
+                cx.closePath();
+                cx.fill();
+                cx.fillStyle = '#c1121f';
+                cx.beginPath();
+                cx.arc(x, y, r * .3, 0, Math.PI * 2);
+                cx.fill();
+                cx.fillStyle = 'rgba(255,255,255,.2)';
+                cx.beginPath();
+                cx.arc(x - r * .15, y - r * .15, r * .15, 0, Math.PI * 2);
+                cx.fill();
+            }
+
+            function loop() {
+                fr++;
+                up();
+                dr();
+                requestAnimationFrame(loop)
+            }
+
+            /* ═══ 界面 ═══ */
+            document.getElementById('sb').addEventListener('click', () => {
+                document.getElementById('ss').classList.add('hide');
+                document.getElementById('ui').classList.add('show');
+                cL = 0;
+                tD = 0;
+                lD = 0;
+                document.getElementById('ln').textContent = '1';
+                document.getElementById('dh').textContent = '0';
+                iL(0);
+                st = 'playing'
+            });
+            document.getElementById('nb').addEventListener('click', goN);
+            document.getElementById('rb').addEventListener('click', () => {
+                document.getElementById('ws').classList.remove('show');
+                document.getElementById('ss').classList.remove('hide');
+                st = 'menu'
+            });
+            document.addEventListener('touchmove', e => e.preventDefault(), {
+                passive: false
+            });
+            loop();
+        </script>
+    </body>
+
+</html>
