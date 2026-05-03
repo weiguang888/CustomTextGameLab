@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌟 聪明宝贝大脑闯关 - 儿童趣味智力开发问答</title>
+<style>
+:root { --card-bg: rgba(255,255,255,0.92); }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans SC', sans-serif; min-height: 100vh; background: linear-gradient(180deg, #5BB8F5 0%, #A8D8EA 30%, #C9E8C9 60%, #F4E8C1 100%); background-attachment: fixed; display: flex; justify-content: center; align-items: center; padding: 20px; overflow-x: hidden; cursor: default; }
+.floating-decorations { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.cloud { position: absolute; background: white; border-radius: 50%; opacity: 0.7; animation: floatCloud linear infinite; }
+.cloud::before, .cloud::after { content: ''; position: absolute; background: white; border-radius: 50%; }
+.cloud-1 { width: 120px; height: 50px; top: 8%; left: 10%; animation-duration: 25s; border-radius: 25px; }
+.cloud-1::before { width: 50px; height: 50px; top: -25px; left: 25px; }
+.cloud-1::after { width: 65px; height: 55px; top: -20px; left: 50px; }
+.cloud-2 { width: 100px; height: 40px; top: 15%; right: 15%; animation-duration: 30s; border-radius: 20px; }
+.cloud-2::before { width: 40px; height: 40px; top: -20px; left: 20px; }
+.cloud-2::after { width: 55px; height: 45px; top: -15px; left: 40px; }
+.cloud-3 { width: 80px; height: 35px; top: 25%; left: 60%; animation-duration: 22s; border-radius: 18px; }
+.cloud-3::before { width: 35px; height: 35px; top: -18px; left: 15px; }
+.cloud-3::after { width: 45px; height: 38px; top: -14px; left: 32px; }
+@keyframes floatCloud { 0% { transform: translateX(0); } 25% { transform: translateX(30px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-20px); } 100% { transform: translateX(0); } }
+.star { position: absolute; color: #FFD93D; font-size: 24px; animation: twinkle ease-in-out infinite; }
+.star-1 { top: 5%; left: 30%; animation-duration: 2s; font-size: 20px; }
+.star-2 { top: 12%; left: 75%; animation-duration: 2.5s; font-size: 28px; }
+.star-3 { top: 8%; left: 50%; animation-duration: 3s; font-size: 18px; }
+.star-4 { top: 3%; right: 20%; animation-duration: 2.2s; font-size: 22px; }
+.star-5 { top: 18%; left: 45%; animation-duration: 2.8s; font-size: 16px; }
+@keyframes twinkle { 0%, 100% { opacity: 0.4; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+@keyframes rainbowBorder { 0% { border-color: #FF6B9D; } 20% { border-color: #FFD93D; } 40% { border-color: #66BB6A; } 60% { border-color: #42A5F5; } 80% { border-color: #AB47BC; } 100% { border-color: #FF6B9D; } }
+.main-container { position: relative; z-index: 1; max-width: 720px; width: 100%; }
+.card { background: var(--card-bg); border-radius: 30px; padding: 30px 28px; box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 2px 10px rgba(0,0,0,0.05); border: 4px solid #FFB74D; animation: cardEntrance 0.5s ease-out; position: relative; overflow: hidden; }
+.card::after { content: ''; position: absolute; top: -2px; left: -2px; right: -2px; bottom: -2px; border-radius: 32px; border: 3px solid transparent; animation: rainbowBorder 4s linear infinite; pointer-events: none; z-index: 2; }
+@keyframes cardEntrance { from { opacity: 0; transform: translateY(30px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.header { text-align: center; margin-bottom: 25px; }
+.header-icon { font-size: 60px; animation: bounce 2s ease-in-out infinite; display: inline-block; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.header h1 { font-size: 2em; background: linear-gradient(135deg, #FF6B9D, #FF8E53, #FFD93D); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin: 8px 0 4px; font-weight: 900; }
+.header .subtitle { color: #888; font-size: 0.95em; }
+.form-section { margin-bottom: 20px; }
+.form-label { display: block; font-size: 1.05em; font-weight: 700; color: #FF6B9D; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+.option-group { display: flex; flex-wrap: wrap; gap: 10px; }
+.option-btn { flex: 1; min-width: 80px; padding: 12px 16px; border: 3px solid #E0E0E0; border-radius: 18px; background: white; cursor: pointer; font-size: 0.95em; font-weight: 600; color: #666; transition: all 0.25s; text-align: center; font-family: inherit; position: relative; }
+.option-btn:hover { border-color: #FFB74D; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255,183,77,0.3); }
+.option-btn.selected { background: linear-gradient(135deg, #FFF3E0, #FFF8E1); border-color: #FFB74D; color: #E65100; box-shadow: 0 4px 15px rgba(255,183,77,0.4); transform: scale(1.03); }
+.option-btn.selected::after { content: '✓'; position: absolute; top: 4px; right: 10px; font-size: 0.75em; color: #FF9800; }
+.start-btn { display: block; width: 100%; padding: 16px; font-size: 1.2em; font-weight: 800; border: none; border-radius: 25px; background: linear-gradient(135deg, #FF6B9D, #FF8E53); color: white; cursor: pointer; transition: all 0.3s; letter-spacing: 2px; font-family: inherit; }
+.start-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(255,107,157,0.4); }
+.start-btn:active { transform: translateY(-1px); }
+.question-counter { text-align: center; margin-bottom: 15px; }
+.progress-bar { width: 100%; height: 14px; background: #F0F0F0; border-radius: 10px; overflow: hidden; margin-bottom: 5px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #66BB6A, #AED581); border-radius: 10px; transition: width 0.4s ease; }
+.progress-text { color: #999; font-size: 0.85em; font-weight: 600; }
+.question-area { background: linear-gradient(135deg, #FFF8E1, #FFF3E0); border-radius: 20px; padding: 22px; margin-bottom: 20px; border: 2px dashed #FFB74D; text-align: center; }
+.question-number { font-size: 0.85em; color: #FF9800; font-weight: 700; margin-bottom: 10px; }
+.question-text { font-size: 1.3em; font-weight: 700; color: #4A4A4A; line-height: 1.6; }
+.answers-grid { display: grid; gap: 12px; margin-bottom: 20px; }
+.answer-btn { padding: 15px 20px; border: 3px solid #E0E0E0; border-radius: 18px; background: white; cursor: pointer; font-size: 1em; font-weight: 600; color: #555; transition: all 0.25s; text-align: left; font-family: inherit; display: flex; align-items: center; gap: 12px; }
+.answer-btn:hover { border-color: #42A5F5; background: #F3F8FF; transform: translateX(3px); }
+.answer-marker { width: 32px; height: 32px; border-radius: 50%; background: #F0F0F0; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #888; flex-shrink: 0; transition: all 0.3s; }
+.answer-btn:hover .answer-marker { background: #42A5F5; color: white; }
+.answer-btn.correct { background: #E8F5E9; border-color: #66BB6A; animation: correctPulse 0.5s ease; }
+.answer-btn.correct .answer-marker { background: #66BB6A; color: white; }
+.answer-btn.wrong { background: #FFEBEE; border-color: #EF5350; animation: shake 0.5s ease; }
+.answer-btn.wrong .answer-marker { background: #EF5350; color: white; }
+.answer-btn.disabled { pointer-events: none; opacity: 0.85; }
+@keyframes correctPulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.feedback-banner { text-align: center; padding: 15px; border-radius: 15px; font-weight: 700; font-size: 1em; margin-bottom: 15px; animation: fadeInUp 0.3s ease; }
+.feedback-banner.correct { background: #E8F5E9; color: #2E7D32; }
+.feedback-banner.wrong { background: #FFF3E0; color: #E65100; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.next-btn { display: block; width: 100%; padding: 14px; font-size: 1.1em; font-weight: 700; border: none; border-radius: 20px; cursor: pointer; transition: all 0.3s; color: white; background: linear-gradient(135deg, #42A5F5, #7E57C2); font-family: inherit; }
+.next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(66,165,245,0.3); }
+.results-container { text-align: center; }
+.result-congrats { font-size: 2.5em; margin-bottom: 5px; animation: bounce 1.5s ease-in-out infinite; }
+.result-score-circle { width: 140px; height: 140px; border-radius: 50%; margin: 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #FFD93D, #FF9800); color: white; font-weight: 900; box-shadow: 0 8px 30px rgba(255,152,0,0.3); }
+.result-score-number { font-size: 2.8em; line-height: 1; }
+.result-score-label { font-size: 0.9em; opacity: 0.9; }
+.result-message { font-size: 1.2em; color: #666; margin: 15px 0; font-weight: 600; line-height: 1.6; }
+.result-stars { font-size: 2em; margin: 10px 0; }
+.analysis-card { background: linear-gradient(135deg, #F3F8FF, #FFF8E1); border-radius: 20px; padding: 20px; margin: 15px 0; text-align: left; border: 2px solid #E3F2FD; }
+.analysis-card h3 { color: #FF6B9D; margin-bottom: 10px; font-size: 1.1em; display: flex; align-items: center; gap: 8px; }
+.analysis-card p { color: #666; line-height: 1.8; font-size: 0.95em; }
+.domain-scores { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 15px 0; }
+.domain-score-item { background: white; border-radius: 15px; padding: 12px; text-align: center; border: 2px solid #F0F0F0; }
+.domain-score-item .domain-icon { font-size: 1.5em; margin-bottom: 4px; }
+.domain-score-item .domain-name { font-weight: 700; color: #555; font-size: 0.85em; margin-bottom: 4px; }
+.domain-score-bar { height: 8px; background: #F0F0F0; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+.domain-score-fill { height: 100%; border-radius: 5px; transition: width 1s ease; }
+.fill-logic { background: linear-gradient(90deg, #FF6B9D, #FF8E53); }
+.fill-memory { background: linear-gradient(90deg, #42A5F5, #7E57C2); }
+.fill-language { background: linear-gradient(90deg, #66BB6A, #AED581); }
+.fill-math { background: linear-gradient(90deg, #FFD93D, #FF9800); }
+.fill-creativity { background: linear-gradient(90deg, #EC407A, #AB47BC); }
+.fill-observe { background: linear-gradient(90deg, #26C6DA, #42A5F5); }
+.restart-btn { display: block; width: 100%; padding: 15px; font-size: 1.1em; font-weight: 700; border: none; border-radius: 25px; background: linear-gradient(135deg, #66BB6A, #43A047); color: white; cursor: pointer; font-family: inherit; margin-top: 15px; transition: all 0.3s; }
+.restart-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,187,106,0.3); }
+.contact-footer { margin-top: 20px; padding: 12px 18px; background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,248,225,0.8)); border-radius: 15px; text-align: center; color: #888; font-size: 0.85em; line-height: 1.6; border: 1px dashed #DDD; }
+.contact-footer .qq-highlight { color: #FF6B9D; font-weight: 700; font-size: 1.05em; }
+.confetti-piece { position: fixed; width: 12px; height: 12px; border-radius: 3px; animation: confettiFall linear forwards; z-index: 100; pointer-events: none; }
+@keyframes confettiFall { 0% { transform: translateY(-100px) rotate(0deg); opacity: 1; } 100% { transform: translateY(105vh) rotate(720deg); opacity: 0; } }
+.mascot-area { text-align: center; margin: 10px 0 20px; position: relative; }
+.mascot { font-size: 80px; display: inline-block; animation: mascotWave 3s ease-in-out infinite; }
+@keyframes mascotWave { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-5deg); } 75% { transform: rotate(5deg); } }
+.balloon { position: absolute; font-size: 35px; animation: balloonFloat ease-in-out infinite; }
+.balloon-1 { left: 5%; animation-duration: 3s; }
+.balloon-2 { right: 5%; animation-duration: 3.5s; }
+@keyframes balloonFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+.hidden { display: none !important; }
+@media (max-width: 480px) { .card { padding: 20px 16px; border-radius: 22px; } .header h1 { font-size: 1.5em; } .question-text { font-size: 1.1em; } .option-group { gap: 6px; } .option-btn { padding: 10px 10px; font-size: 0.85em; min-width: 60px; } .domain-scores { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="floating-decorations">
+  <div class="cloud cloud-1"></div><div class="cloud cloud-2"></div><div class="cloud cloud-3"></div>
+  <div class="star star-1">✦</div><div class="star star-2">✦</div><div class="star star-3">✦</div><div class="star star-4">✦</div><div class="star star-5">✦</div>
+</div>
+
+<div class="main-container">
+  <div class="card" id="landingPage">
+    <div class="header">
+      <div class="header-icon">🧠</div>
+      <h1>聪明宝贝大脑闯关</h1>
+      <p class="subtitle">✨ 趣味智力开发问答游戏 ✨</p>
+    </div>
+    <div class="mascot-area">
+      <div class="balloon balloon-1">🎈</div>
+      <div class="mascot">🦊</div>
+      <div class="balloon balloon-2">🎈</div>
+    </div>
+    <div class="form-section">
+      <label class="form-label">✏️ 你的昵称</label>
+      <input type="text" id="nickname" placeholder="输入你的名字吧~" style="width:100%;padding:12px 16px;border:3px solid #E0E0E0;border-radius:15px;font-size:1em;font-family:inherit;outline:none;" maxlength="20" onfocus="this.style.borderColor='#FFB74D'" onblur="this.style.borderColor='#E0E0E0'">
+    </div>
+    <div class="form-section">
+      <label class="form-label">👤 我是</label>
+      <div class="option-group" id="genderGroup">
+        <button class="option-btn" data-value="boy" onclick="selectOption(this, 'genderGroup')">👦 小男生</button>
+        <button class="option-btn" data-value="girl" onclick="selectOption(this, 'genderGroup')">👧 小女生</button>
+      </div>
+    </div>
+    <div class="form-section">
+      <label class="form-label">🎂 我的年龄</label>
+      <div class="option-group" id="ageGroup">
+        <button class="option-btn" data-value="3-5" onclick="selectOption(this, 'ageGroup')">👶 3-5岁</button>
+        <button class="option-btn" data-value="6-8" onclick="selectOption(this, 'ageGroup')">🧒 6-8岁</button>
+        <button class="option-btn" data-value="9-12" onclick="selectOption(this, 'ageGroup')">🧑 9-12岁</button>
+      </div>
+    </div>
+    <div class="form-section">
+      <label class="form-label">🎯 我想挑战</label>
+      <div class="option-group" id="domainGroup" style="gap:8px;">
+        <button class="option-btn" data-value="logic" onclick="selectOption(this, 'domainGroup')" style="min-width:65px;font-size:0.85em;">🧩 逻辑推理</button>
+        <button class="option-btn" data-value="memory" onclick="selectOption(this, 'domainGroup')" style="min-width:65px;font-size:0.85em;">🧠 记忆力</button>
+        <button class="option-btn" data-value="language" onclick="selectOption(this, 'domainGroup')" style="min-width:65px;font-size:0.85em;">📖 语言表达</button>
+        <button class="option-btn" data-value="math" onclick="selectOption(this, 'domainGroup')" style="min-width:65px;font-size:0.85em;">🔢 数学思维</button>
+        <button class="option-btn" data-value="creativity" onclick="selectOption(this, 'domainGroup')" style="min-width:65px;font-size:0.85em;">🎨 创造力</button>
+        <button class="option-btn" data-value="observe" onclick="selectOption(this, 'domainGroup')" style="min-width:65px;font-size:0.85em;">🔍 观察力</button>
+        <button class="option-btn" data-value="comprehensive" onclick="selectOption(this, 'domainGroup')" style="min-width:65px;font-size:0.85em;">🌟 综合挑战</button>
+      </div>
+    </div>
+    <button class="start-btn" id="startBtn" onclick="startGame()">🚀 开始冒险！</button>
+  </div>
+
+  <div class="card hidden" id="questionPage">
+    <div class="question-counter">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+      <span class="progress-text" id="progressText">第 1 / 15 题</span>
+    </div>
+    <div class="question-area">
+      <div class="question-number" id="questionDomain"></div>
+      <div class="question-text" id="questionText"></div>
+    </div>
+    <div class="answers-grid" id="answersGrid"></div>
+    <div class="feedback-banner hidden" id="feedbackBanner"></div>
+    <button class="next-btn hidden" id="nextBtn" onclick="nextQuestion()">👉 下一题</button>
+  </div>
+
+  <div class="card hidden" id="resultPage">
+    <div class="results-container">
+      <div class="result-congrats" id="resultEmoji">🎉</div>
+      <h2 id="resultGreeting" style="color:#FF6B9D;margin-bottom:5px;">太棒了！</h2>
+      <div class="result-score-circle">
+        <span class="result-score-number" id="scoreNumber">0</span>
+        <span class="result-score-label">分</span>
+      </div>
+      <div class="result-stars" id="resultStars"></div>
+      <p class="result-message" id="resultMessage"></p>
+      <div class="analysis-card"><h3>📋 综合评价</h3><p id="analysisText"></p></div>
+      <div class="analysis-card"><h3>💡 成长建议</h3><p id="suggestionText"></p></div>
+      <div class="domain-scores" id="domainScores"></div>
+      <div class="contact-footer">🎮 <span style="font-weight:600;">更多测试、文游</span>加Q群：<span class="qq-highlight">1095932194</span>，低价接个人定制 🎮</div>
+      <button class="restart-btn" onclick="restartGame()">🔄 再来一次！</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ GAME STATE ============
+const state = { nickname: '', gender: '', ageGroup: '', domain: '', questions: [], currentIndex: 0, score: 0, answered: false, domainScores: {}, correctCount: 0 };
+const QUESTIONS_PER_ROUND = 15;
+
+// Shortcut to create a question object
+const Q = (q, opts, correct, tip) => ({ q, options: opts, correct, tip });
+
+// ============ QUESTION BANK — all practical, common-sense & reasoning focused ============
+const questionBank = {
+
+  // ==================== LOGIC ====================
+  logic: {
+    '3-5': [
+      Q('下面哪个动物有长鼻子？', ['🐘 大象', '🐶 小狗', '🐱 小猫', '🐰 小兔'], 0, '大象的鼻子最特别！认识动物特征是观察力的第一步。'),
+      Q('天黑了我们该做什么？', ['起床', '睡觉', '吃饭', '去公园'], 1, '天黑了就是晚上，晚上要好好睡觉哦。'),
+      Q('下雨天出门最需要带什么？', ['🌂 雨伞', '🍦 冰淇淋', '🎈 气球', '📖 书本'], 0, '根据天气选择合适的物品，这是生活小智慧。'),
+      Q('下面哪个是可以吃的水果？', ['🥕 胡萝卜', '🍗 鸡腿', '🍎 苹果', '🍞 面包'], 2, '能区分水果和其他食物——你已经学会分类啦。'),
+      Q('小猫、小狗和小兔子排成一排。小猫站在中间，小兔子不站在最后。谁站在最前面？', ['🐱 小猫', '🐶 小狗', '🐰 小兔子', '🤔 不知道'], 2, '你像个小侦探一样在思考！排序游戏能锻炼逻辑力。'),
+      Q('下面哪个和其他三个不是同一类？', ['🍎 苹果', '🍌 香蕉', '🚗 小汽车', '🍇 葡萄'], 2, '发现不同之处，这就是"分类"的思维能力。'),
+      Q('小鸟用什么飞？', ['脚', '翅膀', '尾巴', '嘴巴'], 1, '每个动物都有自己独特的本领。'),
+      Q('早晨太阳从哪边升起来？', ['东边', '西边', '南边', '北边'], 0, '观察自然现象是培养思维的好方法！'),
+      Q('下面哪个是在水里生活的动物？', ['🐶 小狗', '🐟 小鱼', '🐱 小猫', '🐰 兔子'], 1, '不同动物住在不同的地方，这叫"栖息地"。'),
+      Q('皮球滚到了沙发下面，用什么工具最容易取出来？', ['📖 一本书', '🧹 扫帚', '🥤 水杯', '🧸 毛绒玩具'], 1, '选对工具解决问题——这是生活中的实用推理。'),
+      Q('小红比小明大，比小华小。三人中谁年龄最大？', ['小红', '小明', '小华', '一样大'], 2, '比较和排序是逻辑思考的基础，你做得很棒。'),
+      Q('看规律：⭐🌙⭐🌙⭐___，下一个是什么？', ['⭐', '🌙', '☀️', '🌈'], 1, '发现规律是最有趣的思维游戏！'),
+      Q('哪个是交通工具？', ['🍕 披萨', '🚌 公交车', '📺 电视', '🌳 树'], 1, '把东西分门别类是重要的思维能力。'),
+      Q('如果所有的狗都会汪汪叫，小白是一只狗，小白会怎样？', ['喵喵叫', '汪汪叫', '不会叫', '会飞'], 1, '从已知的事推出新结论——这就是推理。'),
+      Q('一只手有几根手指？两只手呢？', ['5和10', '4和8', '5和8', '6和12'], 0, '手指是最好的数数工具。'),
+    ],
+    '6-8': [
+      Q('甲说"乙在说谎"，乙说"我没有说谎"。如果只有一人说真话，谁在说谎？', ['甲说谎', '乙说谎', '两人都说谎', '无法判断'], 0, '仔细想想：如果甲说真话，乙就在说谎，但这样就只有甲说真话——成立！'),
+      Q('看规律：2, 4, 6, 8, ___。横线上应填什么？', ['9', '10', '11', '12'], 1, '每次加2的规律，找到规律就找到了答案。'),
+      Q('小明比小红高，小刚比小明矮但比小红高。三人从矮到高排列？', ['小红<小刚<小明', '小红<小明<小刚', '小刚<小红<小明', '小明<小刚<小红'], 0, '一个一个比较，排出顺序来。'),
+      Q('4个小朋友互相握手，每两人握一次，一共握手多少次？', ['4次', '5次', '6次', '8次'], 2, '互相握手：第一个人握3次，第二个人握2次（不算第一个人了），第三个人握1次，3+2+1=6。'),
+      Q('抽屉里有红袜子和蓝袜子各3双。黑暗中至少要拿几只才能保证有一双同色？', ['2只', '3只', '4只', '6只'], 1, '最坏的情况：先拿一只红一只蓝，第三只无论什么颜色都能配成一双。'),
+      Q('三个盒子标着"苹果""橘子""混合"，标签全贴错了。从哪个盒子取一个水果能判断全部？', ['从"苹果"盒取', '从"橘子"盒取', '从"混合"盒取', '无法判断'], 2, '"混合"盒里一定不是混合，取出的水果就暴露了全部真相。'),
+      Q('如果今天是星期三，10天后是星期几？', ['星期三', '星期四', '星期五', '星期六'], 3, '10÷7=1余3，星期三往后推3天是星期六。'),
+      Q('一只蜗牛爬10米深的井。白天爬3米，晚上滑2米。第几天爬出？', ['第7天', '第8天', '第9天', '第10天'], 1, '前7天净爬7米（每天3-2=1米），第8天白天爬3米到10米就出去了不再滑。'),
+      Q('天平左边3个苹果+1个梨，右边1个苹果+5个梨，天平平衡。1个苹果等于几个梨？', ['1个', '2个', '3个', '4个'], 1, '左右各拿走1个苹果：左边剩2苹果+1梨，右边5梨。再拿走1梨：2苹果=4梨，1苹果=2梨。'),
+      Q('5个连续自然数的和是60，最中间的数是多少？', ['10', '11', '12', '13'], 2, '5个连续数的和=中间数×5，所以中间数=60÷5=12。'),
+      Q('小红有12颗糖，给小红4颗后两人一样多。对方原来有几颗？', ['4颗', '8颗', '2颗', '6颗'], 0, '小红给出4颗后剩8颗，对方得到4颗后也是8颗，所以对方原来有4颗。'),
+      Q('一块正方形蛋糕切掉一个角，最多还剩几个角？', ['3个', '4个', '5个', '6个'], 2, '如果切的线不经过任何顶点，正方形4个角+切出2个新角-切掉1个=5个角。'),
+      Q('密码是三位数：每位不同，三个数字和是12，第一位比第二位大2。可能是？', ['642', '534', '804', '723'], 0, '6+4+2=12，6比4大2。逐一验证就行。'),
+      Q('一个锅每次最多煎2张饼，每面2分钟。3张饼最少几分钟？', ['4分钟', '6分钟', '8分钟', '12分钟'], 1, '编号ABC：先A正B正(2分钟)，A反C正(2分钟)，B反C反(2分钟)=6分钟。'),
+      Q('池塘里的荷叶面积每天扩大一倍，第20天铺满。铺满一半是第几天？', ['第10天', '第15天', '第19天', '第18天'], 2, '倒推：20天全满→19天半满(因为隔天翻倍)。不从第一天往前推，倒过来想更简单。'),
+    ],
+    '9-12': [
+      Q('9个外观相同的球，有1个稍重。用天平最少称几次一定能找出来？', ['2次', '3次', '4次', '1次'], 0, '分成3组每组3个。先称两组：若平衡，重球在第三组；若不平衡，重的那组有重球。再把3个中2个称一次即可。'),
+      Q('一个探险者周一和周二说谎，其他日子说真话。今天他说"我昨天说谎了"。今天是？', ['周一', '周三', '周五', '周一或周五'], 1, '如果是周一，昨天周日他说真话，他应该说"昨天我说真话"不是"说谎"。只有周三符合：周二说谎，周三说真话，昨天(周二)确实在说谎。'),
+      Q('一个农夫带狼、羊和白菜过河，船每次只能带一样。狼和羊单独会吃，羊和白菜单独也会吃。第一步带什么？', ['带羊', '带狼', '带白菜', '无法完成'], 0, '先带羊过河，空船回来。然后带狼过河，带羊回来。带白菜过河，空船回来。最后带羊过河。'),
+      Q('3个开关控制3盏灯，开关在房间外，只能进房间一次看灯。如何确定对应关系？', ['先开两个开关', '开第一个等几分钟关掉开第二个再进去', '三个全开', '无法确定'], 1, '利用灯泡发热：开一个等一会关了开另一个，进去→亮的对应第二个，热的对应第一个，冷的对应第三个。'),
+      Q('一个岛上的人要么总说真话要么总说谎。A说"我们俩都是说谎者"。A和B各是什么？', ['A说谎B说真话', 'A说真话B说谎', '俩都说谎', '俩都说真话'], 0, '如果A说真话→两人都说谎→但A在说真话→矛盾。所以A一定说谎。"两人都说谎"是假的→至少一人说真话→A说谎B说真话。'),
+      Q('把一根绳子剪成2段需要1分钟，剪成5段需要几分钟？', ['4分钟', '5分钟', '2.5分钟', '3分钟'], 0, '剪成2段=剪1次，剪成5段=剪4次。4×1=4分钟。段数比次数多1。'),
+      Q('三个连续自然数的和是36，中间那个数是多少？', ['11', '12', '13', '14'], 1, '三个连续数之和=3×中间数，36÷3=12。'),
+      Q('甲乙相距100米相向而行，甲每秒3米乙每秒2米。狗以每秒5米在两人间往返。两人相遇时狗跑了多少米？', ['60米', '80米', '100米', '120米'], 2, '两人相遇需要100÷(3+2)=20秒。狗跑了20秒×5米/秒=100米。别管狗往返怎么跑，时间乘以速度就是路程。'),
+      Q('一瓶果汁喝了一半加满水，又喝一半再加满水，全部喝完。喝的果汁多还是水多？', ['果汁多', '水多', '一样多', '不确定'], 2, '果汁=1整瓶。水=第一次加半瓶+第二次加半瓶=1瓶。一样多。看总量不用追踪每一步。'),
+      Q('100个囚犯站一排，戴黑或白帽子。从后往前猜自己帽子颜色，可以事先商量策略。最多保证猜对几人？', ['50人', '75人', '99人', '100人'], 2, '最后一人报前面所有人中黑帽数量的奇偶，前面的人根据奇偶变化推算自己颜色。保证99人猜对。'),
+      Q('把正方形纸对折3次后展开，纸上最多有多少条折痕？', ['3条', '6条', '7条', '8条'], 2, '第1次：1条。第2次：加2条=3条。第3次：加4条=7条。每次新增是上次的2倍。'),
+      Q('一个数去掉最后一位变成40，加上最后一位变回原数。原数是什么？', ['405', '408', '404', '400'], 0, '去掉最后一位=40→原数是40几。40几=40×10+个位=400+个位。同时也是405。'),
+      Q('12枚硬币中有1枚假币（重量不同但不知轻重）。天平称3次能找出并判断轻重吗？', ['能', '不能', '看运气', '需要4次'], 0, '12枚找1枚的信息量刚好3次天平能搞定，是信息论的经典结果。'),
+      Q('一个10×10的棋盘，马走日字从一角出发，能否不重复地走遍每个格子？', ['一定可以', '一定不可以', '取决于起始位置', '只有偶数棋盘可以'], 0, '数学家已经证明了可以。找到这样一条路线也是很好玩的挑战。'),
+      Q('在6个人中，以下哪个说法一定正确？', ['一定有3人互相认识', '一定有3人互相认识或3人互不认识', '都不对', '取决于具体情况'], 1, '任意6人中，不是有3人互相认识，就是有3人互不认识。这是有趣的组合数学结论。'),
+    ]
+  },
+
+  // ==================== MEMORY ====================
+  memory: {
+    '3-5': [
+      Q('红色圆形，蓝色三角形，黄色正方形——第三个形状是什么颜色？', ['🔴 红色', '🔵 蓝色', '🟡 黄色', '🟢 绿色'], 2, '记住顺序是学习阅读和数学的重要基础。'),
+      Q('妈妈说"先洗手，再吃饭，最后刷牙"。第一步做什么？', ['吃饭', '洗手', '刷牙', '睡觉'], 1, '记住事情的先后顺序，这叫"程序记忆"。'),
+      Q('草莓🍓、西瓜🍉、葡萄🍇、橙子🍊——刚才说了几种水果？', ['2种', '3种', '4种', '5种'], 2, '一次记住好几个东西，这就是"工作记忆"在帮忙。'),
+      Q('小动物们排队：🐶→🐱→🐰→🐻。第三位是谁？', ['小狗', '小猫', '小兔子', '小熊'], 2, '记住位置和顺序，大脑里就像有一张小地图。'),
+      Q('刚才妈妈说买三样东西：面包、牛奶和什么？第三个是鸡蛋。第三个是什么？', ['面包', '牛奶', '鸡蛋', '糖果'], 2, '听一遍就能记住——上课听讲就用这个能力。'),
+      Q('睡前回想今天做了什么——这能锻炼什么？', ['肌肉', '记忆力', '跑步', '吃饭'], 1, '每天回想今天发生的事，记忆力会越来越好。'),
+      Q('看这张图5秒：🌞☁️🌲🏠🐶。一共画了几个东西？', ['3个', '4个', '5个', '6个'], 2, '一瞬间能记住的东西越多，学新知识就越轻松。'),
+      Q('学儿歌时跟着老师重复唱——这为什么有用？', ['没用', '重复能帮助记忆', '唱歌不好', '不需要唱'], 1, '重复是最好的记忆朋友！每重复一次，记忆就深一层。'),
+      Q('颜色歌：红色、蓝色、绿色、黄色。少了哪个常见颜色？', ['紫色', '刚才说的都是常见颜色', '黑色', '粉色'], 0, '你不仅能记住，还能发现少了什么——非常棒的观察力。'),
+      Q('记住小明的手机尾号：5837。倒数第二位是几？', ['5', '8', '3', '7'], 2, '记住数字顺序，生活中记电话号码就用这个能力。'),
+    ],
+    '6-8': [
+      Q('记住：7, 3, 9, 1, 5——第三大的是几？', ['3', '5', '7', '9'], 1, '同时完成"记住"和"排序"两个任务，脑力真棒。'),
+      Q('5秒记住🐶🐱🐰🐻🐼，从左边数第4个是什么？', ['小猫', '小兔子', '小熊', '熊猫'], 2, '用眼睛快速拍照一样记下来——这就是"视觉记忆"。'),
+      Q('老师说"翻到38页做第5到第8题"，共做几道题？', ['3道', '4道', '5道', '8道'], 1, '记住指令的同时还要理解其中的数学信息。'),
+      Q('把电话号码18506237942分成几段好记？', ['全挤在一起', '185-0623-7942', '不用分', '一个一个记'], 1, '把长数字分组来记，记忆容量能大好几倍。'),
+      Q('自己说3个"飞"字开头的词，再复述出来。这利用了？', ['死记硬背', '自己说过的内容更容易记住', '不用记', '看别人说'], 1, '自己说出来比听别人说记得更牢。'),
+      Q('一周有7天，第4天是星期几？', ['星期二', '星期三', '星期四', '星期五'], 2, '把星期的顺序记在脑子里，生活中经常用到。'),
+      Q('妈妈让买：酱油、醋、盐、糖、味精。第3样是？', ['酱油', '醋', '盐', '味精'], 2, '日常生活中的记忆力训练——去超市前记清单。'),
+      Q('看了10个图片后，能认出哪些看过——这叫什么？', ['回忆', '再认', '遗忘', '学习'], 1, '"再认"比完全回忆容易，选择题考试就用这个原理。'),
+      Q('背课文时，早上背和晚上睡前背，哪个效果更好？', ['早上', '晚上睡前', '没区别', '中午'], 1, '睡觉时大脑会整理和加强记忆，睡前学习效果非常好。'),
+      Q('为什么把要记的内容变成顺口溜更好记？', ['不好记', '顺口溜有韵律节奏容易记', '顺口溜难听', '没区别'], 1, '有节奏有韵律的内容大脑记得更快，这就是歌词比课文好记的原因。'),
+    ],
+    '9-12': [
+      Q('学习后马上复习一遍，和过一周再复习，哪个遗忘得更少？', ['一周后复习', '马上复习', '没区别', '不复习最好'], 1, '刚学完马上复习，遗忘的速度会慢很多。'),
+      Q('为什么"用自己的话讲给别人听"比反复看书记得更牢？', ['没区别', '教别人时需要真正理解并重新组织', '看书记得牢', '讲的没用'], 1, '当你要教会别人时，大脑会进行更深层次的加工。'),
+      Q('考场上突然想不起来，一出考场就想起来了——为什么？', ['不需要原因', '紧张会暂时干扰记忆提取，放松后恢复', '记忆消失了', '考试时脑子坏了'], 1, '紧张影响记忆提取，深呼吸放松能帮你想起来。'),
+      Q('把要记的知识点和某个熟悉的地方联系起来——这叫什么方法？', ['死记硬背', '记忆宫殿法', '吃东西法', '跑步法'], 1, '在脑海中把要记的东西放在熟悉的空间里，回想时走一遍就能想起。'),
+      Q('一般人的短时记忆能一次记住大约几个信息单位？', ['3个', '5到9个', '15个', '20个'], 1, '一次大概能记住5到9个东西。但通过分组可以大大扩展。'),
+      Q('一段课文的开头和结尾最容易记住——这叫什么现象？', ['不值得关注', '开头和结尾记得最牢是普遍规律', '只有开头好记', '只有结尾好记'], 1, '重要的内容可以放在学习时段的最开始和最末尾。'),
+      Q('为什么会做的题目过一段时间就不会了？', ['脑子退化了', '缺乏复习和巩固', '题目变难了', '老师教错了'], 1, '记忆需要反复激活。隔几天复习一次比一次复习很久效果好得多。'),
+      Q('看一部电影后能讲出大概情节——这用到什么记忆？', ['数字记忆', '情景记忆', '肌肉记忆', '没有用到'], 1, '你经历过的、像故事一样的记忆叫情景记忆，这类记忆通常比较牢固。'),
+      Q('以下哪种记单词的方法最好？', ['抄10遍', '边读边想象画面，造句用起来', '盯着看', '不看'], 1, '把新知识和已有的知识、画面、情景联系起来，记得又快又牢。'),
+      Q('充足的睡眠对记忆有帮助吗？', ['没帮助', '有帮助，睡眠中大脑会整理巩固记忆', '睡眠会删掉记忆', '和睡眠无关'], 1, '好好睡觉就是最好的记忆力训练！睡眠时大脑在默默巩固白天学的东西。'),
+    ]
+  },
+
+  // ==================== LANGUAGE ====================
+  language: {
+    '3-5': [
+      Q('"又大又红的___"——填什么最好？', ['苹果', '大象', '花朵', '太阳'], 0, '词语搭配要找到最合适的那个，你的语感真好。'),
+      Q('"小兔子蹦蹦跳跳地回家了"——小兔子怎么回家的？', ['慢慢地', '蹦蹦跳跳地', '快快地', '悄悄地'], 1, '描述动作的词语让句子更生动。'),
+      Q('哪个词是"开心"的意思？', ['难过', '伤心', '快乐', '生气'], 2, '认识情绪词汇是语言和情商一起成长的表现。'),
+      Q('"妈妈做的蛋糕___极了！"填什么最好？', ['好吃', '难吃', '咸', '苦'], 0, '用美好的词表达美好的感受。'),
+      Q('找出反义词：大—小，上—下，多—？', ['少', '大', '高', '快'], 0, '反义词让语言有了对比和丰富的变化。'),
+      Q('"哗啦啦"是形容什么声音？', ['笑声', '水流声', '风声', '脚步声'], 1, '中文里有很多模仿声音的词，叫"拟声词"。'),
+      Q('想请小朋友一起玩，怎么说最有礼貌？', ['过来！', '我们一起玩好吗？', '你必须来', '不玩算了'], 1, '用商量的语气说话，大家都会更开心。'),
+      Q('哪个句子是在夸奖别人？', ['你太笨了', '你真棒！', '你走吧', '不好看'], 1, '夸奖让世界更温暖——语言有温暖人心的力量。'),
+      Q('"小星星，亮晶晶"——哪个词让你觉得星星很亮？', ['小', '星星', '亮晶晶', '话'], 2, '叠词让描述又准确又可爱，中文里有很多这样的词。'),
+      Q('"太阳公公笑眯眯"——这里把太阳当成什么了？', ['当成真的公公', '当成人来写', '当成动物', '没有特别的意思'], 1, '把东西当成人来写叫"拟人"，这让句子特别有趣。'),
+    ],
+    '6-8': [
+      Q('"他虽然年纪小，___力气很大。"空格填什么？', ['但是', '因为', '所以', '而且'], 0, '"但是"连接两个不一样的意思，这叫转折。'),
+      Q('哪个成语形容"特别高兴"？', ['愁眉苦脸', '眉飞色舞', '面无表情', '泪流满面'], 1, '眉毛在飞舞——多形象啊，成语里藏着画面。'),
+      Q('"弯弯的月亮像___"，选哪个最生动？', ['小船', '太阳', '星星', '大山'], 0, '月亮和小船都是弯弯的，找到相似点就是好比喻。'),
+      Q('下面哪个句子读起来最通顺？', ['我经常有时候去公园', '他学习用功所以成绩好', '因为下雨了却带了伞', '不仅他聪明而且很懒'], 1, '通顺的句子逻辑要一致，不能前言不搭后语。'),
+      Q('"守株待兔"告诉我们什么？', ['守着树能得兔子', '不要心存侥幸要主动努力', '兔子喜欢撞树', '种树能引来兔子'], 1, '成语故事里都藏着一个道理，读懂道理比记住故事更重要。'),
+      Q('写日记时想描写天气好，哪句写得最生动？', ['今天天气好', '阳光温柔地洒下来天空像洗过一样蓝', '天气不错', '天晴'], 1, '加上感受和比喻，读的人就像看到了画面一样。'),
+      Q('读一篇文章后用一个句子概括大意——这训练什么？', ['写字', '理解和概括能力', '画画', '跑步'], 1, '能从一大堆信息中抓出最重要的，这是很厉害的本领。'),
+      Q('"有的唱歌，有的跳舞，有的画画"——这是什么句式？', ['不知道', '排比句——用相同句式列举', '反问句', '疑问句'], 1, '排比句让语言有节奏，像音乐一样好听。'),
+      Q('"美丽"可以换成什么词让表达更丰富？（近义词）', ['丑陋', '绚丽', '高大', '矮小'], 1, '学会用不同的词表达相近的意思，你的表达就越来越丰富。'),
+      Q('讲故事时先说时间地点人物——这叫交代什么？', ['结尾', '开头和背景', '题目', '不重要'], 1, '好的开头让听众马上进入你的故事世界。'),
+    ],
+    '9-12': [
+      Q('"金色的阳光洒在大地上"——作者为什么这么写？', ['随便写', '营造温暖美好的氛围', '写错了', '不重要'], 1, '好的描写不只是说"有什么"，而是让人"感觉到"什么。'),
+      Q('"满招损，谦受益"的意思是什么？', ['满了洒出来', '骄傲自满会吃亏谦虚能得到好处', '谦虚不好', '满足会受到伤害'], 1, '古人的话虽然简短，但道理很深。'),
+      Q('"她笑起来像蜜糖一样甜"——为什么不说"她笑得很开心"？', ['没区别', '用味觉的甜来形容笑容更有感染力', '甜的更好', '说错了'], 1, '用不同的感官来描写，让文字特别有味道。'),
+      Q('下面哪句话是"给出理由和证据"？', ['读书使人明智', '因为读书能增长知识开阔眼界', '我们应该多读书', '读书很重要'], 1, '"因为……"就是在给出证据和理由。'),
+      Q('"床前明月光，疑是地上霜"——把月光比作什么？', ['太阳', '霜', '水', '银子'], 1, '李白用了比喻——把月光比作白色的霜，一下子就有了画面。'),
+      Q('一个好的故事结尾通常什么样？', ['随便结束', '呼应开头让人回味', '越长越好', '不重要'], 1, '好的结尾让人读完还想再读一遍。'),
+      Q('要说服别人你的观点是对的，需要什么？', ['大声喊', '给出有力的理由和证据', '不需要理由', '让别人猜'], 1, '有道理就讲道理——这就是"论证"。'),
+      Q('"燕子去了有再来的时候，杨柳枯了有再青的时候"——用了什么手法？', ['夸张', '用自然现象的变化来表达时间流逝', '瞎写', '不需要手法'], 1, '借自然的变化来写心里的感受，这是很高级的写法。'),
+      Q('为什么"主动去写"比"只读不写"更能提高语文水平？', ['写没用', '主动表达能整合和运用所有学到的语言知识', '读就够了', '写浪费时间'], 1, '语言是拿来用的——用得多进步才快。'),
+      Q('一段好的描写需要有"画面感"——怎样才能有画面感？', ['多用抽象的词', '写具体的事物颜色声音动作让读者能想象', '越短越好', '不需要'], 1, '写具体的细节——看到的听到的闻到的，读者脑海中就会自动生成画面。'),
+    ]
+  },
+
+  // ==================== MATH ====================
+  math: {
+    '3-5': [
+      Q('小朋友有2个苹果，妈妈又给了1个，现在有几个？', ['2个', '3个', '4个', '1个'], 1, '合在一起就变多——这就是加法。'),
+      Q('桌上有5块饼干，吃掉2块，还剩几块？', ['2块', '3块', '5块', '7块'], 1, '拿走就变少——这就是减法。'),
+      Q('哪个数字最大？3, 7, 1, 9', ['3', '7', '1', '9'], 3, '9是这几个数里最大的，你会比较大小了。'),
+      Q('一个三角形有几条边？', ['1条', '2条', '3条', '4条'], 2, '"三角形"的名字已经告诉你了——"三"就是3。'),
+      Q('把5个糖果分给5个小朋友，每人几个？', ['0个', '1个', '2个', '5个'], 1, '一个一个对应，每人刚好一个，这就是"平均分"。'),
+      Q('数字1到10，正中间是哪个数字？', ['3和4之间', '5和6之间', '1', '10'], 1, '1到10正中间没有单独的数，在5和6之间。'),
+      Q('一周有几天？', ['5天', '6天', '7天', '8天'], 2, '星期一到星期日，一周正好7天。'),
+      Q('正方形有几条一样长的边？', ['2条', '3条', '4条', '5条'], 2, '正方形四条边一样长，这是它最重要的特征。'),
+      Q('今天的日期是5号，再过3天是几号？', ['6号', '7号', '8号', '9号'], 2, '日期和数字的结合，生活中处处是数学。'),
+      Q('树上有3只小鸟，飞走了1只，又飞来2只，现在有几只？', ['2只', '3只', '4只', '5只'], 2, '先减后加，生活中经常需要连着运算。'),
+    ],
+    '6-8': [
+      Q('小明有12颗糖，给小红4颗后两人一样多。小红原来有几颗？', ['4颗', '8颗', '2颗', '6颗'], 0, '倒推回去想：小明剩8颗，小红得4颗后也是8颗，原来4颗。'),
+      Q('一个长方形长6厘米宽4厘米，周长是多少？', ['10厘米', '20厘米', '24厘米', '12厘米'], 1, '周长就是一圈的长度：(6+4)×2=20厘米。'),
+      Q('15 ÷ 3 = ？也就是把15平均分成3份。', ['3', '5', '12', '18'], 1, '除法就是"平均分"，15分成3份每份5。'),
+      Q('现在是上午9点，再过3小时是几点？', ['11点', '12点', '1点', '10点'], 1, '9+3=12，正好是中午12点。'),
+      Q('一个铅笔盒8元，小红有5元，还差多少？', ['2元', '3元', '5元', '8元'], 1, '还差多少就是"相差多少"——8-5=3。'),
+      Q('36是4的几倍？', ['6倍', '7倍', '8倍', '9倍'], 3, '36÷4=9，36里面有9个4。'),
+      Q('估算：99 + 203 大约是多少？', ['200', '300', '400', '500'], 1, '≈100+200=300。估算是生活中最常用的数学。'),
+      Q('一个数乘以0等于多少？', ['这个数本身', '0', '1', '不知道'], 1, '任何数乘以0都等于0。'),
+      Q('在285中，8在什么位上表示多少？', ['个位8', '十位80', '百位800', '千位8000'], 1, '同一个数字在不同位置代表的值不同——这就是位值。'),
+      Q('买3支笔花了9元，每支笔多少元？', ['2元', '3元', '4元', '6元'], 1, '9÷3=3元。总价÷数量=单价。'),
+    ],
+    '9-12': [
+      Q('一个数和它自己相加、相减、相乘、相除，四个结果的和是100。这个数是？', ['8', '9', '10', '11'], 1, '设这个数是n：2n+0+n²+1=100→n²+2n-99=0→n=9。'),
+      Q('把一根绳子剪成2段要1分钟，剪成5段要几分钟？', ['4分钟', '5分钟', '2.5分钟', '3分钟'], 0, '剪成5段需要剪4次，4×1=4分钟。不要被直觉骗了。'),
+      Q('三个连续自然数的和是36，中间数是？', ['11', '12', '13', '14'], 1, '三个连续数之和=3×中间数→36÷3=12。'),
+      Q('甲乙相距100米相向走，甲3米/秒乙2米/秒。狗5米/秒往返跑。两人相遇时狗跑了多少？', ['60米', '80米', '100米', '120米'], 2, '相遇时间=100÷5=20秒，狗跑的距离=20×5=100米。'),
+      Q('一瓶果汁喝一半加水，再喝一半加水，再喝完。喝的果汁多还是水多？', ['果汁多', '水多', '一样多', '不确定'], 2, '果汁一直只有1瓶。水：第一次加半瓶+第二次加半瓶=1瓶。一样多。'),
+      Q('1到100中能被3整除的数之和是多少？', ['1500', '1683', '1700', '1600'], 1, '3+6+9+…+99，共33项。(3+99)×33÷2=1683。'),
+      Q('甲做一件工作6小时完成，乙4小时完成。两人合作要几小时？', ['2小时', '2.4小时', '3小时', '5小时'], 1, '甲每小时做1/6，乙做1/4，合起来每小时5/12→12/5=2.4小时。'),
+      Q('1到9放进3×3方格，使每行每列对角线之和相等。这个和是？', ['12', '15', '18', '21'], 1, '1+2+…+9=45，每行和=45÷3=15。这就是三阶幻方。'),
+      Q('100以内能被3或5整除的数有多少个？', ['47', '50', '53', '60'], 0, '3的倍数33个+5的倍数20个-15的倍数6个=47个。不要重复数。'),
+      Q('把一张正方形纸对折3次再展开，最多有几条折痕？', ['3条', '6条', '7条', '8条'], 2, '第1次1条+第2次2条+第3次4条=7条。'),
+    ]
+  },
+
+  // ==================== CREATIVITY ====================
+  creativity: {
+    '3-5': [
+      Q('一张白纸能用来做什么？', ['画画🎨', '折飞机✈️', '写故事📝', '以上全部还有更多！'], 3, '一张纸有无数种玩法，你的想象力就是最好的魔法。'),
+      Q('如果云朵可以吃，你觉得是什么味道？', ['棉花糖味☁️', '冰淇淋味🍦', '水果味🍓', '什么味道都可以！'], 3, '敢想才会创造——很多伟大发明一开始都是天马行空。'),
+      Q('给小猫咪设计一件神奇衣服，加什么功能？', ['会发光', '保暖', '漂亮花纹', '隐身斗篷'], 3, '异想天开是发明的第一步，每个发明家都敢想。'),
+      Q('用圆形能画出什么？', ['太阳☀️', '笑脸😊', '车轮🛞', '以上全部还有更多！'], 3, '一个圆形可以变成任何东西——这就是创意的魔力。'),
+      Q('如果动物会说话，小狗会对你说什么？', ['出去玩吧', '我饿了', '我爱你', '你想让它说什么都行！'], 3, '把动物当成人来想象——这叫"拟人"，是创意的起点。'),
+      Q('用积木搭"未来的房子"，应该有什么？', ['普通房间', '会飞的屋顶', '彩虹做的楼梯', '想加什么都行！'], 3, '没有标准答案——创意就是做别人没做过的事。'),
+      Q('一支铅笔除了写字还能干什么？', ['当尺子', '做手工', '当指挥棒', '太多啦你一定能想出更多！'], 3, '一个东西的用途不只有一种——打破"只能这样用"的想法。'),
+      Q('如果你有一种超能力，你想要什么？', ['飞', '隐身', '和动物说话', '你的选择就是最好的！'], 3, '超能力想象是创意的大舞台，想什么都可以。'),
+      Q('用身体摆出一个英文字母，你能摆出什么？', ['A', 'Y', 'C', '都可以很棒！'], 3, '用身体来创造，这就是最好玩的艺术。'),
+      Q('编一个故事的开头"从前有一只彩虹色的小猫……"接下来？', ['它飞上了天', '它遇到了恐龙朋友', '它发现了巧克力河流', '你编的故事最精彩！'], 3, '编故事是最自由的创造，你就是故事的主人。'),
+    ],
+    '6-8': [
+      Q('一块砖头除了盖房子还能干什么？', ['垫桌脚', '当镇纸', '做花盆底座', '还能想到更多！'], 3, '一个东西可以有很多意想不到的用途。'),
+      Q('如果让你发明一种新颜色，叫什么名字？', ['梦幻紫', '阳光橙', '深海蓝', '你取的名字就是最好的！'], 3, '为不存在的东西命名——这就是最纯粹的创造。'),
+      Q('设计一个"未来的书包"有什么功能？', ['自动变轻', '语音提醒带东西', '按课表整理', '以上都棒还能加更多！'], 3, '把书包和科技结合——创新就是把好东西组合起来。'),
+      Q('如果灰姑娘的水晶鞋没被找到，故事会怎样？', ['她开鞋店成为老板', '水晶鞋带她去冒险', '她发现不穿水晶鞋也快乐', '你编的故事就是新经典！'], 3, '改一个条件，故事的结局就完全不同——试试改写更多故事。'),
+      Q('把"雨伞"和"台灯"组合起来能发明什么？', ['发光雨伞——雨天也明亮', '两样东西互不相关', '没想过', '不需要组合'], 0, '把不相干的东西组合到一起，常常会产生最妙的发明。'),
+      Q('10个空塑料瓶能做出什么有用的东西？', ['花盆', '笔筒', '小船模型', '以上都可以还有很多！'], 3, '废物利用就是最好的创意——帮了地球也锻炼了大脑。'),
+      Q('如果可以改变学校的一件事，你会改变什么？', ['增加游戏时间', '让课变成探险', '在树屋上课', '你的想法最有创意！'], 3, '先想"如果"，才会有"实现"。每个改变都从想法开始。'),
+      Q('画一个世界上不存在的动物——把几个动物组合起来。例如？', ['鱼+鸟=会飞的鱼', '猫+鹰=有翅膀的猫', '龟+兔=又会跑又会缩壳', '你的创造独一无二！'], 3, '龙、凤凰、独角兽都是人类用这种方法创造的。'),
+      Q('给你一个魔法橡皮擦，能擦掉一样东西。你会擦什么？', ['擦掉垃圾', '擦掉烦恼', '擦掉作业', '你的想法真特别！'], 3, '有时候最棒的创意不是"加什么"而是"去掉什么"。'),
+      Q('梦想中的游乐场里最酷的设施是什么？', ['超长滑梯', '反重力蹦床', '会说话的摩天轮', '你的设计就是最棒的！'], 3, '没有"太夸张"——游乐场就是让梦想成真的地方。'),
+    ],
+    '9-12': [
+      Q('以下哪个最能代表"有创意的想法"？', ['别人做什么我做什么', '从完全不同的角度想问题', '只看标准答案', '跟大多数人一样'], 1, '创意就是从别人没想过的角度看问题。'),
+      Q('设计一个新产品的第一步应该是什么？', ['马上动手做', '先理解使用它的人真正需要什么', '不用想', '模仿别人'], 1, '所有好设计都从理解"用户需要什么"开始。'),
+      Q('一个空的塑料瓶能想到的用途越多，说明什么越强？', ['记忆力', '发散思维能力', '跑步能力', '听力'], 1, '从一件事想出很多可能性——这种能力叫发散思维。'),
+      Q('把看似无关的两件事联系到一起——这是创新的好方法吗？', ['不是，要分开', '是的很多发明都是这样诞生的', '没想过', '没必要'], 1, '手机+相机=拍照手机，创新就是把好东西组合起来。'),
+      Q('"六顶思考帽"中，戴着"绿色帽子"代表什么？', ['批评', '创意和新想法', '感情', '事实'], 1, '特意给"创意"留一个专门的位置来思考。'),
+      Q('为什么孩子常常比大人更有想象力？', ['孩子笨', '孩子更敢于奇思妙想不怕被笑话', '孩子知识少', '大人更有想象力'], 1, '保持童心就是保持创造力——不要因为长大就不敢想了。'),
+      Q('一群人一起想方案时，什么做法最能激发创意？', ['立刻批评不好的', '先不批评把想法都列出来越多越好', '只让一个人说', '不说话'], 1, '创意阶段不要评判——想法多了好的自然会冒出来。'),
+      Q('很多好创意来自于"如果……会怎样"的假设——你同意吗？', ['不同意', '同意——假设能打开新思路', '无所谓', '假设没用'], 1, '"如果汽车能飞会怎样"——这个假设最终催生了飞机。'),
+      Q('一个发明家最需要什么品质？', ['只跟随别人', '好奇心+坚持+不怕失败', '不需要品质', '等待灵感'], 1, '创意不是等来的，是一遍遍试出来的。'),
+      Q('把旧东西用在新地方，算不算创意？', ['不算', '算——很多好创意就是旧元素新组合', '只有发明全新的才算', '不算创意'], 1, '把橡皮放在铅笔头上、把相机放在手机上——旧东西新用就是创意。'),
+    ]
+  },
+
+  // ==================== OBSERVATION ====================
+  observe: {
+    '3-5': [
+      Q('雪花❄️、雨滴💧、冰块🧊、太阳☀️——哪个不一样？', ['雪花', '雨滴', '冰块', '太阳'], 3, '前三个都是冷冷的，太阳是热热的——发现不同就是观察的开始。'),
+      Q('两只熊猫一只耳朵圆一只耳朵尖——它们有什么不同？', ['耳朵形状不同', '都是黑的', '完全一样', '没有不同'], 0, '注意到细节的差别——这对以后学写字特别重要。'),
+      Q('哪个季节树叶会变黄变红飘落？', ['春天🌸', '夏天☀️', '秋天🍂', '冬天❄️'], 2, '留心观察大自然，每个季节都有不同的颜色。'),
+      Q('蝴蝶的宝宝是什么？', ['小蝴蝶', '毛毛虫', '小蜜蜂', '不知道'], 1, '从毛毛虫到蝴蝶——大自然最神奇的变身。'),
+      Q('下面哪个是颜色，哪个是形状？"红色、圆形"', ['分不清', '红色是颜色圆形是形状', '都是颜色', '都是形状'], 1, '分清颜色和形状——这是最基本的观察分类。'),
+      Q('仔细看你的手背，能看到什么？', ['细细的纹路', '什么都没有', '只有皮肤', '看不到'], 0, '每个人都有独一无二的指纹——你的手就是艺术品。'),
+      Q('苹果的皮和里面的颜色一样吗？', ['一样', '不一样——皮是红的里面是白的', '不知道', '不关心'], 1, '外表和里面可能完全不一样——观察不能只看表面。'),
+      Q('小鸟、蝴蝶、蜜蜂的共同点是什么？', ['都会游泳', '都会飞', '都会爬', '都会叫'], 1, '找共同点也是观察——不光要找不同，还要找相同。'),
+      Q('镜子里的你和真实的你完全一样吗？', ['完全一样', '左右是反的', '颜色不同', '大小不同'], 1, '镜子里的左右和真实是反的——你发现了镜像的秘密。'),
+      Q('早上的影子和中午的影子哪个更长？', ['早上更长', '中午更长', '一样长', '没有影子'], 0, '太阳位置在变，影子也在变——观察一天中的变化很有趣。'),
+    ],
+    '6-8': [
+      Q('🌕🌖🌗🌘🌑——月亮在怎么变？', ['越变越大', '越变越小', '先大后小', '没有规律'], 1, '从满月到新月——古人就是靠观察月亮变化来定日历的。'),
+      Q('一杯水放一块冰，冰融化后水面会怎样？', ['升高', '降低', '不变', '先升后降'], 2, '冰化了水位不变——因为冰排开的水等于它自己的重量。'),
+      Q('两张图找5处不同——这最锻炼什么？', ['听力', '眼睛仔细看细节的能力', '说话', '跑步'], 1, '找不同是训练眼力的最好游戏。'),
+      Q('盐放进水里搅拌后不见了——发生了什么？', ['盐真的消失了', '盐溶化在水里了', '盐变成了水', '盐沉底了'], 1, '盐只是散成很小的粒子看不到了——但它还在水里，尝一下就知道了。'),
+      Q('一只蜘蛛有8条腿，3只蜘蛛有几条腿？', ['16条', '24条', '18条', '30条'], 1, '先观察一只蜘蛛的特征再计算——观察+数学=科学。'),
+      Q('把花放在窗边，过几天花会怎样？', ['枯死', '朝着窗外弯过去', '不变', '往下长'], 1, '植物会朝着阳光长——它"知道"光的方向！'),
+      Q('为什么远处的东西看起来小？', ['它们真的变小了', '眼睛看东西近大远小', '没有原因', '眼睛坏了'], 1, '你发现了透视现象——这是画画和摄影的基本原理。'),
+      Q('同样重量的一块铁和一团棉花，哪个看起来大？', ['铁块', '棉花', '一样大', '不一定'], 1, '一样重但棉花体积大很多——因为棉花密度小。'),
+      Q('你注意过自己的呼吸吗？吸气时肚子是鼓起来还是凹下去？', ['鼓起来', '凹下去', '不动', '不知道'], 0, '深呼吸时肚子鼓起来——这是因为肺在往下推。'),
+      Q('为什么有的叶子正面深绿背面浅绿？', ['背面晒不到太阳', '虫子吃了', '没有原因', '都是绿的'], 0, '照到阳光的一面叶绿素更多所以更绿——植物也"向阳"。'),
+    ],
+    '9-12': [
+      Q('看和观察有什么不同？', ['没区别', '观察是带着注意力和思考去看', '看更仔细', '观察用放大镜'], 1, '观察不光用眼睛还要用脑子——看到并理解才叫观察。'),
+      Q('为什么人的观察有时不太可靠？', ['人不会出错', '我们的经验期望和情绪会影响我们看到什么', '眼睛像相机很客观', '不需要原因'], 1, '大脑在"构建"你看到的画面，而不只是"记录"——所以目击证人的话有时候不准。'),
+      Q('在很吵的聚会上听到有人叫你的名字——这说明了什么？', ['你耳朵好', '大脑一直在无意识关注重要信息', '没意义', '只是偶然'], 1, '再吵的环境，有意义的信息也能被你捕捉到——大脑一直在帮你"监听"。'),
+      Q('为什么画画的老师教学生"画椅子之间的空隙而不是椅子本身"？', ['老师教错了', '这样能绕过大脑的惯性思维画得更准确', '空隙更简单', '不用学'], 1, '换个角度观察会发现不一样的世界——这叫"负空间观察法"。'),
+      Q('看不清的字眯起眼睛反而能看清楚一点——为什么？', ['没效果', '眯眼改变光线折射让成像更清晰', '心理作用', '眼睛变好了'], 1, '小孔成像原理——眯眼减少了散光让光线聚焦更好。'),
+      Q('一根直的筷子放进水杯里看起来"断了"——为什么？', ['真的断了', '光在水中和空气中速度不同发生了折射', '幻觉', '水有问题'], 1, '光的折射——物理就在生活里无处不在。'),
+      Q('长期观察和记忆路线的人大脑哪个部分会变大？（例如出租车司机）', ['视觉区', '管空间记忆的部分', '管说话的部分', '不会变'], 1, '研究发现认路高手大脑中管空间记忆的区域确实更发达——大脑越用越强。'),
+      Q('为什么月亮的颜色有时候发红有时候很白？', ['月亮会变色', '大气层对光线的影响——低角度时偏红', '月亮温度不同', '只是错觉'], 1, '月亮刚升起时穿过更厚的大气层，蓝光被散射掉，剩下红光——和夕阳红是一个道理。'),
+      Q('看一样东西久了眼睛会自动"无视"它——你注意到过吗？', ['不会', '会——这是感觉适应，大脑自动忽略不变的信息', '人不会适应', '眼睛坏了'], 1, '大脑会"过滤"不变的信息以便关注变化——这就是为什么你闻不到自己房间的味道但别人能闻到。'),
+      Q('雨后为什么有时候能看到彩虹？', ['太阳出来了', '阳光照在水滴上折射和反射分解成七色', '天空在笑', '不需要原因'], 1, '每颗小雨滴都是一面小棱镜——雨后的光线魔法。'),
+    ]
+  },
+
+  // ==================== COMPREHENSIVE ====================
+  comprehensive: {
+    '3-5': [
+      Q('🔢 树上有3只小鸟飞走1只又飞来2只，现在几只？', ['2只', '3只', '4只', '5只'], 2, '生活中的数学：先减后加，脑袋真灵活。'),
+      Q('🧩 哪个动物住在水里又有鳞片？', ['🐶小狗', '🐱小猫', '🐟小鱼', '🐰小兔'], 2, '同时考虑两个条件——住哪里+长什么样。'),
+      Q('🎨 "红红的花绿绿的草蓝蓝的天"——用了什么让句子美？', ['重复的词语', '颜色的描写', '声音的模仿', '数字的运用'], 1, '颜色词让画面在脑袋里亮起来。'),
+      Q('🧠 拍手👏、跺脚🦶、转圈🔄——第二个动作是？', ['拍手', '跺脚', '转圈', '跳跃'], 1, '听一遍就记住顺序——耳朵也是记忆的好帮手。'),
+      Q('🔍 冬天水结冰了——冰是水的什么状态？', ['气体', '液体', '固体', '不知道'], 2, '水有三种形态：液体→固体→气体。生活中就能看到物理变化。'),
+      Q('🌟 如果可以许一个愿望变成什么，你想变什么？', ['小鸟——飞', '小鱼——游', '大树——高', '你的愿望最棒！'], 3, '说出你的愿望还要说出理由——表达和想象一起进步。'),
+      Q('🌸 春天种下一颗种子每天浇水，一周后看到什么？', ['小芽冒出来', '立刻变大树', '什么都没', '变石头'], 0, '生命需要时间和耐心——观察成长是最好的科学课。'),
+      Q('🎵 "啪、啪啪、啪、啪啪"有几个"啪"？', ['3个', '4个', '5个', '6个'], 1, '节奏感是数学能力的好朋友——音乐和数学在大脑里是邻居。'),
+      Q('🍎 一个苹果切两半，每半是原来的多少？', ['一半', '全部', '不知道', '变多了'], 0, '用吃的来学分数——一半就是二分之一。'),
+      Q('🧸 玩具熊和真熊最根本的区别是什么？', ['没有区别', '玩具熊是假的不会动不会呼吸', '都是熊', '玩具熊更大'], 1, '分清真的和假的——这是很重要的一课。'),
+    ],
+    '6-8': [
+      Q('📖 一天读8页，5天共读多少？书有45页还需几天？', ['40页需1天', '35页需2天', '40页需2天', '45页需0天'], 0, '乘法+减法+除法——生活中的数学常常需要多步计算。'),
+      Q('🧩 三人中一人班长一人学委一人体委。小红不是班长；小明常收发作业；小刚体育最好。谁是班长？', ['小红', '小明', '小刚', '没法判断'], 2, '推理就像拼图——把线索拼在一起就清楚了。'),
+      Q('🎨 蓝色和黄色混在一起变什么颜色？', ['红色', '绿色', '紫色', '橙色'], 1, '三原色的混合——用有限颜色创造无限世界。'),
+      Q('🔍 哪个季节白天最长黑夜最短？', ['春天', '夏天', '秋天', '冬天'], 1, '观察到的自然规律——夏至白天最长。'),
+      Q('🧠 "苹果香蕉西瓜土豆"——哪个不同类？为什么？', ['苹果最小的', '土豆是蔬菜其他是水果', '西瓜最大的', '香蕉最长的'], 1, '用"本质"而不是"外表"来分类——这是更高级的思考。'),
+      Q('💡 一根绳子和一把剪刀，能玩出什么花样？', ['跳绳', '翻花绳', '做手工', '以上都可以创意无限！'], 3, '东西越简单玩法越多——这就是创造力。'),
+      Q('🌡️ 夏天穿深色衣服和浅色衣服哪个更凉快？', ['深色', '浅色', '一样', '看材质'], 1, '浅色反射阳光，深色吸收阳光——生活中的物理知识。'),
+      Q('🗺️ 地图上通常上北下南，北京在上海的什么方向？', ['东方', '南方', '西方', '北方'], 3, '把地理知识和方向感结合——看地图是实用的生活技能。'),
+      Q('🌱 种子发芽最需要什么？', ['只要阳光', '水、适宜的温度和空气', '只要水', '什么都不要'], 1, '三个条件缺一不可——植物的生长需要合适的环境。'),
+      Q('📐 长方形对折变成正方形，原来长是宽的几倍？', ['1倍', '2倍', '3倍', '4倍'], 1, '对折后长宽相等，说明原长是宽的2倍——几何和代数的结合。'),
+    ],
+    '9-12': [
+      Q('📖 "书籍是人类进步的阶梯"——阶梯在这里指什么？', ['真的楼梯', '借书来一步步提升自己', '书架', '没有特殊含义'], 1, '比喻的巧妙之处——把抽象的东西说得具体形象。'),
+      Q('🔢 甲乙相距100米相向走，甲3米/秒乙2米/秒，狗5米/秒往返跑。相遇时狗跑多少？', ['60米', '80米', '100米', '120米'], 2, '别管狗怎么跑——算时间乘以速度就行。全局思维比细节追踪更高效。'),
+      Q('🧩 岛上人要么总说真话要么总说谎。A说"我们俩都说谎"。结论？', ['A说真话', 'A说谎B说真话', '都说谎', '都说真话'], 1, '假设会导致矛盾说明A在说谎——推理从这个矛盾点出发。'),
+      Q('🎨 中国画里"留白"是什么意思？', ['忘记画了', '故意留空间让看的人去想象', '省颜料', '画错了'], 1, '不画满反而给了想象空间——有时候"少"比"多"更有力量。'),
+      Q('🧠 知道自己哪里会哪里不会——这种能力叫什么？', ['不需要的能力', '对自己思维的认识', '不重要', '天生的'], 1, '知道自己哪里不懂——这样才能有针对性地学习。'),
+      Q('🔍 做一件事太专注时可能注意不到身边明显的变化——你遇到过吗？', ['不会', '会——专注时大脑会忽略其他信息', '人不会这样', '不重要'], 1, '走路看手机撞到电线杆就是这个原因——专注也需要适度。'),
+      Q('💻 计算机只有0和1为什么能做这么多事？', ['因为简单', '0和1足够多就能编码任何信息——就像字母能组成所有书', '魔法', '不需要原因'], 1, '26个字母能写出所有故事——二进制码也一样。'),
+      Q('🌍 为什么同样在北京，夏天比冬天热很多？', ['地球在动', '夏天太阳直射北半球光线更强', '人为因素', '没原因'], 1, '阳光直射时能量集中——就像手电筒直射比斜射亮。'),
+      Q('🎭 "人生如戏"——这是一种什么表达方式？', ['胡说', '比喻——把人生比作戏剧', '事实', '没有含义'], 1, '用已知的东西比喻抽象的概念——这是人类最常用的思维方式。'),
+      Q('🧬 大脑和计算机有什么相似之处？', ['完全不同', '都在处理信息、存储记忆、可学习改进', '大脑是计算机', '不相似'], 1, '大脑是可学习的生物计算机——每次学习都在更新"程序"。'),
+    ]
+  }
+};
+
+// ============ FUNCTIONS ============
+function selectOption(btn, groupId) {
+  document.querySelectorAll('#' + groupId + ' .option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function startGame() {
+  state.nickname = document.getElementById('nickname').value.trim() || '聪明宝贝';
+  const genderBtn = document.querySelector('#genderGroup .selected');
+  const ageBtn = document.querySelector('#ageGroup .selected');
+  const domainBtn = document.querySelector('#domainGroup .selected');
+  if (!ageBtn) { shakeElement(document.getElementById('ageGroup')); return; }
+  if (!domainBtn) { shakeElement(document.getElementById('domainGroup')); return; }
+  state.gender = genderBtn ? genderBtn.dataset.value : '';
+  state.ageGroup = ageBtn.dataset.value;
+  state.domain = domainBtn.dataset.value;
+  buildQuestionList();
+  state.currentIndex = 0; state.score = 0; state.answered = false; state.correctCount = 0; state.domainScores = {};
+  document.getElementById('landingPage').classList.add('hidden');
+  document.getElementById('resultPage').classList.add('hidden');
+  document.getElementById('questionPage').classList.remove('hidden');
+  renderQuestion();
+}
+
+function buildQuestionList() {
+  const domain = state.domain, age = state.ageGroup;
+  if (domain === 'comprehensive') {
+    let all = [];
+    ['logic','memory','language','math','creativity','observe'].forEach(d => {
+      if (questionBank[d] && questionBank[d][age]) {
+        questionBank[d][age].forEach(q => all.push({ ...q, domain: d }));
+      }
+    });
+    shuffleArray(all);
+    state.questions = all.slice(0, QUESTIONS_PER_ROUND);
+  } else {
+    const pool = questionBank[domain] ? (questionBank[domain][age] || []) : [];
+    const shuffled = [...pool];
+    shuffleArray(shuffled);
+    state.questions = shuffled.slice(0, Math.min(QUESTIONS_PER_ROUND, shuffled.length));
+  }
+  state.questions.forEach(q => {
+    const d = q.domain || state.domain;
+    if (!state.domainScores[d]) state.domainScores[d] = { correct: 0, total: 0 };
+  });
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+function renderQuestion() {
+  if (state.currentIndex >= state.questions.length) { showResults(); return; }
+  state.answered = false;
+  const q = state.questions[state.currentIndex];
+  const total = state.questions.length, current = state.currentIndex + 1;
+  document.getElementById('progressFill').style.width = ((state.currentIndex / total) * 100) + '%';
+  document.getElementById('progressText').textContent = `第 ${current} / ${total} 题`;
+  const domainLabels = { logic:'🧩 逻辑推理', memory:'🧠 记忆力', language:'📖 语言表达', math:'🔢 数学思维', creativity:'🎨 创造力', observe:'🔍 观察力' };
+  document.getElementById('questionDomain').textContent = domainLabels[q.domain || state.domain] || '🌟 综合挑战';
+  document.getElementById('questionText').textContent = q.q;
+  const answersGrid = document.getElementById('answersGrid');
+  answersGrid.innerHTML = '';
+  ['A','B','C','D'].forEach((l, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.innerHTML = `<span class="answer-marker">${l}</span><span>${q.options[i]}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    answersGrid.appendChild(btn);
+  });
+  document.getElementById('feedbackBanner').classList.add('hidden');
+  document.getElementById('nextBtn').classList.add('hidden');
+}
+
+function selectAnswer(index) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = state.questions[state.currentIndex];
+  const correct = q.correct, isCorrect = index === correct, d = q.domain || state.domain;
+  if (state.domainScores[d]) { state.domainScores[d].total++; if (isCorrect) state.domainScores[d].correct++; }
+  const buttons = document.querySelectorAll('#answersGrid .answer-btn');
+  buttons.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === correct) btn.classList.add('correct');
+    else if (i === index && !isCorrect) btn.classList.add('wrong');
+  });
+  if (isCorrect) { state.score += 10; state.correctCount++; }
+  const feedback = document.getElementById('feedbackBanner');
+  feedback.classList.remove('hidden','correct','wrong');
+  const good = ['太厉害了！🌟','完全正确！👏','你真是个天才！🧠','答对啦真棒！🎉','好聪明的小脑瓜！💡'];
+  const gentle = ['没关系学到了新知识！🌈','差一点点下次一定行！💪','答错也是收获哦！🌱','你在进步啦！🦋','这个问题好难但你在学习！📚'];
+  if (isCorrect) {
+    feedback.classList.add('correct');
+    feedback.innerHTML = good[Math.floor(Math.random()*5)] + '<br><small>' + (q.tip || '') + '</small>';
+    createSparkles();
+  } else {
+    feedback.classList.add('wrong');
+    feedback.innerHTML = gentle[Math.floor(Math.random()*5)] + '<br><small>' + (q.tip || '') + '</small>';
+  }
+  document.getElementById('nextBtn').classList.remove('hidden');
+  document.getElementById('nextBtn').textContent = state.currentIndex < state.questions.length - 1 ? '👉 下一题' : '🎊 查看成绩';
+}
+
+function nextQuestion() {
+  state.currentIndex++;
+  state.currentIndex >= state.questions.length ? showResults() : renderQuestion();
+}
+
+function showResults() {
+  document.getElementById('questionPage').classList.add('hidden');
+  document.getElementById('resultPage').classList.remove('hidden');
+  const total = state.questions.length, percent = Math.round((state.correctCount / total) * 100);
+  document.getElementById('scoreNumber').textContent = state.score;
+  let stars = percent >= 90 ? 5 : percent >= 75 ? 4 : percent >= 60 ? 3 : percent >= 40 ? 2 : 1;
+  document.getElementById('resultStars').innerHTML = '⭐'.repeat(stars) + '<span style="opacity:0.3">⭐</span>'.repeat(5-stars);
+  const ge = state.gender === 'girl' ? '👧' : (state.gender === 'boy' ? '👦' : '🌟');
+  let emoji, greeting;
+  if (percent >= 90) { emoji='🏆'; greeting=`${state.nickname}${ge}，你是超级天才宝贝！`; }
+  else if (percent >= 75) { emoji='🌟'; greeting=`${state.nickname}${ge}，你的表现非常出色！`; }
+  else if (percent >= 60) { emoji='💪'; greeting=`${state.nickname}${ge}，你做得很好继续加油！`; }
+  else if (percent >= 40) { emoji='🌱'; greeting=`${state.nickname}${ge}，你正在快速成长中！`; }
+  else { emoji='🦋'; greeting=`${state.nickname}${ge}，每一次尝试都在让大脑变强！`; }
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultGreeting').textContent = greeting;
+
+  const msgs = {
+    90: `${state.nickname}小朋友，你的表现让所有人惊叹！你展示了非常棒的思维能力和知识储备。${state.gender==='girl'?'聪明的小公主':(state.gender==='boy'?'帅气的小王子':'聪明的小宝贝')}，保持这份好奇心和热情，你的未来充满无限可能！`,
+    75: `${state.nickname}小朋友，你真的非常优秀！大部分题目都难不倒你。偶尔的小失误完全正常，这正是继续学习和成长的动力。`,
+    60: `${state.nickname}小朋友，你做得很好！每个孩子都有自己的成长节奏，你正在以自己的方式闪闪发光。`,
+    40: `${state.nickname}小朋友，今天你学到了很多新知识！答对和答错都是大脑成长的一部分。最重要的是你勇敢尝试了！`,
+    0: `${state.nickname}小朋友，你今天勇敢地挑战了自己！大脑就像肌肉，每次锻炼都会变强。坚持下去，你会越来越棒的！`
+  };
+  let mk = percent >= 90 ? 90 : percent >= 75 ? 75 : percent >= 60 ? 60 : percent >= 40 ? 40 : 0;
+  document.getElementById('resultMessage').textContent = msgs[mk];
+  document.getElementById('analysisText').textContent = genAnalysis(percent);
+  document.getElementById('suggestionText').textContent = genSuggestions();
+
+  const dsDiv = document.getElementById('domainScores');
+  const di = { logic:{icon:'🧩',name:'逻辑推理',fc:'fill-logic'}, memory:{icon:'🧠',name:'记忆力',fc:'fill-memory'}, language:{icon:'📖',name:'语言表达',fc:'fill-language'}, math:{icon:'🔢',name:'数学思维',fc:'fill-math'}, creativity:{icon:'🎨',name:'创造力',fc:'fill-creativity'}, observe:{icon:'🔍',name:'观察力',fc:'fill-observe'} };
+  dsDiv.innerHTML = '';
+  Object.keys(state.domainScores).forEach(d => {
+    const ds = state.domainScores[d], pct = ds.total > 0 ? Math.round((ds.correct/ds.total)*100) : 0;
+    const info = di[d] || {icon:'🌟',name:d,fc:'fill-logic'};
+    dsDiv.innerHTML += `<div class="domain-score-item"><div class="domain-icon">${info.icon}</div><div class="domain-name">${info.name}</div><div style="font-weight:900;color:#FF6B9D;font-size:1.2em;">${pct}%</div><div class="domain-score-bar"><div class="domain-score-fill ${info.fc}" style="width:${pct}%"></div></div><div style="font-size:0.75em;color:#999;">${ds.correct}/${ds.total}题</div></div>`;
+  });
+  createConfetti();
+  document.getElementById('resultPage').scrollIntoView({ behavior:'smooth' });
+}
+
+function genAnalysis(percent) {
+  const n = state.nickname;
+  if (percent >= 90) return `${n}小朋友在本次测试中表现非常出色！你的思维敏捷、反应迅速，在多个方面都展现了超出同龄人的水平。这说明你平时一定是个爱动脑筋、充满好奇心的孩子。每一次思考都在让你的大脑变得更强壮。`;
+  if (percent >= 75) return `${n}小朋友的测试表现非常优秀！你已经掌握了很多知识和技能，大脑发育得很好。你已经学会了如何运用自己的聪明才智来解决问题，接下来可以试着挑战更难的内容，你会发现自己比想象中更厉害。`;
+  if (percent >= 60) return `${n}小朋友展现了很棒的基础能力！你现在正处于吸收知识的黄金时期，每一次练习都在为你搭建通往更高处的台阶。有些题目虽然有点难，但它们正是你成长的机会。`;
+  if (percent >= 40) return `${n}小朋友正在积极成长中！大脑就像一棵小树苗，每次学习和练习都在长出新的枝叶。你答错的每一道题都不是失败，而是大脑正在悄悄变强的信号。最重要的是你敢于尝试——这份勇气比分数更珍贵。`;
+  return `每个孩子都是独一无二的，发展节奏也各不相同。${n}小朋友今天敢于挑战自己，这本身就值得最热烈的掌声！保持好奇心和学习热情，这些品质比答对多少题更重要。`;
+}
+
+function genSuggestions() {
+  const n = state.nickname, ag = state.ageGroup;
+  let s = '';
+  if (ag === '3-5') s = `🌱 ${n}小朋友，3-5岁是大脑飞速发展的时期。建议每天：①和爸爸妈妈一起读绘本15-20分钟；②玩积木和拼图游戏；③多去户外观察花草和小动物；④玩过家家等想象游戏。最重要的是——开开心心地玩，在玩中学习。`;
+  else if (ag === '6-8') s = `🌿 ${n}小朋友，6-8岁是养成学习好习惯的时期。建议：①每天自己安静地读一会书；②玩数独、迷宫等趣味思维游戏；③做简单有趣的小实验（种豆子、观察蚂蚁）；④尝试写小日记记录每天有趣的事。保持好奇心最重要！`;
+  else s = `🌳 ${n}小朋友，9-12岁是思维变得更缜密的时期。建议：①多读科普和历史类书籍，拓展知识面；②学习下棋或编程，训练系统性思考；③参加讨论或演讲活动，锻炼表达能力；④选一个喜欢的主题深入研究和动手实践。`;
+  let strong = null, strongPct = 0, weak = null, weakPct = 100;
+  Object.keys(state.domainScores).forEach(d => {
+    const ds = state.domainScores[d], pct = ds.total > 0 ? Math.round((ds.correct/ds.total)*100) : 0;
+    if (pct > strongPct) { strongPct = pct; strong = d; }
+    if (pct < weakPct) { weakPct = pct; weak = d; }
+  });
+  const dn = { logic:'逻辑推理', memory:'记忆力', language:'语言表达', math:'数学思维', creativity:'创造力', observe:'观察力' };
+  if (strong && dn[strong]) s += ` 💪 你最擅长的是【${dn[strong]}】，这是你的天赋领域，继续在这方面深入探索吧。`;
+  if (weak && weak !== strong && dn[weak]) s += ` 📈 【${dn[weak]}】方面还有进步空间，不用着急，多玩相关的趣味游戏慢慢就会变强。`;
+  s += ` 最棒的是你愿意接受挑战的勇气！这份勇气比任何分数都珍贵。`;
+  return s;
+}
+
+function createSparkles() {
+  const colors = ['#FFD93D','#FF6B9D','#42A5F5','#66BB6A','#AB47BC','#FF9800'];
+  for (let i = 0; i < 10; i++) {
+    const sp = document.createElement('span');
+    sp.textContent = '✦';
+    sp.style.cssText = `position:fixed;pointer-events:none;z-index:200;font-size:${16+Math.random()*20}px;color:${colors[Math.floor(Math.random()*colors.length)]};left:${30+Math.random()*40}%;top:${40+Math.random()*20}%;animation:sparkleBurst ${0.6+Math.random()*0.6}s ease-out forwards;`;
+    document.body.appendChild(sp);
+    setTimeout(() => sp.remove(), 1200);
+  }
+  if (!document.getElementById('sparkleStyle')) {
+    const st = document.createElement('style');
+    st.id = 'sparkleStyle';
+    st.textContent = `@keyframes sparkleBurst{0%{opacity:1;transform:translate(0,0) scale(1);}100%{opacity:0;transform:translate(${Math.random()>0.5?'':'-'}${40+Math.random()*80}px,-${40+Math.random()*100}px) scale(0);}}`;
+    document.head.appendChild(st);
+  }
+}
+
+function createConfetti() {
+  const colors = ['#FF6B9D','#FFD93D','#42A5F5','#66BB6A','#AB47BC','#FF9800','#26C6DA','#EC407A'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*0.8}s;animation-duration:${1.5+Math.random()*2.5}s;width:${8+Math.random()*10}px;height:${8+Math.random()*10}px;`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 3500);
+  }
+}
+
+function restartGame() {
+  state.questions = []; state.currentIndex = 0; state.score = 0; state.answered = false; state.correctCount = 0; state.domainScores = {};
+  document.getElementById('questionPage').classList.add('hidden');
+  document.getElementById('resultPage').classList.add('hidden');
+  document.getElementById('landingPage').classList.remove('hidden');
+}
+
+function shakeElement(el) {
+  el.style.animation = 'none'; el.offsetHeight; el.style.animation = 'shake 0.5s ease';
+  setTimeout(() => el.style.animation = '', 500);
+}
+</script>
+</body>
+</html>
