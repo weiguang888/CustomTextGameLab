@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>爽文人生模拟器 - Power Fantasy Life Simulator</title>
+<style>
+:root {
+  --bg: #0a0a14;
+  --surface: #12122a;
+  --surface2: #1a1a3e;
+  --gold: #d4a843;
+  --gold-dim: #8b6914;
+  --cyan: #00e5ff;
+  --red: #ff4757;
+  --green: #2ed573;
+  --pink: #ff6b9d;
+  --text: #c8c8d4;
+  --text-dim: #7878a0;
+  --text-bright: #ffffff;
+  --border: #2a2a50;
+  --bar-bg: #1a1a35;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+}
+#app {
+  width: 100%;
+  max-width: 1100px;
+  min-height: 100vh;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+/* Title Screen */
+#title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex:1;
+  text-align: center;
+  gap: 20px;
+}
+#title-screen h1 {
+  font-size: 3em;
+  background: linear-gradient(135deg, var(--gold), #ffe08a, var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+@keyframes titleGlow {
+  from { filter: brightness(1); }
+  to { filter: brightness(1.3); }
+}
+#title-screen .subtitle {
+  color: var(--text-dim);
+  font-size: 1.1em;
+  letter-spacing: 4px;
+}
+.btn {
+  padding: 12px 36px;
+  border: 2px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  font-size: 1.1em;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s;
+  font-family: inherit;
+  letter-spacing: 2px;
+}
+.btn:hover {
+  background: var(--gold);
+  color: var(--bg);
+  box-shadow: 0 0 30px rgba(212,168,67,0.4);
+}
+.btn.system {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+.btn.system:hover {
+  background: var(--cyan);
+  color: var(--bg);
+  box-shadow: 0 0 30px rgba(0,229,255,0.4);
+}
+.btn.danger { border-color: var(--red); color: var(--red); }
+.btn.danger:hover { background: var(--red); color: #fff; }
+.btn.small { padding: 6px 16px; font-size: 0.85em; }
+/* Character Creation */
+#char-create {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  flex:1;
+  justify-content: center;
+}
+#char-create h2 {
+  color: var(--gold);
+  font-size: 1.8em;
+}
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 400px;
+}
+.input-group label {
+  color: var(--text-dim);
+  font-size: 0.9em;
+  letter-spacing: 2px;
+}
+.input-group input, .input-group select {
+  padding: 10px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-bright);
+  font-size: 1em;
+  border-radius: 4px;
+  font-family: inherit;
+  outline: none;
+}
+.input-group input:focus, .input-group select:focus {
+  border-color: var(--gold);
+}
+.bg-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-width: 500px;
+  width: 100%;
+}
+.bg-card {
+  padding: 14px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: left;
+}
+.bg-card:hover, .bg-card.selected {
+  border-color: var(--gold);
+  background: var(--surface2);
+}
+.bg-card h3 { color: var(--gold); margin-bottom: 4px; font-size: 0.95em; }
+.bg-card p { color: var(--text-dim); font-size: 0.8em; }
+/* Main Game */
+#game-screen {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  flex:1;
+}
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.top-bar .age-display {
+  font-size: 1.4em;
+  color: var(--gold);
+  font-weight: bold;
+}
+.top-bar .stage-display {
+  color: var(--text-dim);
+  font-size: 0.9em;
+}
+.top-bar .sys-points {
+  color: var(--cyan);
+  font-size: 0.95em;
+}
+.main-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 220px;
+  gap: 10px;
+  flex:1;
+}
+@media (max-width: 900px) {
+  .main-layout { grid-template-columns: 1fr; }
+  .right-panel { display: none; }
+}
+/* Stats Panel */
+.stats-panel {
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stats-panel h3 {
+  color: var(--gold);
+  font-size: 0.9em;
+  letter-spacing: 3px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.stat-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8em;
+}
+.stat-label span:first-child { color: var(--text-dim); }
+.stat-label span:last-child { color: var(--text-bright); font-weight: bold; }
+.stat-bar-outer {
+  height: 6px;
+  background: var(--bar-bg);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.stat-bar-inner {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+.bar-wealth { background: linear-gradient(90deg, #d4a843, #ffe08a); }
+.bar-intelligence { background: linear-gradient(90deg, #4a90d9, #87ceeb); }
+.bar-charisma { background: linear-gradient(90deg, #ff6b9d, #ffa5c3); }
+.bar-physique { background: linear-gradient(90deg, #ff4757, #ff8f9b); }
+.bar-luck { background: linear-gradient(90deg, #2ed573, #7bed9f); }
+.bar-karma { background: linear-gradient(90deg, #a855f7, #c084fc); }
+.bar-reputation { background: linear-gradient(90deg, #00e5ff, #80f0ff); }
+/* Event Panel */
+.event-panel {
+  background: var(--surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  max-height: 70vh;
+}
+.event-stage-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 0.75em;
+  border-radius: 3px;
+  letter-spacing: 2px;
+  align-self: flex-start;
+  border: 1px solid var(--gold-dim);
+  color: var(--gold-dim);
+}
+.event-title {
+  font-size: 1.4em;
+  color: var(--text-bright);
+  font-weight: bold;
+}
+.event-desc {
+  color: var(--text);
+  line-height: 1.7;
+  font-size: 0.95em;
+}
+.event-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.choice-btn {
+  padding: 12px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.3s;
+  font-family: inherit;
+  font-size: 0.9em;
+}
+.choice-btn:hover {
+  border-color: var(--gold);
+  background: #1a1a45;
+  color: var(--text-bright);
+}
+.choice-btn.system-choice {
+  border-color: var(--cyan);
+  background: rgba(0,229,255,0.08);
+}
+.choice-btn.system-choice:hover {
+  background: rgba(0,229,255,0.18);
+  box-shadow: 0 0 15px rgba(0,229,255,0.3);
+}
+.choice-btn.locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.choice-btn .req {
+  font-size: 0.75em;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+/* Right Panel */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+}
+.info-card h3 {
+  color: var(--gold);
+  font-size: 0.8em;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.log-entry {
+  font-size: 0.78em;
+  color: var(--text-dim);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.log-entry.good { color: var(--green); }
+.log-entry.bad { color: var(--red); }
+.log-entry.special { color: var(--cyan); }
+.achievement-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border: 1px solid var(--gold-dim);
+  border-radius: 3px;
+  font-size: 0.7em;
+  color: var(--gold);
+  margin: 2px;
+}
+/* Ending Screen */
+#ending-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex:1;
+  text-align: center;
+}
+#ending-screen h1 {
+  font-size: 2.5em;
+  color: var(--gold);
+}
+.ending-grade {
+  font-size: 4em;
+  font-weight: bold;
+  animation: titleGlow 1s ease-in-out infinite alternate;
+}
+.ending-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-width: 400px;
+  width: 100%;
+}
+.ending-stat {
+  padding: 10px;
+  background: var(--surface);
+  border-radius: 4px;
+  text-align: center;
+}
+.ending-stat .val { font-size: 1.4em; color: var(--gold); font-weight: bold; }
+.ending-stat .lbl { font-size: 0.75em; color: var(--text-dim); }
+/* Flash overlay */
+#flash {
+  position: fixed;
+  top:0;left:0;right:0;bottom:0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+#flash.system-flash { background: rgba(0,229,255,0.12); opacity:1; }
+#flash.gold-flash { background: rgba(212,168,67,0.15); opacity:1; }
+/* Toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 24px;
+  background: var(--surface2);
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  color: var(--gold);
+  z-index: 1000;
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2s forwards;
+  font-size: 0.9em;
+  pointer-events: none;
+}
+@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(-20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Title Screen -->
+  <div id="title-screen">
+    <div style="font-size:4em;">⚡</div>
+    <h1>爽文人生模拟器</h1>
+    <p class="subtitle">P O W E R · F A N T A S Y · L I F E</p>
+    <p style="color:var(--text-dim);max-width:500px;">
+      你带着前世的记忆重生归来。<br>
+      这一世，你将如何改写命运？
+    </p>
+    <div style="display:flex;gap:12px;">
+      <button class="btn" onclick="startNewGame()">开始新游戏</button>
+    </div>
+    <div id="rebirth-section" style="display:none;">
+      <p style="color:var(--cyan);margin-top:10px;">检测到前世记忆...</p>
+      <button class="btn system" onclick="rebirthGame()">带着记忆重生 (轮回加成)</button>
+    </div>
+    <p style="color:var(--text-dim);font-size:0.7em;margin-top:20px;">
+      已达成结局: <span id="ending-count-display">0</span>
+    </p>
+  </div>
+
+  <!-- Character Creation -->
+  <div id="char-create">
+    <h2>命运之书</h2>
+    <div class="input-group">
+      <label>你的名字</label>
+      <input type="text" id="input-name" placeholder="输入姓名..." maxlength="10">
+    </div>
+    <div class="input-group">
+      <label>性别</label>
+      <select id="input-gender">
+        <option value="male">男</option>
+        <option value="female">女</option>
+      </select>
+    </div>
+    <label style="color:var(--text-dim);letter-spacing:2px;font-size:0.9em;">出身背景</label>
+    <div class="bg-options" id="bg-options">
+      <div class="bg-card selected" data-bg="ordinary" onclick="selectBg(this)">
+        <h3>🏠 平凡之家</h3>
+        <p>普通工薪家庭，平凡但温馨。智力+5，魅力+5。</p>
+      </div>
+      <div class="bg-card" data-bg="orphan" onclick="selectBg(this)">
+        <h3>🌙 孤儿出身</h3>
+        <p>在孤儿院长大，坚韧不拔。体魄+8，意志力强。隐藏血脉。</p>
+      </div>
+      <div class="bg-card" data-bg="fallen" onclick="selectBg(this)">
+        <h3>💔 落魄豪门</h3>
+        <p>曾经的大家族嫡系，因变故流落在外。智力+8，隐藏身份。</p>
+      </div>
+      <div class="bg-card" data-bg="mystic" onclick="selectBg(this)">
+        <h3>🔮 神秘传人</h3>
+        <p>被隐世高人收养，身怀绝技却不自知。运气+10，系统亲和。</p>
+      </div>
+    </div>
+    <button class="btn" onclick="confirmCreate()">开启人生</button>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen">
+    <div class="top-bar">
+      <div>
+        <span class="age-display" id="age-display">0岁</span>
+        <span class="stage-display" id="stage-display"> | 婴儿期</span>
+      </div>
+      <div>
+        <span class="sys-points" id="sys-points-display">⚡ 系统点数: 0</span>
+      </div>
+      <div>
+        <button class="btn system small" onclick="openShop()" style="margin-right:6px;">系统商店</button>
+        <button class="btn small" onclick="toggleLog()">📋 记录</button>
+      </div>
+    </div>
+    <div class="main-layout">
+      <!-- Stats -->
+      <div class="stats-panel" id="stats-panel"></div>
+      <!-- Event -->
+      <div class="event-panel" id="event-panel">
+        <span class="event-stage-tag" id="event-tag">命运事件</span>
+        <div class="event-title" id="event-title">命运之轮开始转动...</div>
+        <div class="event-desc" id="event-desc">你在混沌中苏醒，一段全新的人生即将展开。</div>
+        <div class="event-choices" id="event-choices"></div>
+      </div>
+      <!-- Right -->
+      <div class="right-panel" id="right-panel">
+        <div class="info-card">
+          <h3>🏆 成就</h3>
+          <div id="achievement-list" style="color:var(--text-dim);font-size:0.75em;">暂无成就</div>
+        </div>
+        <div class="info-card" id="log-card">
+          <h3>📜 人生记录</h3>
+          <div id="log-list" style="max-height:300px;overflow-y:auto;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ending Screen -->
+  <div id="ending-screen">
+    <div style="font-size:3em;" id="ending-icon">👑</div>
+    <h1 id="ending-title">传奇人生</h1>
+    <div class="ending-grade" id="ending-grade">S</div>
+    <p id="ending-desc" style="color:var(--text-dim);max-width:500px;"></p>
+    <div class="ending-stats" id="ending-stats"></div>
+    <div style="display:flex;gap:12px;margin-top:10px;">
+      <button class="btn system" onclick="rebirthGame()">带着记忆重生</button>
+      <button class="btn" onclick="location.reload()">返回主菜单</button>
+    </div>
+  </div>
+</div>
+
+<div id="flash"></div>
+<div id="toast-container"></div>
+
+<script>
+// ==================== GAME ENGINE ====================
+
+const G = {
+  name: '',
+  gender: 'male',
+  background: 'ordinary',
+  age: 0,
+  stats: { wealth:5, intelligence:5, charisma:5, physique:5, luck:5, karma:0, reputation:0 },
+  sysPoints: 0,
+  relationships: {},
+  achievements: [],
+  flags: {},
+  history: [],
+  isAlive: true,
+  rebirthCount: 0,
+  rebirthBonus: 0,
+  selectedBg: 'ordinary',
+  yearCount: 0,
+  eventCooldown: {},
+};
+
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+// ==================== EVENTS DATABASE ====================
+
+const EVENTS = {
+  // --- System Events (special triggers) ---
+  system_awakening: {
+    id: 'system_awakening', title: '⚡ 系统觉醒', tag: '系统',
+    desc: '一道冰冷的机械声在你脑海中响起——\n"叮！万界人生系统已绑定宿主。检测到此界天道残缺，本系统将辅助宿主走向人生巅峰。"\n你的眼前浮现出一块半透明的面板，上面跳动着各种数据。\n从此，你的人生将不再平凡。',
+    minAge:5, maxAge:12, weight:3, once:true, forceAge: true,
+    choices: [
+      { text:'"这就是我的金手指？"——接受系统', effects:{sysPoints:10}, result:'系统面板在你面前展开。你感到一股暖流涌入体内，五感变得前所未有的敏锐。', toast:'🎉 系统已激活！' },
+      { text:'"我靠自己的实力也能成功"——婉拒系统', effects:{intelligence:5,physique:5}, result:'系统沉默了一瞬，随即回应："有个性。本系统欣赏你。保留基础功能，随时可以开启。"你还是获得了部分系统权限。', toast:'系统降级为辅助模式' },
+    ]
+  },
+  system_shop_event: {
+    id: 'system_shop_event', title: '🛒 系统商城特惠', tag: '系统',
+    desc: '系统商城突然弹出一条消息："检测到宿主近期表现优异，特开放限时折扣商品。是否查看？"',
+    minAge:14, maxAge:99, weight:2, cooldown:8,
+    choices: [
+      { text:'🔮 购买"运势提升卡"(5点数)', req:{sysPoints:5}, effects:{sysPoints:-5,luck:12}, result:'你感觉冥冥之中有股力量在庇佑着你。接下来的日子里，好事连连。' },
+      { text:'💪 购买"体质强化剂"(3点数)', req:{sysPoints:3}, effects:{sysPoints:-3,physique:10}, result:'一股热流在你体内炸开，你感觉浑身充满了力量，仿佛能一拳打穿钢板。' },
+      { text:'不看，省钱', effects:{sysPoints:1}, result:'系统嘟囔了一句"抠门"，但看在你勤俭持家的份上，奖励了你1个系统点数。' },
+    ]
+  },
+  // --- Childhood (0-12) ---
+  childhood_talent: {
+    id:'childhood_talent', title:'🌟 天赋初显', tag:'童年',
+    desc:'你在幼儿园/小学里无意间展露了一项过人天赋。老师惊讶地发现，你在这方面的悟性远超同龄人。是哪方面的天赋呢？',
+    minAge:4, maxAge:10, weight:5,
+    choices:[
+      { text:'📚 过目不忘——学习能力惊人', effects:{intelligence:10,reputation:3}, result:'你发现自己看书一遍就能记住。老师把你当作重点培养对象。' },
+      { text:'🎤 能说会道——口才出众', effects:{charisma:10,reputation:3}, result:'你小小年纪就能把大人说得心服口服。周围的小朋友都围着你转。' },
+      { text:'🏃 身手敏捷——体育奇才', effects:{physique:10,reputation:3}, result:'你的身体素质远超同龄人，跑步、跳远、打球，每一样都轻松拿下第一名。' },
+    ]
+  },
+  school_bully: {
+    id:'school_bully', title:'👊 校园霸凌', tag:'童年',
+    desc:'学校里有个大块头盯上了你，经常找你的麻烦。今天放学，他带着几个跟班在校门口堵你。你打算怎么办？',
+    minAge:8, maxAge:14, weight:4,
+    choices:[
+      { text:'正面硬刚——打一架!', req:{physique:8}, effects:{physique:5,reputation:5}, result:'你虽然个头不大，但一股狠劲震慑了所有人。大块头鼻青脸肿地跑了，从此没人再敢惹你。', toast:'👊 一战成名' },
+      { text:'智取——告诉老师和家长', effects:{intelligence:3}, result:'你冷静地收集了证据，报告了老师。霸凌者被严肃处理。你学会了用智慧保护自己。' },
+      { text:'⚡ 系统介入——给对方一个"小小的教训"', req:{sysPoints:2}, effects:{sysPoints:-2,reputation:10,physique:3}, result:'系统的力量让你轻松化解了危机。在旁人看来，你只是站在那里，霸凌者就莫名其妙地摔了个狗吃屎。从此你的"神秘感"在学校传开了。', toast:'系统威压发动' },
+    ]
+  },
+  family_move: {
+    id:'family_move', title:'🚚 搬家', tag:'童年',
+    desc:'父母因为工作原因，决定举家搬迁到一个新城市。这意味着你要离开熟悉的环境和朋友，去一个全新的地方重新开始。',
+    minAge:6, maxAge:13, weight:3,
+    choices:[
+      { text:'兴奋期待——新环境新机遇', effects:{luck:5,charisma:3}, result:'你带着好奇心来到了新城市。很快，你的开朗性格让你交到了新朋友，还发现新家附近有一个很好的学习环境。' },
+      { text:'依依不舍——但也接受现实', effects:{intelligence:3,karma:3}, result:'你珍惜最后的时光和老朋友们道别。这份重情重义的品格，让你在新环境也赢得了尊重。' },
+    ]
+  },
+  mysterious_dream: {
+    id:'mysterious_dream', title:'🌙 预知梦', tag:'童年',
+    desc:'你做了一个异常清晰的梦。梦里你看到了未来的某个片段——一场考试、一次意外、或是一个重要人物。醒来后，梦境的每一个细节都历历在目。',
+    minAge:7, maxAge:15, weight:2, once:true,
+    choices:[
+      { text:'记住这个梦，将来也许有用', effects:{intelligence:5,luck:8}, result:'你把这个梦牢牢记在心里。几年后，梦中的场景真的发生了，你因为提前有了心理准备而占据了先机。' },
+      { text:'只是个梦而已，不必当真', effects:{}, result:'你没太在意。但后来发生的一些事情让你隐约觉得那个梦似乎没那么简单...' },
+    ]
+  },
+  // --- Teen (13-17) ---
+  entrance_exam: {
+    id:'entrance_exam', title:'📝 升学考试', tag:'少年',
+    desc:'关键的升学考试来临了。这关系到你能进入什么样的学校，接触到什么样的圈子。整个家庭都对你寄予厚望。',
+    minAge:14, maxAge:18, weight:6,
+    choices:[
+      { text:'拼命苦读——用实力说话', req:{intelligence:10}, effects:{intelligence:8,reputation:10,wealth:3}, result:'你的努力得到了回报。以优异的成绩考入了顶尖学府，成为了"别人家的孩子"。家族以你为荣。', toast:'🏆 金榜题名' },
+      { text:'正常发挥——尽力就好', effects:{intelligence:3,reputation:2}, result:'你考得还不错，进入了一所中上水平的学校。虽然没有惊天动地，但也为未来打下了基础。' },
+      { text:'⚡ 系统辅助——知识灌输', req:{sysPoints:5}, effects:{sysPoints:-5,intelligence:15,reputation:15}, result:'系统将海量知识直接灌入你的脑海。你在考场上如有神助，以满分的成绩震惊了整个城市。报纸头条："天才少年横空出世！"', toast:'🧠 知识灌输完成' },
+    ]
+  },
+  first_love: {
+    id:'first_love', title:'💕 青涩初恋', tag:'少年',
+    desc:'班上新转来一个同学，在人群中格外耀眼。你们被安排成了同桌。日复一日的相处中，一种微妙的情愫在你们之间悄然滋生...',
+    minAge:14, maxAge:19, weight:4, cooldown:5,
+    choices:[
+      { text:'勇敢表白', req:{charisma:8}, effects:{charisma:8,luck:5}, result:'你的真诚打动了他/她。你们在一起度过了一段美好的时光，这段初恋成为了你心中永远的温暖。', toast:'💕 初恋达成' },
+      { text:'埋藏心底，专注学业', effects:{intelligence:6}, result:'你选择了把这份感情放在心里。虽然有些遗憾，但你因此更加专注，学习成绩突飞猛进。' },
+      { text:'⚡ 系统为你定制"完美邂逅"', req:{sysPoints:4}, effects:{sysPoints:-4,charisma:12,luck:6}, result:'系统精心安排了一系列"巧合"，让对方对你产生了浓厚的兴趣。你们顺利走到了一起，而且这段关系还为你带来了意想不到的人脉资源。' },
+    ]
+  },
+  school_competition: {
+    id:'school_competition', title:'🏅 校园大赛', tag:'少年',
+    desc:'学校举办了一场大型比赛——可能是学科竞赛、运动会、演讲比赛或才艺展示。这是你崭露头角的好机会。',
+    minAge:13, maxAge:18, weight:4,
+    choices:[
+      { text:'参加学科竞赛', req:{intelligence:10}, effects:{intelligence:7,reputation:8}, result:'你在赛场上沉着冷静，一路过关斩将，最终捧回了冠军奖杯。你的名字登上了学校的荣誉墙。' },
+      { text:'参加体育比赛', req:{physique:10}, effects:{physique:7,reputation:8}, result:'你在赛场上挥洒汗水，以绝对优势碾压对手。观众席爆发出雷鸣般的欢呼。' },
+      { text:'参加才艺展示', req:{charisma:10}, effects:{charisma:7,reputation:8}, result:'你的表演惊艳全场。台下掌声雷动，评委一致给出了最高分。' },
+      { text:'当观众，看看热闹', effects:{luck:2}, result:'你在台下为别人加油，倒也乐得轻松。不过心里暗暗决定下次也要站上舞台。' },
+    ]
+  },
+  rich_rival: {
+    id:'rich_rival', title:'💢 豪门纨绔的挑衅', tag:'少年',
+    desc:'学校里有个富二代仗着家世嚣张跋扈，今天他盯上了你。"你算什么东西？也配和我争？"他当着众人的面羞辱你。周围同学都在看着。',
+    minAge:13, maxAge:22, weight:3,
+    choices:[
+      { text:'冷静反击——用实力让他闭嘴', req:{intelligence:12}, effects:{reputation:15,charisma:5,wealth:5}, result:'你微微一笑，不卑不亢地列举了自己的成绩和能力。每一条都碾压对方。纨绔面红耳赤，周围同学纷纷为你叫好。经此一事，你成了学校里的风云人物。', toast:'👋 打脸成功' },
+      { text:'直接动手——能动手就别哔哔', req:{physique:14}, effects:{physique:5,reputation:10}, result:'你一拳把他打翻在地。虽然他家里施压，但学校监控显示是他先挑衅的。而且你展现出的实力让学校觉得你是可造之材，反而重点培养你。' },
+      { text:'⚡ 系统——曝光他的黑料', req:{sysPoints:6}, effects:{sysPoints:-6,reputation:25,wealth:10}, result:'系统将对方家族偷税漏税和违法经营的证据匿名发送给了有关部门。几天后，纨绔家的公司被查封，他灰溜溜地转了学。而你因为"巧合"地收购了他们家抛售的优质资产，赚到了人生第一桶金。', toast:'💥 降维打击' },
+    ]
+  },
+  // --- Young Adult (18-25) ---
+  university_choice: {
+    id:'university_choice', title:'🎓 人生岔路', tag:'青年',
+    desc:'你站在了人生的重要十字路口。是继续深造，还是直接创业？你的选择将深刻影响未来的道路。',
+    minAge:17, maxAge:22, weight:5,
+    choices:[
+      { text:'顶尖学府深造', req:{intelligence:14}, effects:{intelligence:12,reputation:12,wealth:3}, result:'你进入了全国最顶尖的大学。在这里，你不仅学到了最前沿的知识，还结识了一群志同道合的优秀人才。' },
+      { text:'直接创业——商海搏击', req:{wealth:8,charisma:8}, effects:{wealth:20,luck:8,reputation:8}, result:'你放弃了传统路线，一头扎进了商海。虽然艰难，但你凭借远超同龄人的眼光和能力，在市场中杀出了一条血路。' },
+      { text:'⚡ 系统——提供"未来商业趋势分析"', req:{sysPoints:8}, effects:{sysPoints:-8,wealth:30,intelligence:10,reputation:15}, result:'系统向你展示了未来十年的商业风口。你精准投资了几个即将爆发的行业，在大学期间就已经身价过亿。当别人还在投简历时，你已经在招人了。', toast:'📈 精准投资' },
+    ]
+  },
+  startup_opportunity: {
+    id:'startup_opportunity', title:'🚀 创业良机', tag:'青年',
+    desc:'你发现了一个巨大的市场空白。如果抓住这个机会，说不定能一飞冲天。但创业意味着风险——你需要投入大量时间和金钱，而且不一定能成功。',
+    minAge:18, maxAge:30, weight:3, cooldown:6,
+    choices:[
+      { text:'全力投入——拼一把', req:{wealth:10}, effects:{wealth:25,luck:5,reputation:10}, result:'你的判断是对的。公司发展迅猛，很快拿到了融资。你成为了创业圈的新星。' },
+      { text:'谨慎观望——先做好本职工作', effects:{wealth:5}, result:'你选择了稳妥。虽然错失了暴富的机会，但也避开了许多潜在的风险。稳健也是一种智慧。' },
+      { text:'⚡ 系统——"商业计划书生成"', req:{sysPoints:6}, effects:{sysPoints:-6,wealth:35,reputation:18}, result:'系统为你生成了一份完美的商业计划书，精准预测了市场走向。投资人看完后当场拍板。你的公司成立三个月就实现了盈利，一年估值破十亿。', toast:'🦄 独角兽诞生' },
+    ]
+  },
+  betrayal: {
+    id:'betrayal', title:'💔 背叛', tag:'青年',
+    desc:'你最信任的人——可能是朋友、恋人或商业伙伴——在关键时刻背叛了你。你的事业和感情同时遭受重创，几乎崩溃。',
+    minAge:18, maxAge:35, weight:3,
+    choices:[
+      { text:'化悲痛为力量——逆风翻盘', effects:{intelligence:6,physique:6,wealth:10,reputation:8}, result:'你把所有的痛苦都转化为了动力。六个月后，你不仅走出了阴影，还在事业上取得了新的突破。那个背叛你的人后悔莫及。' },
+      { text:'⚡ 系统——"因果追溯"·揭穿阴谋', req:{sysPoints:7}, effects:{sysPoints:-7,wealth:20,reputation:25,charisma:8}, result:'系统帮你追踪到了背叛背后的整个阴谋网络。原来这是一场针对你的精心策划。你反手一击，不仅将对方彻底击垮，还顺势吞并了他们的产业。', toast:'🔄 反杀' },
+      { text:'原谅他/她——放下执念', effects:{karma:15,charisma:5}, result:'你选择了宽恕。这份气度让所有知情者肃然起敬。你的格局让更多人愿意追随你。' },
+    ]
+  },
+  family_crisis: {
+    id:'family_crisis', title:'🏥 家庭危机', tag:'青年',
+    desc:'家里突然传来噩耗——亲人重病，需要一大笔医疗费。或者家里遭遇了经济危机，濒临破产。你感到了前所未有的压力。',
+    minAge:17, maxAge:30, weight:3,
+    choices:[
+      { text:'砸锅卖铁也要救——全力筹钱', req:{wealth:12}, effects:{wealth:-8,karma:20,reputation:8}, result:'你想尽一切办法凑齐了费用。虽然经济上受到了打击，但家人得以平安。你的孝心和担当感动了很多人。' },
+      { text:'⚡ 系统——"医疗方案优化"', req:{sysPoints:5}, effects:{sysPoints:-5,karma:15,intelligence:5}, result:'系统给出了最优的治疗方案和最低的治疗费用。你不仅轻松支付了医药费，还凭借系统提供的医学知识在康复过程中发挥了关键作用。' },
+      { text:'寻求社会帮助', effects:{wealth:-2,karma:5}, result:'你发起了众筹。虽然过程艰难，但好心人的帮助让你渡过了难关。你暗自发誓将来一定要回报社会。' },
+    ]
+  },
+  // --- Adult (26-40) ---
+  career_crossroads: {
+    id:'career_crossroads', title:'🔀 职场十字路口', tag:'成年',
+    desc:'你的事业到了一个关键节点。现在有两条路摆在你面前：一是安于现状，享受稳定生活；二是放手一搏，冲击更高的位置。',
+    minAge:25, maxAge:45, weight:4,
+    choices:[
+      { text:'放手一搏——风险与机遇并存', req:{wealth:15}, effects:{wealth:20,reputation:12,charisma:5}, result:'你赌赢了。你的大胆决策让你的事业上升到了一个新的高度。业界开始真正注意到你。' },
+      { text:'稳扎稳打——积累实力', effects:{wealth:8,intelligence:4}, result:'你选择了稳步前行。虽然没有爆发式增长，但你的根基越来越扎实，抗风险能力远超同行。' },
+      { text:'⚡ 系统——"人脉网络优化"', req:{sysPoints:8}, effects:{sysPoints:-8,wealth:30,charisma:15,reputation:20}, result:'系统为你筛选并安排了与几位关键人物的"偶遇"。这些人脉资源让你在业界的地位扶摇直上，再也没人能忽视你的存在。', toast:'🌐 人脉网建立' },
+    ]
+  },
+  marriage_decision: {
+    id:'marriage_decision', title:'💍 婚姻大事', tag:'成年',
+    desc:'你和伴侣的感情已经到了谈婚论嫁的地步。但结婚意味着责任和束缚。而且，你注意到身边似乎出现了更好的选择...',
+    minAge:24, maxAge:38, weight:4,
+    choices:[
+      { text:'和爱人结婚——共度余生', effects:{charisma:10,karma:10,luck:8}, result:'你们举办了一场温馨的婚礼。在亲友的祝福中，你感到前所未有的幸福和安定。家庭成为了你最坚实的后盾。', toast:'💒 新婚快乐' },
+      { text:'以事业为重——暂时不结婚', effects:{wealth:15,reputation:5}, result:'你选择了事业。虽然感情上有些遗憾，但你在事业上取得了巨大的成功。不过偶尔深夜独处时，也会感到一丝孤独。' },
+      { text:'⚡ 系统——"良缘匹配"', req:{sysPoints:10}, effects:{sysPoints:-10,charisma:20,luck:15,wealth:20,reputation:15}, result:'系统为你找到了最佳的婚姻对象——一个在各个方面都与你完美契合的人。这场婚姻不仅是爱情的结合，更是两个强大势力的联盟。你的人生从此开启了新的篇章。', toast:'💎 天作之合' },
+    ]
+  },
+  hidden_identity_reveal: {
+    id:'hidden_identity_reveal', title:'👑 身份揭露', tag:'命运',
+    desc:'一个意外的契机，你发现自己的身世并不简单。你的真实身份远比表面看起来要显赫得多。一个庞大的隐秘势力正在联系你...',
+    minAge:20, maxAge:50, weight:2, once:true,
+    choices:[
+      { text:'接受真实身份——回归家族', effects:{wealth:40,reputation:30,charisma:10,intelligence:8}, result:'你回到了属于你的位置。整个上流社会为之震动。那些曾经看不起你的人，现在只能仰视你。', toast:'👑 王者归来' },
+      { text:'拒绝——我要靠自己', effects:{physique:15,reputation:20,karma:10}, result:'你拒绝了家族的橄榄枝。这一举动反而赢得了家族元老的尊重。他们决定暗中支持你，让你用自己的方式证明自己。' },
+    ]
+  },
+  business_empire: {
+    id:'business_empire', title:'🏰 商业帝国', tag:'成年',
+    desc:'你的事业已经颇具规模。现在是一个关键的扩张期——你的竞争对手正在暗中联合，试图遏制你的发展。你感觉到了山雨欲来的气息。',
+    minAge:28, maxAge:55, weight:3, cooldown:10,
+    choices:[
+      { text:'主动出击——各个击破', req:{wealth:25,charisma:15}, effects:{wealth:30,reputation:20}, result:'你以雷霆手段逐一瓦解了对手的联盟。商界为之震动。你的企业在行业中占据了绝对主导地位。' },
+      { text:'合纵连横——化敌为友', req:{charisma:20}, effects:{wealth:20,charisma:10,karma:15,reputation:15}, result:'你展现出了超凡的外交手腕。不仅化解了危机，还将几个竞争对手变成了合作伙伴。你的格局让人折服。' },
+      { text:'⚡ 系统——"商业情报网"', req:{sysPoints:12}, effects:{sysPoints:-12,wealth:50,reputation:30,intelligence:10}, result:'系统入侵了竞争对手的内部网络，获取了所有关键情报。你提前布局，不仅轻松化解了危机，还反手做空了对手的公司，一举成为了行业寡头。', toast:'🏆 行业称王' },
+    ]
+  },
+  old_rival_returns: {
+    id:'old_rival_returns', title:'⚔️ 宿敌归来', tag:'成年',
+    desc:'一个你以为早已消失的老对手突然出现了。这些年他/她在暗中积蓄力量，现在已经成长为一个不可小觑的对手。他/她当众向你发起了挑战。',
+    minAge:25, maxAge:50, weight:2,
+    choices:[
+      { text:'堂堂正正一战', req:{physique:25}, effects:{reputation:25,physique:8,charisma:5}, result:'你们在万众瞩目下展开了对决。你以绝对的实力碾压了对手。观者无不叹服。', toast:'⚔️ 完胜' },
+      { text:'智取——设下一个完美的局', req:{intelligence:30}, effects:{reputation:25,intelligence:8,wealth:15}, result:'你布下了一个精妙的局，对手步步踏入陷阱而不自知。当他/她意识到的时候已经晚了。你不战而屈人之兵。' },
+      { text:'⚡ 系统——"降维打击"', req:{sysPoints:10}, effects:{sysPoints:-10,reputation:40,wealth:25,all_stats:5}, result:'系统释放了"降维打击"——直接在认知层面对对手进行了压制。对手惊恐地发现自己在你面前连站都站不稳。这场对决被传为神话。', toast:'🌌 降维打击' },
+    ]
+  },
+  // --- Middle Age (41-60) ---
+  legacy_building: {
+    id:'legacy_building', title:'🏛️ 缔造传奇', tag:'中年',
+    desc:'你已经功成名就。但你开始思考一个更深层的问题：你能为这个世界留下什么？是财富、是知识、还是精神？',
+    minAge:40, maxAge:65, weight:3,
+    choices:[
+      { text:'建立慈善基金——回馈社会', req:{wealth:30}, effects:{karma:30,reputation:20,wealth:-5}, result:'你的慈善基金帮助了无数人。你的名字被刻在了慈善事业的丰碑上。' },
+      { text:'著书立说——传承智慧', req:{intelligence:35}, effects:{intelligence:10,reputation:25,karma:10}, result:'你写的书成为了传世之作，影响了一代又一代人。你的思想超越了生命的长度。' },
+      { text:'培养接班人——延续事业', req:{charisma:30}, effects:{charisma:15,reputation:15,karma:10}, result:'你精心挑选和培养的接班人没有辜负你的期望。在你退休后，你的事业继续蓬勃发展。' },
+    ]
+  },
+  political_arena: {
+    id:'political_arena', title:'🏛️ 政商博弈', tag:'中年',
+    desc:'随着你的事业越做越大，你已经不可避免地卷入了更高层面的博弈。有人想拉拢你，有人想打压你。你需要在复杂的局势中找到自己的位置。',
+    minAge:38, maxAge:60, weight:2,
+    choices:[
+      { text:'保持中立——闷声发大财', effects:{wealth:15,intelligence:5}, result:'你在夹缝中游刃有余，各方都要给你几分面子。你成为了一个不可忽视的独立力量。' },
+      { text:'⚡ 系统——"局势推演"', req:{sysPoints:15}, effects:{sysPoints:-15,wealth:35,reputation:35,intelligence:12}, result:'系统为你推演了未来二十年的局势走向。你据此做出了最正确的选择，不仅保全了自己的产业，还获得了巨大的政治资本。', toast:'🎯 精确布局' },
+    ]
+  },
+  // --- Elder (60+) ---
+  final_challenge: {
+    id:'final_challenge', title:'🏔️ 终极考验', tag:'晚年',
+    desc:'年过花甲，一个前所未有的挑战摆在了你的面前。这可能是一场全球性的危机、一个需要你用尽毕生智慧才能解决的问题、或是一个关乎全人类命运的选择。',
+    minAge:55, maxAge:80, weight:3,
+    choices:[
+      { text:'倾尽所有——力挽狂澜', req:{wealth:40,reputation:40}, effects:{reputation:30,karma:25,wealth:-15}, result:'你动用了毕生积累的资源和智慧，成功地化解了这场危机。你的名字被载入了史册，成为了一个时代的象征。' },
+      { text:'审时度势——做力所能及的事', effects:{reputation:10,karma:10}, result:'你没有逞强，而是做了自己力所能及的事情。在众人的努力下，危机最终被化解了。你也赢得了应有的尊重。' },
+      { text:'⚡ 系统——"终极方案"', req:{sysPoints:20}, effects:{sysPoints:-20,reputation:50,wealth:30,all_stats:10}, result:'系统解锁了终极权限，为你提供了一个完美的解决方案。你以最小的代价化解了危机，并且留下了一套应对未来类似情况的完整方案。全世界都感激你的贡献。', toast:'🌍 拯救世界' },
+    ]
+  },
+  life_reflection: {
+    id:'life_reflection', title:'🌅 人生回望', tag:'晚年',
+    desc:'夕阳西下，你坐在庭院里，回望这一生。那些辉煌、那些遗憾、那些欢笑和泪水，都化作了嘴角的一抹微笑。你觉得自己这一生...',
+    minAge:60, maxAge:90, weight:4,
+    choices:[
+      { text:'无怨无悔——精彩绝伦的一生', effects:{karma:20,luck:10}, result:'你心满意足地笑了。这一生，你活出了自己的精彩。没有什么可后悔的。' },
+      { text:'还有些遗憾——但总体满意', effects:{karma:10}, result:'人生哪能十全十美？那些遗憾反而让你的人生更加真实和丰满。你安然地接受了这一切。' },
+    ]
+  },
+  // --- Universal Events ---
+  mysterious_mentor: {
+    id:'mysterious_mentor', title:'🧙 神秘导师', tag:'奇遇',
+    desc:'一位神秘的老人/高人找到了你。他/她说在你身上看到了非凡的潜力，愿意传授你一项独门绝技。但你总觉得这人有些捉摸不透...',
+    minAge:10, maxAge:40, weight:2, once:true,
+    choices:[
+      { text:'拜师学艺', effects:{intelligence:12,physique:8,charisma:5}, result:'你跟随这位神秘导师学习了数年。虽然过程艰苦，但你掌握了一门常人无法企及的技艺。师父临走时说："你已青出于蓝，为师没什么可教的了。"' },
+      { text:'婉拒——但接受一些指点', effects:{intelligence:5}, result:'你没有正式拜师，但老人还是给了你一些宝贵的建议。这些建议在后来的人生中帮了你大忙。' },
+    ]
+  },
+  lottery: {
+    id:'lottery', title:'🎰 意外之财', tag:'奇遇',
+    desc:'你无意中买了一张彩票/参加了一个抽奖/捡到了一个钱包。命运给你开了一扇小小的财富之门。',
+    minAge:16, maxAge:99, weight:3, cooldown:8,
+    choices:[
+      { text:'合理使用这笔钱', effects:{wealth:15}, result:'你把这笔钱用在了刀刃上。虽然不是天文数字，但也让你的生活宽裕了不少。' },
+      { text:'⚡ 系统——"财运加倍"', req:{sysPoints:3}, effects:{sysPoints:-3,wealth:30,luck:10}, result:'系统发动了财运加倍！你不仅中了大奖，还在用这笔钱投资的过程中获得了更高的回报。', toast:'💰 财运加倍' },
+    ]
+  },
+  investment_opp: {
+    id:'investment_opp', title:'📊 投资风口', tag:'机遇',
+    desc:'一个绝佳的投资机会出现在你面前。这可能是一个新兴行业、一支潜力股、或是一块即将开发的地皮。但投资有风险，入市需谨慎。',
+    minAge:18, maxAge:70, weight:3, cooldown:6,
+    choices:[
+      { text:'大胆投资', req:{wealth:8}, effects:{wealth:18,luck:5}, result:'你的眼光很准！这笔投资给你带来了丰厚的回报。' },
+      { text:'小额试水', effects:{wealth:6}, result:'你投了一小笔钱试试水。虽然没有暴富，但也证明了你的判断力。下次也许可以更大胆一些。' },
+      { text:'⚡ 系统——"市场预测"', req:{sysPoints:5}, effects:{sysPoints:-5,wealth:25,intelligence:5}, result:'系统给出了精确的市场分析和最佳进出场时机。你这笔投资的回报率让华尔街都眼红。', toast:'📈 精准抄底' },
+    ]
+  },
+  health_scare: {
+    id:'health_scare', title:'🏥 健康危机', tag:'危机',
+    desc:'你的身体发出了警告信号。长期的劳累和压力让健康亮起了红灯。医生说，如果再不注意，后果可能很严重。',
+    minAge:30, maxAge:70, weight:2, cooldown:10,
+    choices:[
+      { text:'放下工作，好好休养', effects:{physique:15,karma:5,wealth:-3}, result:'你听从了身体的召唤，给自己放了一个长假。休养之后你感到焕然一新。健康才是最大的财富。' },
+      { text:'⚡ 系统——"身体修复"', req:{sysPoints:8}, effects:{sysPoints:-8,physique:25}, result:'系统对你的身体进行了全面修复。你不仅恢复了健康，身体机能还比之前更强了。', toast:'💪 身体修复完成' },
+      { text:'硬扛——吃止痛药继续工作', effects:{physique:-8,intelligence:-3}, result:'你低估了健康的警告。身体状况持续下滑，迫使你后来花费了更多的时间和金钱来补救。' },
+    ]
+  },
+  travel_opp: {
+    id:'travel_opp', title:'✈️ 远行', tag:'机遇',
+    desc:'一个出国旅行/留学/工作的机会摆在你面前。这将是一次改变视野的经历，但也意味着要离开舒适圈。',
+    minAge:16, maxAge:45, weight:2,
+    choices:[
+      { text:'踏上旅程', effects:{intelligence:8,charisma:8,luck:5}, result:'这趟远行开阔了你的眼界。你看到了更大的世界，也发现了更多的可能性。你在旅途中还结识了几个改变你一生的人。' },
+      { text:'留在原地', effects:{wealth:5}, result:'你选择了安稳。虽然错过了外面的精彩，但你在本地深耕，也有自己的收获。' },
+    ]
+  },
+  face_slapping: {
+    id:'face_slapping', title:'🖐️ 打脸时刻', tag:'爽文',
+    desc:'有人当着众人的面贬低你、看不起你。周围的看客也在窃笑。现在，是你让他们知道什么叫"莫欺少年穷"的时候了。',
+    minAge:14, maxAge:60, weight:3, cooldown:8,
+    choices:[
+      { text:'摊牌——不再低调了', req:{wealth:18,reputation:15}, effects:{reputation:25,charisma:10,wealth:8}, result:'你微笑着亮出了自己的底牌。那个看不起你的人面如死灰。围观群众集体倒吸一口凉气——原来你就是传说中的那个大佬！', toast:'🖐️ 打脸啪啪响' },
+      { text:'继续低调——闷声发大财', effects:{intelligence:5,wealth:5}, result:'你笑而不语。这种人还不值得你动怒。但旁边的有心人看出了你的不凡，暗暗记在了心里。' },
+      { text:'⚡ 系统——"真相曝光"', req:{sysPoints:5}, effects:{sysPoints:-5,reputation:25,wealth:10}, result:'系统"不小心"泄露了你的真实身份和成就。全场哗然。那个挑衅者腿一软差点跪下。新闻头条："神秘大佬身份曝光，竟是低调的他/她！"', toast:'📰 轰动' },
+    ]
+  },
+  system_quest: {
+    id:'system_quest', title:'📋 系统任务', tag:'系统',
+    desc:'系统发布了一个特殊任务。完成后有丰厚奖励，但任务本身并不简单。',
+    minAge:12, maxAge:80, weight:2, cooldown:6,
+    choices:[
+      { text:'接受任务', effects:{sysPoints:8,luck:5,wealth:10}, result:'你完成了系统的任务，获得了丰厚的奖励。虽然过程有些曲折，但你的能力又上了一层楼。', toast:'✅ 任务完成' },
+      { text:'放弃任务——风险太大', effects:{}, result:'你选择了放弃。系统没有说什么，但你知道自己错过了一个变强的机会。' },
+    ]
+  },
+  hidden_treasure: {
+    id:'hidden_treasure', title:'💎 隐藏宝藏', tag:'奇遇',
+    desc:'你偶然发现了一个被世人遗忘的宝藏——可能是古籍中的秘密、老宅里的密室、或是深山中的遗迹。',
+    minAge:15, maxAge:55, weight:1, once:true,
+    choices:[
+      { text:'深入探索', effects:{wealth:30,intelligence:10,luck:10,reputation:15}, result:'你的发现震惊了世界。这批宝藏/知识不仅带来了巨额财富，还改写了人们对某个领域的认知。', toast:'💎 宝藏发现！' },
+      { text:'谨慎处理——慢慢研究', effects:{wealth:15,intelligence:15}, result:'你没有急于公开，而是花了数年时间仔细研究。这让你获得了比宝藏本身更宝贵的知识和智慧。' },
+    ]
+  },
+  karma_event: {
+    id:'karma_event', title:'⚖️ 因果报应', tag:'命运',
+    desc:'你过去做的好事/坏事似乎要结出果实了。命运的天平在悄悄倾斜。',
+    minAge:20, maxAge:70, weight:2, cooldown:12,
+    choices:[
+      { text:'善有善报——好运降临', req:{karma:15}, effects:{luck:15,wealth:12,reputation:8}, result:'你曾经种下的善因，如今开花结果。多方力量汇聚，助你度过了一个关键的转折点。', toast:'🌸 善因得果' },
+      { text:'承受业果——接受考验', effects:{wealth:-5,physique:-5,karma:-5}, result:'你过去的某些选择让现在的你付出了代价。但经历了这一切，你对人生有了更深的体悟。' },
+    ]
+  },
+  // Death is handled separately
+};
+
+// ==================== SCREENS ====================
+
+function showScreen(id) {
+  ['title-screen','char-create','game-screen','ending-screen'].forEach(s => {
+    document.getElementById(s).style.display = 'none';
+  });
+  document.getElementById(id).style.display = 'flex';
+}
+
+// ==================== TITLE / START ====================
+
+function init() {
+  showScreen('title-screen');
+  renderRebirthInfo();
+}
+
+function renderRebirthInfo() {
+  const saved = loadData();
+  if (saved && saved.rebirthCount > 0) {
+    document.getElementById('rebirth-section').style.display = 'block';
+    document.getElementById('rebirth-section').querySelector('p').textContent =
+      `检测到前世记忆... 已轮回 ${saved.rebirthCount} 次 · 轮回加成 +${saved.rebirthCount * 3}`;
+  }
+  const allEndings = getAllEndings();
+  document.getElementById('ending-count-display').textContent = allEndings.length;
+}
+
+function startNewGame() {
+  G.rebirthCount = 0;
+  G.rebirthBonus = 0;
+  showScreen('char-create');
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-gender').value = 'male';
+  G.selectedBg = 'ordinary';
+  document.querySelectorAll('.bg-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector('[data-bg="ordinary"]').classList.add('selected');
+}
+
+function selectBg(el) {
+  document.querySelectorAll('.bg-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  G.selectedBg = el.dataset.bg;
+}
+
+function confirmCreate() {
+  G.name = document.getElementById('input-name').value.trim() || '无名';
+  G.gender = document.getElementById('input-gender').value;
+  G.background = G.selectedBg;
+  G.age = 0;
+  G.stats = { wealth:5, intelligence:5, charisma:5, physique:5, luck:5, karma:0, reputation:0 };
+  G.sysPoints = 0;
+  G.relationships = {};
+  G.achievements = [];
+  G.flags = {};
+  G.history = [];
+  G.isAlive = true;
+  G.yearCount = 0;
+  G.eventCooldown = {};
+
+  // Background bonuses
+  switch(G.background) {
+    case 'ordinary': G.stats.intelligence += 5; G.stats.charisma += 5; break;
+    case 'orphan': G.stats.physique += 8; G.stats.luck += 3; G.flags.orphan = true; break;
+    case 'fallen': G.stats.intelligence += 8; G.stats.wealth += 3; G.flags.fallenNoble = true; break;
+    case 'mystic': G.stats.luck += 10; G.sysPoints += 5; G.flags.mysticDisciple = true; break;
+  }
+  G.stats.reputation = G.stats.charisma - 5;
+
+  // Rebirth bonus
+  if (G.rebirthBonus > 0) {
+    Object.keys(G.stats).forEach(k => {
+      if (k !== 'karma') G.stats[k] += G.rebirthBonus;
+    });
+    G.stats.luck += G.rebirthBonus * 2;
+  }
+
+  // Clamp
+  for (let k in G.stats) G.stats[k] = clamp(G.stats[k], 0, 100);
+
+  showScreen('game-screen');
+  addLog('🌟 新的人生开始了...', 'special');
+  advanceLife();
+}
+
+function rebirthGame() {
+  const saved = loadData();
+  if (saved) {
+    G.rebirthCount = saved.rebirthCount + 1;
+    G.rebirthBonus = G.rebirthCount * 3;
+  } else {
+    G.rebirthCount = 1;
+    G.rebirthBonus = 3;
+  }
+  // Keep some achievements across lives
+  const oldAchievements = G.achievements.slice();
+  showScreen('char-create');
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-gender').value = 'male';
+  G.selectedBg = 'ordinary';
+  document.querySelectorAll('.bg-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector('[data-bg="ordinary"]').classList.add('selected');
+  G.achievements = oldAchievements;
+  addToast(`🔄 第 ${G.rebirthCount} 次轮回 · 初始加成 +${G.rebirthBonus}`);
+}
+
+// ==================== GAME LOOP ====================
+
+function getLifeStage(age) {
+  if (age <= 3) return '婴儿期';
+  if (age <= 6) return '幼儿期';
+  if (age <= 12) return '童年';
+  if (age <= 17) return '少年';
+  if (age <= 25) return '青年';
+  if (age <= 40) return '壮年';
+  if (age <= 60) return '中年';
+  return '晚年';
+}
+
+function advanceLife() {
+  if (!G.isAlive) return;
+
+  // Age progression
+  let yearStep;
+  if (G.age <= 6) yearStep = Math.floor(Math.random() * 2) + 2; // 2-3 years
+  else if (G.age <= 18) yearStep = Math.floor(Math.random() * 2) + 1; // 1-2 years
+  else if (G.age <= 40) yearStep = Math.floor(Math.random() * 3) + 1; // 1-3 years
+  else if (G.age <= 60) yearStep = Math.floor(Math.random() * 3) + 1; // 1-3 years
+  else yearStep = Math.floor(Math.random() * 2) + 1; // 1-2 years
+
+  G.age += yearStep;
+  G.yearCount++;
+
+  // Natural aging effects
+  if (G.age > 40 && G.age % 5 === 0) {
+    G.stats.physique = clamp(G.stats.physique - Math.floor(Math.random() * 3) - 1, 0, 100);
+  }
+
+  // Check death
+  if (G.age >= 85 + Math.floor(Math.random() * 15)) {
+    if (G.stats.physique > 30) G.age = Math.min(G.age, 100); // Healthy people live longer
+    else if (Math.random() < 0.3 + (100 - G.stats.physique) / 200) {
+      endGame('natural');
+      return;
+    }
+  }
+
+  // Random death by low physique
+  if (G.age > 55 && G.stats.physique < 5 && Math.random() < 0.2) {
+    endGame('health');
+    return;
+  }
+
+  // Accidental death (very rare)
+  if (Math.random() < 0.003 && G.stats.luck < 10) {
+    endGame('accident');
+    return;
+  }
+
+  updateDisplay();
+  triggerEvent();
+}
+
+function triggerEvent() {
+  // Check for forced system awakening
+  if (!G.flags.systemAwakened && G.age >= 6 && G.age <= 12) {
+    G.flags.systemAwakened = true;
+    renderEvent(EVENTS.system_awakening);
+    return;
+  }
+
+  // Hidden identity reveal
+  if ((G.flags.orphan || G.flags.fallenNoble || G.flags.mysticDisciple) && !G.flags.identityRevealed && G.age >= 20 && G.stats.reputation >= 25 && Math.random() < 0.15) {
+    G.flags.identityRevealed = true;
+    renderEvent(EVENTS.hidden_identity_reveal);
+    return;
+  }
+
+  // Collect eligible events
+  const lifeStage = getLifeStage(G.age);
+  const eligible = [];
+
+  for (let key in EVENTS) {
+    const ev = EVENTS[key];
+    if (G.age < ev.minAge || G.age > ev.maxAge) continue;
+    if (ev.once && G.flags['ev_' + ev.id]) continue;
+    if (ev.cooldown && G.eventCooldown[ev.id] && G.eventCooldown[ev.id] > G.yearCount) continue;
+
+    // Boost weight for face-slapping if stats are high
+    let weight = ev.weight || 3;
+    if (ev.id === 'face_slapping' && (G.stats.wealth >= 30 || G.stats.reputation >= 30)) weight += 5;
+
+    for (let i = 0; i < weight; i++) eligible.push(ev);
+  }
+
+  if (eligible.length === 0) {
+    // No events match current age — skip forward
+    addLog(`${G.age}岁: 时光飞逝，平安无事...`, 'good');
+    updateDisplay();
+    setTimeout(() => advanceLife(), 500);
+    return;
+  }
+
+  const event = eligible[Math.floor(Math.random() * eligible.length)];
+  G.eventCooldown[event.id] = G.yearCount + (event.cooldown || 4);
+  if (event.once) G.flags['ev_' + event.id] = true;
+  renderEvent(event);
+}
+
+function renderEvent(event) {
+  document.getElementById('event-tag').textContent = event.tag || '命运事件';
+  document.getElementById('event-title').textContent = event.title;
+  document.getElementById('event-desc').textContent = event.desc;
+  const choicesDiv = document.getElementById('event-choices');
+  choicesDiv.innerHTML = '';
+
+  event.choices.forEach((ch, i) => {
+    const btn = document.createElement('button');
+    let locked = false;
+    let reqText = '';
+
+    if (ch.req) {
+      for (let stat in ch.req) {
+        if (stat === 'sysPoints') {
+          if (G.sysPoints < ch.req[stat]) { locked = true; reqText = `⚡需要系统点数: ${ch.req[stat]}`; }
+        } else {
+          if (G.stats[stat] < ch.req[stat]) { locked = true; reqText = `${statToLabel(stat)}不足 (需要${ch.req[stat]})`; }
+        }
+      }
+    }
+
+    btn.className = 'choice-btn';
+    if (locked) btn.className += ' locked';
+    if (ch.text.includes('⚡')) btn.className += ' system-choice';
+
+    btn.innerHTML = ch.text + (reqText ? `<div class="req">🔒 ${reqText}</div>` : '');
+    if (!locked) {
+      btn.onclick = () => handleChoice(event, i);
+    }
+    choicesDiv.appendChild(btn);
+  });
+
+  updateDisplay();
+}
+
+function handleChoice(event, choiceIdx) {
+  const choice = event.choices[choiceIdx];
+  if (choice.req) {
+    for (let stat in choice.req) {
+      if (stat === 'sysPoints') {
+        if (G.sysPoints < choice.req[stat]) return;
+      } else {
+        if (G.stats[stat] < choice.req[stat]) return;
+      }
+    }
+  }
+
+  // Apply effects
+  if (choice.effects) {
+    for (let key in choice.effects) {
+      if (key === 'all_stats') {
+        for (let s in G.stats) G.stats[s] = clamp(G.stats[s] + choice.effects[key], 0, 100);
+      } else if (key === 'sysPoints') {
+        G.sysPoints = Math.max(0, G.sysPoints + choice.effects[key]);
+      } else if (G.stats.hasOwnProperty(key)) {
+        G.stats[key] = clamp(G.stats[key] + choice.effects[key], 0, 100);
+      }
+    }
+  }
+
+  // Log
+  const logType = event.tag === '系统' ? 'special' :
+    (event.tag === '危机' ? 'bad' : 'good');
+  addLog(`${G.age}岁: ${event.title} — ${choice.result.split('.')[0]}`, logType);
+
+  if (choice.toast) addToast(choice.toast);
+  if (event.tag === '系统' || (choice.text.includes('⚡'))) flashScreen('system-flash');
+  else if (event.tag === '爽文') flashScreen('gold-flash');
+
+  // Check achievements
+  checkAchievements();
+
+  // Update display
+  updateDisplay();
+
+  // Next event delay
+  setTimeout(() => {
+    advanceLife();
+  }, 600);
+}
+
+// ==================== ACHIEVEMENTS ====================
+
+function checkAchievements() {
+  const checks = [
+    { id:'wealthy', cond:()=>G.stats.wealth>=50, title:'💰 财富自由', desc:'财富值达到50' },
+    { id:'genius', cond:()=>G.stats.intelligence>=50, title:'🧠 天纵奇才', desc:'智力值达到50' },
+    { id:'charmer', cond:()=>G.stats.charisma>=50, title:'🌟 万人迷', desc:'魅力值达到50' },
+    { id:'warrior', cond:()=>G.stats.physique>=50, title:'💪 金刚不坏', desc:'体魄值达到50' },
+    { id:'lucky', cond:()=>G.stats.luck>=50, title:'🍀 天命之子', desc:'运气值达到50' },
+    { id:'saint', cond:()=>G.stats.karma>=50, title:'😇 圣人', desc:'善恶值达到50' },
+    { id:'devil', cond:()=>G.stats.karma<=-30, title:'😈 魔头', desc:'善恶值达到-30' },
+    { id:'famous', cond:()=>G.stats.reputation>=50, title:'⭐ 名扬天下', desc:'声望值达到50' },
+    { id:'rich100', cond:()=>G.stats.wealth>=100, title:'💎 富可敌国', desc:'财富值达到100' },
+    { id:'smart100', cond:()=>G.stats.intelligence>=100, title:'🔬 超凡入圣', desc:'智力值达到100' },
+    { id:'sys_master', cond:()=>G.sysPoints>=30, title:'⚡ 系统大师', desc:'系统点数达到30' },
+    { id:'centenarian', cond:()=>G.age>=100, title:'🎂 百岁老人', desc:'活到100岁' },
+  ];
+
+  checks.forEach(c => {
+    if (!G.achievements.includes(c.id) && c.cond()) {
+      G.achievements.push(c.id);
+      addLog(`🏆 获得成就: ${c.title}`, 'special');
+      addToast(`🏆 成就解锁: ${c.title}`);
+      addAchievementTag(c.title);
+    }
+  });
+}
+
+// ==================== ENDINGS ====================
+
+function endGame(type) {
+  G.isAlive = false;
+  const stats = G.stats;
+  let grade, title, desc, icon;
+  const totalStats = stats.wealth + stats.intelligence + stats.charisma + stats.physique + stats.luck + Math.abs(stats.karma) + stats.reputation;
+
+  if (type === 'accident') {
+    grade = 'C'; title = '意外陨落'; icon = '💀';
+    desc = '命运无常。你的人生在意外中戛然而止。但至少，你活过了。';
+  } else if (type === 'health') {
+    grade = 'D'; title = '油尽灯枯'; icon = '🕯️';
+    desc = '你忽视了健康的警告。身体终究是革命的本钱啊。';
+  } else if (totalStats >= 550) {
+    grade = 'SSS'; title = '万古至尊'; icon = '👑';
+    desc = '你的一生堪称完美。财富、智慧、魅力、力量、声望——你在每个领域都达到了巅峰。你的名字成为了一个传说，流传千载。';
+  } else if (totalStats >= 400) {
+    grade = 'SS'; title = '一世枭雄'; icon = '⚡';
+    desc = '你从微末中崛起，凭借超卓的能力和一点点运气，站在了世界的顶端。你的故事被无数人传颂。';
+  } else if (totalStats >= 280) {
+    grade = 'S'; title = '传奇人生'; icon = '🏆';
+    desc = '你的人生精彩纷呈，波澜壮阔。虽然有些遗憾，但瑕不掩瑜。你活出了很多人几辈子都活不出的精彩。';
+  } else if (totalStats >= 180) {
+    grade = 'A'; title = '人生赢家'; icon = '🌟';
+    desc = '你成功地打造了属于自己的幸福人生。事业有成，家庭美满，受人尊敬。还有什么不满足的呢？';
+  } else if (totalStats >= 100) {
+    grade = 'B'; title = '平稳人生'; icon = '🏠';
+    desc = '没有大起大落，但也不算平庸。你按自己的方式活了一辈子。也许下一次，可以更大胆一些？';
+  } else {
+    grade = 'C'; title = '平淡一生'; icon = '🍃';
+    desc = '也许这一世你不是主角。但这不代表什么——下一次轮回，你将带着这一世的经验重新出发。';
+  }
+
+  // Save ending
+  saveEnding({ grade, title, desc, icon, age: G.age, stats: {...G.stats}, achievements: [...G.achievements], background: G.background, name: G.name });
+
+  // Show ending
+  document.getElementById('ending-icon').textContent = icon;
+  document.getElementById('ending-title').textContent = title;
+  document.getElementById('ending-grade').textContent = grade;
+  document.getElementById('ending-desc').textContent = desc;
+
+  const statsDiv = document.getElementById('ending-stats');
+  statsDiv.innerHTML = '';
+  const statLabels = { wealth:'财富', intelligence:'智力', charisma:'魅力', physique:'体魄', luck:'运气', karma:'善恶', reputation:'声望' };
+  for (let k in statLabels) {
+    statsDiv.innerHTML += `<div class="ending-stat"><div class="val">${stats[k]}</div><div class="lbl">${statLabels[k]}</div></div>`;
+  }
+
+  showScreen('ending-screen');
+  addToast(`🎮 结局: ${grade}级 - ${title}`);
+}
+
+function saveEnding(ending) {
+  const key = 'life_sim_endings';
+  let endings = [];
+  try {
+    endings = JSON.parse(localStorage.getItem(key) || '[]');
+  } catch(e) {}
+  endings.push(ending);
+  // Keep last 20
+  if (endings.length > 20) endings = endings.slice(-20);
+  localStorage.setItem(key, JSON.stringify(endings));
+}
+
+function getAllEndings() {
+  try { return JSON.parse(localStorage.getItem('life_sim_endings') || '[]'); } catch(e) { return []; }
+}
+
+function loadData() {
+  const endings = getAllEndings();
+  if (endings.length > 0) {
+    return { rebirthCount: endings.length, lastEnding: endings[endings.length - 1] };
+  }
+  return null;
+}
+
+// ==================== SYSTEM SHOP ====================
+
+function openShop() {
+  if (G.age < 6) { addToast('系统商店尚未解锁...'); return; }
+
+  const shopItems = [
+    { name:'运势提升', cost:5, effect:'运气 +10', apply:()=>{ G.stats.luck = clamp(G.stats.luck+10,0,100); } },
+    { name:'智力强化', cost:5, effect:'智力 +10', apply:()=>{ G.stats.intelligence = clamp(G.stats.intelligence+10,0,100); } },
+    { name:'魅力提升', cost:4, effect:'魅力 +10', apply:()=>{ G.stats.charisma = clamp(G.stats.charisma+10,0,100); } },
+    { name:'体质强化', cost:4, effect:'体魄 +10', apply:()=>{ G.stats.physique = clamp(G.stats.physique+10,0,100); } },
+    { name:'声望提升', cost:6, effect:'声望 +15', apply:()=>{ G.stats.reputation = clamp(G.stats.reputation+15,0,100); } },
+    { name:'财富加速', cost:8, effect:'财富 +15', apply:()=>{ G.stats.wealth = clamp(G.stats.wealth+15,0,100); } },
+    { name:'福缘深厚', cost:10, effect:'运气 +20', apply:()=>{ G.stats.luck = clamp(G.stats.luck+20,0,100); } },
+    { name:'天道眷顾', cost:20, effect:'全属性 +5', apply:()=>{
+      for(let k in G.stats) G.stats[k] = clamp(G.stats[k]+5,0,100);
+    }},
+  ];
+
+  let html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:100;display:flex;align-items:center;justify-content:center;" onclick="this.remove()">';
+  html += '<div style="background:var(--surface);border:2px solid var(--cyan);border-radius:8px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;" onclick="event.stopPropagation()">';
+  html += '<h3 style="color:var(--cyan);margin-bottom:8px;">⚡ 系统商店</h3>';
+  html += `<p style="color:var(--text-dim);margin-bottom:16px;">当前点数: <span style="color:var(--cyan);font-weight:bold;">${G.sysPoints}</span></p>`;
+  shopItems.forEach((item, i) => {
+    const canBuy = G.sysPoints >= item.cost;
+    html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;${canBuy?'':'opacity:0.4'}">
+      <div>
+        <div style="color:var(--text-bright);">${item.name}</div>
+        <div style="color:var(--text-dim);font-size:0.8em;">${item.effect}</div>
+      </div>
+      <button class="btn system small" ${canBuy?`onclick="buyShopItem(${i})"`:''}>${item.cost}点</button>
+    </div>`;
+  });
+  html += '<button class="btn small" style="margin-top:12px;width:100%;" onclick="this.closest(\'div[style]\').parentElement.remove()">关闭</button>';
+  html += '</div></div>';
+
+  document.body.insertAdjacentHTML('beforeend', html);
+
+  // Store items for reference
+  window._shopItems = shopItems;
+}
+
+function buyShopItem(idx) {
+  const item = window._shopItems[idx];
+  if (G.sysPoints < item.cost) return;
+  G.sysPoints -= item.cost;
+  item.apply();
+  updateDisplay();
+  addLog(`🛒 系统商店: 购买了 ${item.name}`, 'special');
+  addToast(`✅ 购买成功: ${item.name}`);
+  // Close shop
+  const overlay = document.querySelector('div[style*="position:fixed"]');
+  if (overlay) overlay.remove();
+}
+
+// ==================== UI ====================
+
+function updateDisplay() {
+  document.getElementById('age-display').textContent = G.age + '岁';
+  document.getElementById('stage-display').textContent = ' | ' + getLifeStage(G.age);
+  document.getElementById('sys-points-display').textContent = `⚡ 系统点数: ${G.sysPoints}`;
+
+  // Stats panel
+  const statsPanel = document.getElementById('stats-panel');
+  statsPanel.innerHTML = '<h3>' + (G.name || '主角') + '</h3>';
+  const statDefs = [
+    { key:'wealth', label:'💰 财富', cls:'bar-wealth' },
+    { key:'intelligence', label:'🧠 智力', cls:'bar-intelligence' },
+    { key:'charisma', label:'💋 魅力', cls:'bar-charisma' },
+    { key:'physique', label:'💪 体魄', cls:'bar-physique' },
+    { key:'luck', label:'🍀 运气', cls:'bar-luck' },
+    { key:'karma', label:'⚖️ 善恶', cls:'bar-karma' },
+    { key:'reputation', label:'⭐ 声望', cls:'bar-reputation' },
+  ];
+  statDefs.forEach(s => {
+    const v = G.stats[s.key];
+    let color = v >= 80 ? '#ffd700' : v >= 50 ? '#2ed573' : v >= 25 ? '#fff' : '#7878a0';
+    statsPanel.innerHTML += `
+      <div class="stat-row">
+        <div class="stat-label"><span>${s.label}</span><span style="color:${color}">${v}</span></div>
+        <div class="stat-bar-outer"><div class="stat-bar-inner ${s.cls}" style="width:${v}%"></div></div>
+      </div>`;
+  });
+}
+
+function addLog(msg, type) {
+  G.history.unshift({ msg, type, age: G.age });
+  if (G.history.length > 50) G.history.length = 50;
+  renderLog();
+}
+
+function renderLog() {
+  const logDiv = document.getElementById('log-list');
+  logDiv.innerHTML = G.history.slice(0, 30).map(h =>
+    `<div class="log-entry ${h.type || ''}">${h.age}岁 · ${h.msg}</div>`
+  ).join('');
+}
+
+function addAchievementTag(title) {
+  const div = document.getElementById('achievement-list');
+  if (div.textContent === '暂无成就') div.innerHTML = '';
+  div.innerHTML += `<span class="achievement-tag">${title}</span> `;
+}
+
+function toggleLog() {
+  const card = document.getElementById('log-card');
+  card.style.display = card.style.display === 'none' ? '' : 'none';
+}
+
+function addToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2500);
+}
+
+function flashScreen(cls) {
+  const flash = document.getElementById('flash');
+  flash.className = cls;
+  setTimeout(() => { flash.className = ''; }, 200);
+}
+
+function statToLabel(stat) {
+  const map = { wealth:'财富', intelligence:'智力', charisma:'魅力', physique:'体魄', luck:'运气', karma:'善恶', reputation:'声望', sysPoints:'系统点数' };
+  return map[stat] || stat;
+}
+
+// ==================== INIT ====================
+
+init();
+</script>
+</body>
+</html>
