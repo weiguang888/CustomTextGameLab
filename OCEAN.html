@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心域 · 人格图谱 - 专业心理人格测试</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#05051A;
+  --glass:rgba(255,255,255,0.05);
+  --glass-border:rgba(255,255,255,0.1);
+  --text:#ffffff;
+  --muted:#94A3B8;
+  --purple:#C053F5;
+  --blue:#2563EB;
+  --yellow:#F59E0B;
+  --green:#10B981;
+  --red:#EF4444;
+}
+
+body{
+  font-family:"Noto Sans SC","PingFang SC",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  line-height:1.7;
+}
+
+.font-display{font-family:"Noto Serif SC","PingFang SC",serif}
+
+.hero{
+  position:relative;z-index:1;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:2rem;
+}
+.hero-bg{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse at 20% 50%,rgba(192,83,245,0.12) 0%,transparent 50%),
+    radial-gradient(ellipse at 80% 50%,rgba(37,99,235,0.12) 0%,transparent 50%),
+    radial-gradient(ellipse at 50% 100%,rgba(192,83,245,0.06) 0%,transparent 40%);
+}
+.hero-content{position:relative;z-index:2;max-width:800px}
+.hero-tag{
+  color:var(--muted);font-size:0.85rem;letter-spacing:0.3em;
+  margin-bottom:1.5rem;opacity:0;animation:fadeIn 1s ease 0.3s forwards;
+}
+.hero h1{
+  font-size:clamp(2rem,5vw,3.5rem);font-weight:700;line-height:1.2;
+  margin-bottom:1.5rem;opacity:0;animation:fadeIn 1s ease 0.6s forwards;
+}
+.gradient-text{
+  background:linear-gradient(135deg,var(--purple),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-desc{
+  color:var(--muted);font-size:1rem;line-height:1.8;
+  margin-bottom:2rem;opacity:0;animation:fadeIn 1s ease 0.9s forwards;
+}
+.hero-stats{
+  display:flex;gap:2rem;justify-content:center;margin-bottom:2.5rem;
+  opacity:0;animation:fadeIn 1s ease 1.2s forwards;
+}
+.stat{text-align:center}
+.stat-num{
+  font-size:2rem;font-weight:700;font-family:"Noto Serif SC",serif;
+  background:linear-gradient(135deg,var(--purple),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.stat-label{font-size:0.75rem;color:var(--muted);margin-top:0.25rem}
+.divider{width:1px;height:40px;background:rgba(255,255,255,0.1)}
+
+.btn{
+  display:inline-block;padding:1rem 3rem;border-radius:9999px;
+  font-size:1rem;font-weight:500;cursor:pointer;border:none;
+  background:linear-gradient(135deg,var(--purple),var(--blue));
+  color:#fff;position:relative;overflow:hidden;
+  transition:all 0.3s ease;
+  box-shadow:0 0 20px rgba(192,83,245,0.3),0 0 40px rgba(37,99,235,0.15);
+  opacity:0;animation:fadeIn 1s ease 1.5s forwards;
+}
+.btn:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 40px rgba(192,83,245,0.5),0 0 80px rgba(37,99,235,0.3);
+}
+.btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--blue),var(--purple));
+  opacity:0;transition:opacity 0.3s;
+}
+.btn:hover::before{opacity:1}
+.btn span{position:relative;z-index:1}
+
+.btn-secondary{
+  padding:0.6rem 1.5rem;border-radius:9999px;font-size:0.85rem;
+  cursor:pointer;border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.05);color:var(--muted);
+  transition:all 0.3s;
+}
+.btn-secondary:hover{border-color:rgba(255,255,255,0.3);color:#fff;background:rgba(255,255,255,0.08)}
+
+.test-page{
+  position:relative;z-index:1;min-height:100vh;
+  display:flex;flex-direction:column;
+}
+.test-header{
+  padding:1.5rem 2rem;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:10;
+  background:rgba(5,5,26,0.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.test-header-left{display:flex;align-items:center;gap:0.75rem}
+.dim-indicator{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.dim-name{font-size:0.8rem;color:var(--muted)}
+.progress-count{font-size:0.8rem;color:rgba(255,255,255,0.35)}
+.progress-bar{
+  position:absolute;bottom:0;left:0;height:2px;
+  background:linear-gradient(90deg,var(--purple),var(--blue));
+  transition:width 0.5s ease;
+}
+
+.test-body{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  padding:2rem 1rem;
+}
+
+.question-card{
+  width:100%;max-width:680px;
+  background:var(--glass);backdrop-filter:blur(24px);
+  border:1px solid var(--glass-border);border-radius:2rem;
+  padding:2.5rem 2rem;
+  animation:cardIn 0.5s ease;
+}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(30px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.card-out{animation:cardOut 0.35s ease forwards}
+@keyframes cardOut{
+  to{opacity:0;transform:translateY(-30px)}
+}
+
+.q-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:0.35rem 1rem;border-radius:9999px;font-size:0.7rem;
+  margin-bottom:1.5rem;border:1px solid;
+}
+.q-text{
+  font-size:clamp(1.1rem,2.5vw,1.35rem);line-height:1.6;
+  margin-bottom:2rem;font-weight:400;
+}
+
+.options{display:grid;grid-template-columns:repeat(5,1fr);gap:0.5rem}
+.option{
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  padding:1rem 0.5rem;border-radius:1rem;cursor:pointer;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);
+  transition:all 0.25s ease;
+}
+.option:hover{
+  transform:scale(1.05);
+  background:rgba(255,255,255,0.08);
+  border-color:rgba(255,255,255,0.2);
+}
+.option-emoji{font-size:1.75rem;transition:transform 0.25s}
+.option:hover .option-emoji{transform:scale(1.2)}
+.option-label{
+  font-size:0.65rem;color:var(--muted);text-align:center;
+  line-height:1.3;transition:color 0.25s;
+}
+.option:hover .option-label{color:#fff}
+
+.result-page{position:relative;z-index:1;min-height:100vh;padding:0 0 3rem}
+.result-header{text-align:center;padding:2rem 1rem}
+.result-tag{color:var(--muted);font-size:0.8rem;letter-spacing:0.2em;margin-bottom:0.5rem}
+.result-title{font-size:clamp(2rem,5vw,3rem);margin-bottom:0.75rem}
+.result-desc{color:var(--muted);font-size:0.85rem;max-width:500px;margin:0 auto}
+
+.radar-container{
+  max-width:480px;margin:0 auto 2rem;
+  background:var(--glass);backdrop-filter:blur(24px);
+  border:1px solid var(--glass-border);border-radius:2rem;
+  padding:2rem;display:flex;justify-content:center;
+}
+.radar-container canvas{max-width:100%;height:auto}
+
+.scores-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:1rem;max-width:900px;margin:0 auto 2rem;padding:0 1rem;
+}
+.score-card{
+  background:var(--glass);backdrop-filter:blur(24px);
+  border:1px solid var(--glass-border);border-radius:1.25rem;
+  padding:1.25rem;
+}
+.score-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem}
+.score-card-dim{display:flex;align-items:center;gap:0.5rem}
+.score-dot{width:10px;height:10px;border-radius:50%}
+.score-name{font-size:0.85rem;color:var(--muted)}
+.score-level{font-size:0.7rem;padding:0.2rem 0.6rem;border-radius:9999px}
+.score-value{font-size:1.75rem;font-weight:700;font-family:"Noto Serif SC",serif;margin-bottom:0.5rem}
+.score-bar{height:4px;background:rgba(255,255,255,0.05);border-radius:9999px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:9999px;transition:width 1.5s ease}
+
+.section{
+  max-width:900px;margin:0 auto 1.5rem;padding:0 1rem;
+}
+.section-card{
+  background:var(--glass);backdrop-filter:blur(24px);
+  border:1px solid var(--glass-border);border-radius:1.5rem;
+  padding:2rem;
+}
+.section-title{
+  font-size:1.25rem;font-weight:700;margin-bottom:1.25rem;
+  display:flex;align-items:center;gap:0.75rem;
+  font-family:"Noto Serif SC",serif;
+}
+.section-title .icon{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;
+}
+
+.personality-summary p{
+  color:var(--muted);font-size:0.9rem;line-height:2;
+  margin-bottom:1rem;
+}
+.personality-summary p strong{
+  color:#fff;font-weight:500;
+}
+.trait-row{
+  display:flex;flex-wrap:wrap;gap:1rem;margin-top:1.5rem;
+}
+.trait-tag{
+  padding:0.5rem 1rem;border-radius:9999px;font-size:0.8rem;
+  border:1px solid;
+}
+
+.career-section{margin-bottom:2rem}
+.career-section:last-child{margin-bottom:0}
+.career-section h4{
+  font-size:1rem;color:#fff;margin-bottom:0.75rem;
+  display:flex;align-items:center;gap:0.5rem;
+  font-family:"Noto Serif SC",serif;
+}
+.career-section h4::before{
+  content:'';width:4px;height:18px;border-radius:9999px;
+  background:linear-gradient(180deg,var(--purple),var(--blue));
+}
+.career-section p{
+  color:var(--muted);font-size:0.88rem;line-height:2.2;
+  margin-bottom:0.75rem;
+}
+.career-section p strong{color:#e2e8f0;font-weight:500}
+.career-section ul{
+  list-style:none;padding:0;margin:0;
+}
+.career-section ul li{
+  color:var(--muted);font-size:0.85rem;line-height:2.2;
+  padding-left:1.25rem;position:relative;
+}
+.career-section ul li::before{
+  content:'→';position:absolute;left:0;
+  color:var(--purple);font-size:0.7rem;
+}
+.career-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:0.75rem;margin-top:1rem;
+}
+.career-item{
+  padding:0.75rem 1rem;border-radius:0.75rem;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+  font-size:0.85rem;color:#e2e8f0;
+}
+.career-item .career-match{
+  font-size:0.7rem;color:var(--muted);margin-top:0.25rem;
+}
+
+.advice-list{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:1rem;
+}
+.advice-item{
+  padding:1.25rem;border-radius:1rem;
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);
+}
+.advice-item h5{
+  font-size:0.9rem;color:#fff;margin-bottom:0.5rem;
+  font-family:"Noto Serif SC",serif;
+}
+.advice-item p{
+  font-size:0.82rem;color:var(--muted);line-height:1.9;
+}
+
+.timeline{position:relative;padding-left:1.5rem}
+.timeline::before{
+  content:'';position:absolute;left:5px;top:0;bottom:0;
+  width:2px;background:linear-gradient(180deg,var(--purple),var(--blue));
+  border-radius:9999px;
+}
+.timeline-item{
+  position:relative;margin-bottom:1.5rem;padding-left:1.25rem;
+}
+.timeline-item::before{
+  content:'';position:absolute;left:-1.5rem;top:6px;
+  width:12px;height:12px;border-radius:50%;
+  background:var(--bg);border:2px solid var(--purple);
+}
+.timeline-item h5{
+  font-size:0.9rem;color:#fff;margin-bottom:0.4rem;
+  font-family:"Noto Serif SC",serif;
+}
+.timeline-item p{
+  font-size:0.82rem;color:var(--muted);line-height:1.9;
+}
+
+.navbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2rem;
+  position:sticky;top:0;z-index:10;
+  background:rgba(5,5,26,0.9);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.logo{display:flex;align-items:center;gap:0.5rem}
+.logo-dot{width:28px;height:28px;border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--blue))}
+.logo-text{font-weight:500}
+
+.hidden{display:none !important}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.page-transition{animation:fadeIn 0.6s ease}
+
+.footer{text-align:center;padding:2rem 1rem;color:var(--muted);font-size:0.75rem}
+
+@media(max-width:640px){
+  .options{gap:0.35rem}
+  .option{padding:0.75rem 0.25rem}
+  .option-emoji{font-size:1.4rem}
+  .option-label{font-size:0.55rem}
+  .question-card{padding:1.5rem 1rem}
+  .hero-stats{gap:1rem}
+  .stat-num{font-size:1.5rem}
+  .divider{height:30px}
+  .scores-grid{grid-template-columns:1fr}
+  .advice-list{grid-template-columns:1fr}
+  .career-grid{grid-template-columns:1fr}
+  .section-card{padding:1.25rem}
+  .navbar{padding:0.75rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<div class="hero-bg"></div>
+
+<div id="homePage" class="hero">
+  <div class="hero-content">
+    <p class="hero-tag">基于大五人格模型 · OCEAN</p>
+    <h1 class="font-display">探索你的<span class="gradient-text">内在宇宙</span></h1>
+    <p class="hero-desc">
+      60道专业心理学题目，从开放性、尽责性、外向性、宜人性、神经质五个维度<br>
+      深度解析你的人格图谱，发现隐藏的自我
+    </p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">60</div>
+        <div class="stat-label">专业题目</div>
+      </div>
+      <div class="divider"></div>
+      <div class="stat">
+        <div class="stat-num">5</div>
+        <div class="stat-label">核心维度</div>
+      </div>
+      <div class="divider"></div>
+      <div class="stat">
+        <div class="stat-num">10</div>
+        <div class="stat-label">子维度</div>
+      </div>
+    </div>
+    <button class="btn" onclick="startTest()"><span>开启心域</span></button>
+    <p style="color:var(--muted);font-size:0.7rem;margin-top:1.5rem;opacity:0;animation:fadeIn 1s ease 2s forwards">
+      测试约需 8-12 分钟 · 所有数据仅在本地处理
+    </p>
+  </div>
+</div><div id="testPage" class="test-page hidden">
+  <div class="test-header">
+    <div class="test-header-left">
+      <div id="dimIndicator" class="dim-indicator"></div>
+      <span id="dimName" class="dim-name"></span>
+    </div>
+    <span id="progressCount" class="progress-count"></span>
+    <div id="progressBar" class="progress-bar" style="width:0%"></div>
+  </div>
+  <div class="test-body">
+    <div id="questionCard" class="question-card">
+      <div id="qBadge" class="q-badge"></div>
+      <p id="qText" class="q-text font-display"></p>
+      <div class="options" id="options"></div>
+      <p style="text-align:center;color:var(--muted);font-size:0.7rem;margin-top:1.25rem;opacity:0.5">
+        可使用键盘数字键 1-5 快速作答
+      </p>
+    </div>
+  </div>
+</div>
+
+<div id="resultPage" class="result-page hidden page-transition">
+  <div class="navbar">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      <span class="logo-text">心域</span>
+    </div>
+    <button class="btn-secondary" onclick="goHome()">重新测试</button>
+  </div>
+
+  <div class="result-header">
+    <p class="result-tag">你的人格画像</p>
+    <h1 class="result-title font-display"><span class="gradient-text" id="profileName"></span></h1>
+    <p class="result-desc">基于大五人格模型（OCEAN）的专业测评结果，揭示你独特的人格结构</p>
+  </div>
+
+  <div class="radar-container">
+    <canvas id="radarCanvas" width="400" height="400"></canvas>
+  </div>
+
+  <div class="scores-grid" id="scoresGrid"></div>
+
+  <div class="section">
+    <div class="section-card">
+      <h3 class="section-title">
+        <span class="icon" style="background:linear-gradient(135deg,var(--purple)20%,var(--blue)20%);color:#fff">◆</span>
+        人格特质总览
+      </h3>
+      <div class="personality-summary" id="personalitySummary"></div>
+      <div class="trait-row" id="traitRow"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-card" id="deepAnalysis"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-card" id="careerAnalysis"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-card" id="careerPaths"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-card" id="careerPlan"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-card" id="futureGuide"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-card" id="dimDetails">
+      <h3 class="section-title">
+        <span class="icon" style="background:rgba(255,255,255,0.08);color:#fff">◈</span>
+        五维度详细解读
+      </h3>
+      <div id="detailsList"></div>
+    </div>
+  </div>
+
+  <div class="footer">心域 · 人格图谱 — 基于大五人格模型（OCEAN）的专业测评 · 所有数据仅在本地处理</div>
+</div>
+
+<script>const questions=[
+{id:1,dim:'O',dimName:'开放性',sub:'想象力',text:'我经常会沉浸在自己的想象世界中，构思各种可能性',rev:false},
+{id:2,dim:'O',dimName:'开放性',sub:'艺术审美',text:'我对艺术作品（音乐、绘画、文学等）有强烈的共鸣和欣赏能力',rev:false},
+{id:3,dim:'O',dimName:'开放性',sub:'求知欲',text:'我对抽象理论和哲学问题感到乏味，更喜欢具体实用的事物',rev:true},
+{id:4,dim:'O',dimName:'开放性',sub:'创新思维',text:'我喜欢尝试新方法解决问题，而不是一味遵循传统方式',rev:false},
+{id:5,dim:'O',dimName:'开放性',sub:'想象力',text:'当别人描述一个场景时，我脑海中能清晰地浮现出画面',rev:false},
+{id:6,dim:'O',dimName:'开放性',sub:'艺术审美',text:'我认为审美体验是生活中不可或缺的重要部分',rev:false},
+{id:7,dim:'O',dimName:'开放性',sub:'求知欲',text:'我对不同文化和价值观抱有开放和尊重的态度',rev:false},
+{id:8,dim:'O',dimName:'开放性',sub:'创新思维',text:'我倾向于在行动前仔细评估风险，不会轻易尝试未知领域',rev:true},
+{id:9,dim:'O',dimName:'开放性',sub:'想象力',text:'我能够从看似不相关的事物中发现联系和灵感',rev:false},
+{id:10,dim:'O',dimName:'开放性',sub:'求知欲',text:'我享受深入思考复杂问题的过程，即使它们没有明确答案',rev:false},
+{id:11,dim:'O',dimName:'开放性',sub:'艺术审美',text:'我很少会被诗歌、音乐或美景深深打动',rev:true},
+{id:12,dim:'O',dimName:'开放性',sub:'创新思维',text:'我乐于接受新观念和不同的生活方式',rev:false},
+{id:13,dim:'C',dimName:'尽责性',sub:'自律性',text:'我能够长期坚持自己的计划，即使遇到困难也不会轻易放弃',rev:false},
+{id:14,dim:'C',dimName:'尽责性',sub:'条理性',text:'我的工作和生活环境通常保持整洁有序',rev:false},
+{id:15,dim:'C',dimName:'尽责性',sub:'责任感',text:'我常常在开始一项任务后才意识到准备工作的重要性',rev:true},
+{id:16,dim:'C',dimName:'尽责性',sub:'目标导向',text:'我会为自己设定清晰的短期和长期目标，并为之努力',rev:false},
+{id:17,dim:'C',dimName:'尽责性',sub:'自律性',text:'我倾向于优先处理重要但不紧急的事情',rev:false},
+{id:18,dim:'C',dimName:'尽责性',sub:'条理性',text:'我习惯在行动前列出详细的计划和步骤',rev:false},
+{id:19,dim:'C',dimName:'尽责性',sub:'责任感',text:'我认为守时和遵守承诺是基本的社交准则',rev:false},
+{id:20,dim:'C',dimName:'尽责性',sub:'目标导向',text:'我经常会因为追求完美而迟迟无法完成任务',rev:true},
+{id:21,dim:'C',dimName:'尽责性',sub:'自律性',text:'我能够抵制短期诱惑，专注于长期收益',rev:false},
+{id:22,dim:'C',dimName:'尽责性',sub:'条理性',text:'我的桌面和文件经常处于杂乱无章的状态',rev:true},
+{id:23,dim:'C',dimName:'尽责性',sub:'责任感',text:'当团队任务出现问题时，我通常会主动承担责任',rev:false},
+{id:24,dim:'C',dimName:'尽责性',sub:'目标导向',text:'我会定期回顾自己的进度，确保朝目标方向前进',rev:false},
+{id:25,dim:'E',dimName:'外向性',sub:'社交活力',text:'在社交场合中，我通常是活跃气氛的那个人',rev:false},
+{id:26,dim:'E',dimName:'外向性',sub:'自信表达',text:'我喜欢成为人群关注的焦点',rev:false},
+{id:27,dim:'E',dimName:'外向性',sub:'积极情绪',text:'独处一段时间后，我会感到精力充沛而不是疲惫',rev:true},
+{id:28,dim:'E',dimName:'外向性',sub:'寻求刺激',text:'我喜欢参加各种社交活动和聚会',rev:false},
+{id:29,dim:'E',dimName:'外向性',sub:'社交活力',text:'与陌生人交谈对我来说并不困难',rev:false},
+{id:30,dim:'E',dimName:'外向性',sub:'自信表达',text:'我在表达自己的观点和想法时很有信心',rev:false},
+{id:31,dim:'E',dimName:'外向性',sub:'积极情绪',text:'我经常感到充满活力和热情',rev:false},
+{id:32,dim:'E',dimName:'外向性',sub:'寻求刺激',text:'我更喜欢安静的环境，而不是喧闹的场所',rev:true},
+{id:33,dim:'E',dimName:'外向性',sub:'社交活力',text:'我倾向于在社交活动后感到能量被消耗',rev:true},
+{id:34,dim:'E',dimName:'外向性',sub:'自信表达',text:'我在公开发言时能够保持冷静和自信',rev:false},
+{id:35,dim:'E',dimName:'外向性',sub:'积极情绪',text:'我常常能够感染身边的人，让他们也感到开心',rev:false},
+{id:36,dim:'E',dimName:'外向性',sub:'寻求刺激',text:'我喜欢尝试新鲜刺激的活动，比如极限运动或冒险旅行',rev:false},
+{id:37,dim:'A',dimName:'宜人性',sub:'利他主义',text:'我愿意为了帮助他人而牺牲自己的时间和利益',rev:false},
+{id:38,dim:'A',dimName:'宜人性',sub:'信任他人',text:'我倾向于相信大多数人都是诚实可信的',rev:false},
+{id:39,dim:'A',dimName:'宜人性',sub:'谦逊温和',text:'当别人与我意见不一致时，我通常会坚持自己的观点',rev:true},
+{id:40,dim:'A',dimName:'宜人性',sub:'合作倾向',text:'我乐于与他人协作完成共同的目标',rev:false},
+{id:41,dim:'A',dimName:'宜人性',sub:'利他主义',text:'看到他人遇到困难时，我会自然而然地想要伸出援手',rev:false},
+{id:42,dim:'A',dimName:'宜人性',sub:'信任他人',text:'我对他人的动机常常持怀疑态度',rev:true},
+{id:43,dim:'A',dimName:'宜人性',sub:'谦逊温和',text:'我在与人交往时注重礼貌和尊重',rev:false},
+{id:44,dim:'A',dimName:'宜人性',sub:'合作倾向',text:'我认为竞争比合作更能激发人的潜能',rev:true},
+{id:45,dim:'A',dimName:'宜人性',sub:'利他主义',text:'我会主动关心朋友和同事的情绪状态',rev:false},
+{id:46,dim:'A',dimName:'宜人性',sub:'信任他人',text:'我愿意给他人第二次机会，即使他们曾经让我失望',rev:false},
+{id:47,dim:'A',dimName:'宜人性',sub:'谦逊温和',text:'我很少会在意别人是否比我更优秀',rev:false},
+{id:48,dim:'A',dimName:'宜人性',sub:'合作倾向',text:'在团队讨论中，我更倾向于寻找共识而非坚持己见',rev:false},
+{id:49,dim:'N',dimName:'神经质',sub:'情绪稳定',text:'我很少会因为小事而感到焦虑或担忧',rev:true},
+{id:50,dim:'N',dimName:'神经质',sub:'焦虑倾向',text:'在面对未知情况时，我常常会感到紧张和不安',rev:false},
+{id:51,dim:'N',dimName:'神经质',sub:'抗压能力',text:'我能够很好地应对生活中的压力和挫折',rev:true},
+{id:52,dim:'N',dimName:'神经质',sub:'情绪调节',text:'我的情绪容易受到外界环境的影响而波动',rev:false},
+{id:53,dim:'N',dimName:'神经质',sub:'情绪稳定',text:'我经常反复思考过去发生的事情，难以释怀',rev:false},
+{id:54,dim:'N',dimName:'神经质',sub:'焦虑倾向',text:'在重要的场合之前，我通常会过度担心可能出错的事情',rev:false},
+{id:55,dim:'N',dimName:'神经质',sub:'抗压能力',text:'即使面对多重任务的压力，我也能保持冷静和专注',rev:true},
+{id:56,dim:'N',dimName:'神经质',sub:'情绪调节',text:'当我情绪低落时，我能够较快地调整自己的情绪状态',rev:true},
+{id:57,dim:'N',dimName:'神经质',sub:'情绪稳定',text:'我对批评和负面评价比较敏感',rev:false},
+{id:58,dim:'N',dimName:'神经质',sub:'焦虑倾向',text:'我很少为未来不确定的事情感到担忧',rev:true},
+{id:59,dim:'N',dimName:'神经质',sub:'抗压能力',text:'当计划突然改变时，我需要一段时间来适应',rev:false},
+{id:60,dim:'N',dimName:'神经质',sub:'情绪调节',text:'我在情绪激动时能够理性地控制自己的行为',rev:true}
+];
+
+const answerOptions=[
+{value:1,label:'完全不同意',emoji:'✕'},
+{value:2,label:'不太同意',emoji:'△'},
+{value:3,label:'一般',emoji:'◯'},
+{value:4,label:'比较同意',emoji:'◇'},
+{value:5,label:'完全同意',emoji:'✦'}
+];
+
+const dimensions=[
+{key:'O',name:'开放性',fullName:'经验开放性 (Openness)',color:'#C053F5',desc:'衡量个体对新鲜体验的接受程度、想象力和审美敏感度',subs:['想象力','艺术审美','求知欲','创新思维']},
+{key:'C',name:'尽责性',fullName:'尽责性 (Conscientiousness)',color:'#2563EB',desc:'反映个体的自律程度、目标导向性和组织能力',subs:['自律性','条理性','责任感','目标导向']},
+{key:'E',name:'外向性',fullName:'外向性 (Extraversion)',color:'#F59E0B',desc:'评估个体从外部世界获取能量的倾向和社交活跃度',subs:['社交活力','自信表达','积极情绪','寻求刺激']},
+{key:'A',name:'宜人性',fullName:'宜人性 (Agreeableness)',color:'#10B981',desc:'衡量个体与他人相处时的合作性、同理心和信任度',subs:['利他主义','信任他人','谦逊温和','合作倾向']},
+{key:'N',name:'神经质',fullName:'神经质/情绪稳定性 (Neuroticism)',color:'#EF4444',desc:'反映个体情绪波动的频率和强度，以及应对压力的能力',subs:['情绪稳定','焦虑倾向','抗压能力','情绪调节']}
+];const careerDB={
+O_high:{
+profile:'你拥有极高的开放性，这意味着你的思维方式非常灵活，创造力丰富，对新事物充满好奇。你的大脑善于在不同领域之间建立连接，这种跨领域思考能力在当今快速变化的世界中是极为稀缺的。',
+careers:['创意总监','产品设计师','战略咨询师','内容创作者','艺术家','用户体验研究员','创业者','品牌策划','市场研究分析师','创新经理','编剧/导演','建筑设计师'],
+plan:'<p>作为高开放性人格，你的职业发展路径应该围绕<strong>"创意驱动+持续探索"</strong>展开。建议你选择那些允许你不断探索新领域、尝试新方法的岗位，避免重复性高、流程固定的工作。</p><p><strong>短期目标（1-2年）：</strong>建立广泛的知识基础，跨领域学习。参加创意设计、创新思维等培训课程，积累多行业的项目经验。可以尝试自由职业或项目制工作，保持工作内容的多样性。</p><p><strong>中期目标（3-5年）：</strong>找到你的核心创意领域并深耕，同时保持对其他领域的敏感度。争取成为团队中的创意负责人或创新推动者，建立个人品牌和行业影响力。</p><p><strong>长期目标（5-10年）：</strong>成为行业内的思想领袖或创新先锋。可以考虑创业，将自己的创意 vision 转化为实际产品或服务。或者成为跨界顾问，帮助不同行业的企业进行创新转型。</p>',
+guide:'<p>你需要特别注意<strong>"创意落地"</strong>的能力培养。高开放性的人往往容易产生大量想法，但执行和落地可能是你的薄弱环节。建议你：</p><ul><li>学习项目管理和时间管理方法，将创意转化为可执行的计划</li><li>找到尽责性较高的合作伙伴，形成互补的团队结构</li><li>建立创意记录系统，定期回顾和筛选你的想法</li><li>培养对商业现实的敏感度，学会在创意与可行性之间找到平衡</li><li>避免频繁跳槽或更换方向，在一个领域深耕才能真正发挥你的创造力</li></ul>'
+},
+O_mid:{
+profile:'你的开放性处于中等水平，这意味着你既具备接受新事物的开放心态，又能在必要时保持务实和理性。你不会盲目追随潮流，也不会固步自封。这种平衡使你在创新和执行之间找到了一个理想的支点。',
+careers:['项目经理','运营经理','教师','人力资源专员','客户关系经理','销售代表','公关专员','行政管理','数据分析师','质量管理人员'],
+plan:'<p>你的中等开放性为你提供了最大的职业灵活性。建议你选择<strong>"结构化创新"</strong>类型的工作——即在一定的框架内进行创新和改进，而非从零开始的纯粹创意工作。</p><p><strong>短期目标（1-2年）：</strong>在当前岗位上寻找可以优化和创新的环节，用数据证明你的改进方案的价值。培养至少一个专业领域的深度技能，同时保持对其他领域的了解。</p><p><strong>中期目标（3-5年）：</strong>成为团队中的核心骨干，负责将上级的战略意图转化为可执行方案。你的平衡特质使你特别适合承担这种"承上启下"的角色。可以考虑向管理方向发展。</p><p><strong>长期目标（5-10年）：</strong>成为组织中不可或缺的"桥梁型"人才——既能理解高层的战略愿景，又能指导基层的具体执行。适合担任部门负责人、运营总监等需要综合能力的职位。</p>',
+guide:'<p>你需要主动走出舒适区，有意识地培养自己的创新思维。建议你：</p><ul><li>每季度尝试一个全新的领域或技能，保持大脑的新鲜感</li><li>与开放性更高的朋友或同事多交流，吸收他们的思维方式</li><li>在工作中主动申请参与创新项目，即使只是辅助角色</li><li>阅读跨领域的书籍和文章，拓宽知识边界</li><li>不要害怕失败，将每一次尝试都视为学习的机会</li></ul>'
+},
+O_low:{
+profile:'你的开放性较低，这表明你是一个务实、稳重的人。你偏好具体、可操作的事务，对传统和已验证的方法抱有信任。这种特质使你成为组织中不可或缺的"稳定器"——当其他人追逐新潮概念时，你总能冷静地评估现实可行性。',
+careers:['会计师','审计师','法务专员','行政主管','银行职员','档案管理员','质量控制工程师','合规专员','技术支持工程师','物流管理','生产主管','客服主管'],
+plan:'<p>你的职业发展应该围绕<strong>"专业深度+流程优化"</strong>展开。选择那些有明确标准、可量化考核的岗位，你在这些环境中会感到最舒适和高效。</p><p><strong>短期目标（1-2年）：</strong>精通所在领域的所有标准流程和规范，考取相关专业证书。成为团队中流程最熟练、出错率最低的那个人。</p><p><strong>中期目标（3-5年）：</strong>成为领域专家，负责制定和完善工作流程标准。你的细致和严谨使你特别适合承担这种"守门人"角色。可以向资深专家或团队主管方向发展。</p><p><strong>长期目标（5-10年）：</strong>成为行业内公认的权威专家，或晋升为运营管理层。你的务实作风和对细节的把控能力，是组织高效运转的重要保障。</p>',
+guide:'<p>你需要注意避免思维固化，有意识地培养自己的适应能力。建议你：</p><ul><li>每年至少尝试一件超出你舒适区的事情</li><li>关注行业的新趋势和新技术，即使你不立即采纳，也要保持了解</li><li>与不同背景的人交流，倾听他们的观点和想法</li><li>在工作中，当有人说"我们一直是这样做的"时，问自己是否有更好的方法</li><li>记住：稳定是你的优势，但适度的开放能让你走得更远</li></ul>'
+},
+C_high:{
+profile:'你的尽责性极高，这意味着你是一个极其自律、有条理、目标导向的人。你对待工作认真负责，注重细节，追求卓越。在团队中，你往往是那个最可靠的人——别人知道，只要交给你，事情一定会按时高质量完成。',
+careers:['项目经理','管理咨询师','财务总监','运营总监','法务顾问','外科医生','航空管制员','精算师','供应链经理','审计经理','企业架构师','产品运营负责人'],
+plan:'<p>你的职业发展路径应该围绕<strong>"系统化管理+战略执行"</strong>展开。你天生具备将复杂目标拆解为可执行步骤的能力，这使你在管理层级中拥有巨大的优势。</p><p><strong>短期目标（1-2年）：</strong>在当前岗位上建立个人信誉——成为那个"说到做到"的人。掌握至少一套完整的项目管理体系（如PMP、敏捷管理等），并取得相关认证。</p><p><strong>中期目标（3-5年）：</strong>向管理层晋升，负责带领团队完成复杂项目。你的组织能力和责任感使你天生适合领导角色。同时，培养自己的战略思维，从执行者向决策者转变。</p><p><strong>长期目标（5-10年）：</strong>成为企业高管或独立顾问。你的严谨作风和卓越执行力，加上多年积累的专业深度，将使你成为行业内备受尊敬的管理专家。</p>',
+guide:'<p>你需要注意避免过度完美主义带来的压力和效率损失。建议你：</p><ul><li>学会区分"重要"和"完美"，不是所有事情都需要做到极致</li><li>培养授权能力，相信团队成员也能高质量完成任务</li><li>关注工作与生活的平衡，不要为了追求目标而忽视身心健康</li><li>学会灵活应变，当计划需要改变时，不要过度焦虑</li><li>记住：完成比完美更重要，迭代比一次性到位更有效</li></ul>'
+},
+C_mid:{
+profile:'你的尽责性处于中等水平，这意味着你既能够遵守规则和完成任务，又不会过度拘泥于细节和流程。你懂得在效率和质量之间找到平衡，知道什么时候该精益求精，什么时候该放手一搏。',
+careers:['市场营销专员','社群运营','培训讲师','招聘专员','商务拓展','内容编辑','设计师','前端开发','测试工程师','品牌专员','活动策划','客户成功经理'],
+plan:'<p>建议你采用<strong>"灵活执行"</strong>的职业策略。选择那些既需要一定的计划和组织能力，又允许自由发挥的工作环境。</p><p><strong>短期目标（1-2年）：</strong>建立自己的工作节奏，找到最适合你的时间管理和任务规划方法。培养1-2项核心专业技能，成为团队中"既能独当一面又能协同配合"的多面手。</p><p><strong>中期目标（3-5年）：</strong>成为项目核心成员或小组负责人。你的灵活性使你能够与各种性格类型的同事高效合作。选择那些需要跨部门协调的岗位，发挥你的沟通优势。</p><p><strong>长期目标（5-10年）：</strong>发展成为综合型人才，在专业深度和管理广度之间找到个人最佳平衡点。可以考虑成为部门经理或专业领域的资深顾问。</p>',
+guide:'<p>你需要有意识地提升自己的计划和执行能力。建议你：</p><ul><li>使用任务管理工具（如Trello、Notion等）养成每日规划的习惯</li><li>设定清晰可衡量的短期目标，并定期回顾完成情况</li><li>找到高尽责性的榜样，学习他们的工作方法和习惯</li><li>在重要项目中，主动承担需要细致执行的部分</li><li>培养对截止日期的敏感度，养成提前交付的习惯</li></ul>'
+},
+C_low:{
+profile:'你的尽责性较低，这表明你是一个随性、灵活、活在当下的人。你不喜欢被规则和计划束缚，更愿意跟随直觉和当下的感受来行动。这种特质使你拥有极强的适应能力和应变能力，在变化快速的环境中反而能如鱼得水。',
+careers:['自由职业者','销售代表','活动策划','艺人/主持人','旅行博主','创业初期合伙人','创意写手','摄影师','直播主播','餐饮创业者','零售店员','咨询顾问（灵活型）'],
+plan:'<p>你的职业发展应该围绕<strong>"兴趣驱动+灵活安排"</strong>展开。传统的朝九晚五、流程固定的工作环境可能让你感到窒息。选择那些工作内容多样化、时间安排自由、考核以结果为导向的岗位。</p><p><strong>短期目标（1-2年）：</strong>探索多个方向，找到真正让你热情燃烧的领域。不要急于确定唯一方向，尝试不同的项目和角色。可以从小型项目或兼职开始。</p><p><strong>中期目标（3-5年）：</strong>在找到热爱的领域后，建立个人品牌和稳定的客户/受众群体。考虑自由职业或创业，拥有对工作方式和时间的完全掌控权。</p><p><strong>长期目标（5-10年）：</strong>成为你所在领域的独特存在——用你的方式、你的节奏做事。你的灵活性和创造力，加上多年的经验积累，将形成他人无法复制的竞争优势。</p>',
+guide:'<p>你需要特别注意建立基本的自律框架，避免因过度自由而导致的效率低下。建议你：</p><ul><li>与尽责性高的人合作，形成互补的团队</li><li>使用外部 accountability 机制（如公开承诺、找伙伴互相监督）</li><li>将大目标拆解为非常小的步骤，降低行动的心理门槛</li><li>为自己设定弹性的时间框架，而非严格的日程表</li><li>记住：自由是你的超能力，但适度的结构能让你飞得更高</li></ul>'
+},
+E_high:{
+profile:'你的外向性极高，这意味着你天生就是一个社交型的人。你从与人互动中获得能量，善于表达和影响他人。你在人群中如鱼得水，能够迅速建立人脉网络。你的热情和活力具有感染力，总能带动周围人的积极性。',
+careers:['销售总监','公关经理','企业培训师','主持人','商务拓展VP','投资人','政治家/公务员','律师（诉讼方向）','创业者','市场营销总监','人事总监','品牌代言人'],
+plan:'<p>你的职业发展应该围绕<strong>"人脉网络+影响力建设"</strong>展开。充分利用你的社交天赋，将它转化为职业上的竞争优势。</p><p><strong>短期目标（1-2年）：</strong>有策略地拓展人脉网络，参加行业峰会、社交活动，主动结识各领域的专业人士。在工作中主动争取需要对外沟通的职责。</p><p><strong>中期目标（3-5年）：</strong>成为团队或组织的"门面担当"，负责重要的对外关系维护。你的影响力和说服力使你特别适合担任商务负责人、公关负责人等角色。</p><p><strong>长期目标（5-10年）：</strong>成为行业内有影响力的领袖人物。可以考虑创业——你的社交能力将帮助你快速组建团队、获取资源、打开市场。</p>',
+guide:'<p>你需要注意培养自己的独处和内省能力。建议你：</p><ul><li>每天留出固定的"独处时间"，用于深度思考和自我反思</li><li>在重要决策前，给自己独处思考的空间，避免因社交压力而草率决定</li><li>培养一两个可以独自进行的爱好（如阅读、写作、冥想）</li><li>学会倾听，不总是急于表达自己</li><li>记住：社交是你的优势，但深度来自独处</li></ul>'
+},
+E_mid:{
+profile:'你的外向性处于中等水平，这意味着你是一个"选择性社交"的人。你既能享受热闹的社交场合，也珍惜独处的宁静时光。你不会强迫自己在人群中表现，也不会刻意回避社交活动。这种灵活性使你能够在各种环境中自如切换。',
+careers:['产品经理','咨询顾问','教师','心理咨询师','人力资源BP','市场策划','运营专员','设计师','开发工程师（需协作型）','项目经理','内容运营','商务分析师'],
+plan:'<p>建议你采用<strong>"节奏切换"</strong>的职业策略。选择那些既有团队协作又有独立工作时间的岗位，避免长时间处于单一的工作模式中。</p><p><strong>短期目标（1-2年）：</strong>了解自己一天中能量最高的时段，将社交性工作安排在精力充沛时，独处性工作安排在安静时段。培养高效沟通的能力，减少不必要的社交消耗。</p><p><strong>中期目标（3-5年）：</strong>成为团队中"进可攻退可守"的核心成员。你既能代表团队对外沟通，也能独立完成深度工作。这种双向能力在职场中极为稀缺。</p><p><strong>长期目标（5-10年）：</strong>成为需要平衡多方利益的管理者或协调者。你的适中特质使你能够理解内向和外向同事的需求，成为团队中最受欢迎的领导者。</p>',
+guide:'<p>你需要更好地了解自己的能量节奏。建议你：</p><ul><li>记录一周的能量变化曲线，找到你的"社交黄金时段"</li><li>主动与不同性格类型的人建立工作关系</li><li>在社交活动后给自己足够的恢复时间</li><li>不要因社交场合的偶尔不适而自我怀疑</li><li>发挥你理解不同性格的优势，成为团队中的"连接者"</li></ul>'
+},
+E_low:{
+profile:'你的外向性较低，这表明你是一个内向型的人。你从独处和深度思考中获得能量，喜欢与少数几个亲密的朋友交流，而非广泛的社交。你的内心世界丰富而深邃，善于观察和分析。在喧嚣的世界中，你是那个冷静的观察者。',
+careers:['数据科学家','软件工程师','研究员','作家','插画师','图书管理员','实验室技术员','财务分析师','翻译','作曲/编曲','系统架构师','独立游戏开发者'],
+plan:'<p>你的职业发展应该围绕<strong>"深度专注+专业精通"</strong>展开。选择那些重视深度思考、允许独立工作、以专业能力为核心竞争力的岗位。避免那些要求频繁对外沟通、快节奏社交的工作环境。</p><p><strong>短期目标（1-2年）：</strong>在自己热爱的领域深入钻研，成为团队中的技术专家或专业骨干。建立高质量的深度人脉（少数但非常可靠的关系）。</p><p><strong>中期目标（3-5年）：</strong>成为行业内公认的专业权威。你的深度和专注将成为你最大的职业壁垒。可以走专家路线，成为组织中的"首席XX"或独立顾问。</p><p><strong>长期目标（5-10年）：</strong>成为领域顶级专家，或用你的专业能力创立小而美的独立事业。不需要成为万人瞩目的明星，但要成为你所在细分领域最值得请教的人。</p>',
+guide:'<p>你需要有意识地培养自己的社交技能，但不需要变成另一个人。建议你：</p><ul><li>选择小规模的社交场合，一对一交流比大型聚会更适合你</li><li>提前准备社交话题和自我介绍，减少临场压力</li><li>利用写作、在线平台等异步沟通方式建立人脉</li><li>找到外向的合作伙伴，让他们负责对外，你负责对内</li><li>记住：内向不是缺陷，深度是你的超能力</li></ul>'
+},
+A_high:{
+profile:'你的宜人性极高，这意味着你是一个富有同理心、乐于助人、善于合作的人。你本能地关注他人的感受和需求，在冲突中倾向于寻求和谐。你是团队中的"粘合剂"，是朋友们最信赖的倾诉对象。',
+careers:['人力资源总监','培训师','社工','心理咨询师','护士/护理','客户关系总监','教育顾问','团队教练','用户研究员','公益组织管理者','教练/导师','员工体验负责人'],
+plan:'<p>你的职业发展应该围绕<strong>"人际影响+价值实现"</strong>展开。选择那些让你能够帮助他人成长、促进团队协作、创造和谐环境的岗位。</p><p><strong>短期目标（1-2年）：</strong>在工作中主动承担团队协调、新人辅导等角色。学习专业的人际沟通技巧（如非暴力沟通、积极倾听等），将你的天赋转化为专业技能。</p><p><strong>中期目标（3-5年）：</strong>成为团队的文化建设者或员工发展负责人。你的同理心和协调能力使你特别适合担任人力资源、团队教练、客户关系管理等职位。</p><p><strong>长期目标（5-10年）：</strong>成为组织中具有深远影响力的人物。不一定是最高职位，但一定是那个最受尊敬、最被信任的人。可以考虑创立以"人"为核心的服务机构。</p>',
+guide:'<p>你需要学会设定边界，避免过度付出导致自己的疲惫。建议你：</p><ul><li>认识到你无法让所有人都满意，这是正常的</li><li>学会说"不"，在帮助他人和保护自己之间找到平衡</li><li>不要回避必要的冲突，有时建设性的冲突对团队更有益</li><li>关注自己的情绪和需求，不要总是把别人放在第一位</li><li>记住：你的善良是珍宝，但需要智慧的边界来保护它</li></ul>'
+},
+A_mid:{
+profile:'你的宜人性处于中等水平，这意味着你在人际交往中既能够体贴他人，也能够维护自己的立场。你懂得合作的重要性，但不会在原则问题上轻易妥协。这种平衡使你在团队中既能融入集体，又能保持独立性。',
+careers:['产品经理','团队主管','销售经理','品牌经理','公关专员','招聘经理','项目经理','数据分析师','法务专员','供应链管理','IT管理员','行政经理'],
+plan:'<p>建议你采用<strong>"协作领导"</strong>的职业发展策略。你的适中宜人性使你特别适合担任需要平衡多方利益的管理角色。</p><p><strong>短期目标（1-2年）：</strong>在团队中建立良好的合作关系，成为那个"既能坚持原则又能赢得人心"的人。培养谈判和冲突管理的技能。</p><p><strong>中期目标（3-5年）：</strong>向团队管理岗位发展。你的平衡特质使你能够公正地处理团队内的各种矛盾，成为大家都信服的领导者。</p><p><strong>长期目标（5-10年）：</strong>成为组织中承上启下的关键管理者。你的能力将使你能够在高层战略和基层执行之间搭建桥梁。</p>',
+guide:'<p>你需要在合作与竞争之间找到属于自己的平衡点。建议你：</p><ul><li>在团队合作中主动表达自己的想法，不要一味迎合</li><li>学习谈判技巧，在维护关系的同时保护自己的利益</li><li>观察高宜人性的人如何处理人际关系，适当借鉴</li><li>记住：适度的坚持己见不仅不会损害关系，反而能赢得尊重</li></ul>'
+},
+A_low:{
+profile:'你的宜人性较低，这表明你是一个独立自主、注重效率、敢于直面冲突的人。你在做决策时优先考虑逻辑和结果，而非他人的感受。在竞争激烈的环境中，你的果断和坚定是难得的优势。',
+careers:['企业高管','投资分析师','律师','外科医生','战略咨询师','创业者','军事指挥官','竞技运动员','销售总监','记者（调查方向）','风控专员','审计总监'],
+plan:'<p>你的职业发展应该围绕<strong>"竞争突破+独立决策"</strong>展开。选择那些结果导向、竞争激烈、奖励个人能力的岗位和环境。</p><p><strong>短期目标（1-2年）：</strong>在当前岗位上用业绩说话。你不需要讨好所有人，只需要让你的成果无可辩驳。寻找那些奖励个人表现而非团队和谐的绩效体系。</p><p><strong>中期目标（3-5年）：</strong>向需要快速决策和强硬执行的岗位发展。你的果断和独立判断力使你特别适合担任危机管理、战略调整、企业变革等挑战性角色。</p><p><strong>长期目标（5-10年）：</strong>成为企业的最高决策者或独立创业。你的战略眼光和执行力，加上多年积累的经验，将使你能够驾驭最复杂的商业挑战。</p>',
+guide:'<p>你需要有意识地培养自己的同理心，学会从他人角度看问题。建议你：</p><ul><li>在做重要决策前，刻意考虑一下对他人的影响</li><li>学习情商相关知识，理解情绪在职场中的作用</li><li>找到高宜人性的合作伙伴，让他们负责团队文化建设</li><li>记住：效率和结果很重要，但人是实现结果的载体</li></ul>'
+},
+N_high:{
+profile:'你的神经质得分较高，这意味着你是一个情感丰富、感知敏锐的人。你对周围环境的变化有强烈的反应，这种高度敏感既是挑战也是天赋。你体验到的情绪深度是常人难以企及的，这使你在艺术创作、深度洞察方面具有独特的优势。',
+careers:['艺术家','作家','音乐家','心理咨询师','用户体验研究员','记者','编辑','创意总监','研究员','社会工作者','策展人','独立创作者'],
+plan:'<p>你的职业发展应该围绕<strong>"情绪转化+创意表达"</strong>展开。将你的敏感和情绪波动转化为创造力和洞察力，而非让它们成为你的负担。</p><p><strong>短期目标（1-2年）：</strong>学习情绪管理技巧（如正念冥想、认知行为疗法等），建立自己的情绪调节工具箱。找到适合你的减压方式（运动、写作、艺术等）。</p><p><strong>中期目标（3-5年）：</strong>将你的敏感转化为职业优势。选择那些需要深度情感洞察的岗位，或建立以个人表达为核心的创作事业。</p><p><strong>长期目标（5-10年）：</strong>成为一个能够将内心体验转化为有价值作品的人。你的深度感知能力，加上专业的情绪管理技能，将形成独特而强大的个人品牌。</p>',
+guide:'<p>情绪管理是你一生的功课，但请记住敏感不是弱点。建议你：</p><ul><li>建立规律的生活作息，充足的睡眠和饮食对情绪稳定至关重要</li><li>每天进行至少10分钟的正念冥想，训练自己观察情绪而不被情绪控制</li><li>找到健康的情绪出口（写作、运动、创作等），不要压抑情绪</li><li>避免咖啡因、酒精等刺激物，它们会放大你的情绪波动</li><li>记住：你的敏感让你看到别人看不到的东西，这是你的天赋</li></ul>'
+},
+N_mid:{
+profile:'你的神经质处于中等水平，这意味着你的情绪体验比较丰富，但不会过度影响你的日常生活。你能够感受到各种情绪，同时也具备一定的调节能力。这种平衡使你在保持情感丰富的同时，能够相对稳定地应对生活中的各种挑战。',
+careers:['教师','咨询顾问','市场专员','设计师','产品经理','人力资源专员','运营专员','行政助理','客户经理','编辑','社工助理','品牌专员'],
+plan:'<p>建议你采用<strong>"韧性培养"</strong>的职业发展策略。在保持情感丰富的同时，逐步提升自己的抗压能力和情绪调节技巧。</p><p><strong>短期目标（1-2年）：</strong>建立健康的生活习惯（规律作息、适度运动），这是情绪稳定的生理基础。学习基础的压力管理技巧，如深呼吸、渐进式肌肉放松等。</p><p><strong>中期目标（3-5年）：</strong>成为团队中既有人情味又可靠的成员。你的情感丰富使你能够建立深厚的工作关系，同时你的稳定性让同事能够信赖你。</p><p><strong>长期目标（5-10年）：</strong>发展成为一个情绪智慧（EQ）很高的人。你能够理解并管理自己的情绪，同时也能敏锐地察觉和影响他人的情绪，这种能力在任何管理岗位上都是巨大的优势。</p>',
+guide:'<p>你需要持续关注自己的情绪健康，把它当作和身体健康一样重要的投资。建议你：</p><ul><li>建立情绪日记的习惯，记录每天的情绪变化和触发因素</li><li>学习识别情绪产生的早期信号，在情绪升级前进行干预</li><li>培养至少一项能够让你完全放松的爱好</li><li>建立一个可以倾诉的社交网络，不要独自承受压力</li><li>在感到 overwhelmed 时，学会暂停和休息，这不是软弱而是智慧</li></ul>'
+},
+N_low:{
+profile:'你的神经质得分很低，这意味着你拥有极高的情绪稳定性和抗压能力。你很少被外界的变化打乱节奏，能够在压力下保持冷静和理性。无论面对什么挑战，你总是那个最沉着、最可靠的人。',
+careers:['外科医生','急诊医生','飞行员','消防员','企业高管','投资交易员','危机公关专家','军事指挥官','航空管制员','核工程师','安全工程师','企业法务'],
+plan:'<p>你的职业发展应该围绕<strong>"高压突破+危机管理"</strong>展开。选择那些需要强大心理素质、在压力下做出关键决策的岗位。</p><p><strong>短期目标（1-2年）：</strong>在当前岗位上主动承担高压力的挑战性任务。你的情绪稳定性是稀缺资源，在危机时刻尤为珍贵。让领导看到你的"大心脏"。</p><p><strong>中期目标（3-5年）：</strong>向需要冷静决策的岗位发展，如危机管理、风险控制、应急指挥等。你的稳定特质使你成为组织中最值得信赖的"定海神针"。</p><p><strong>长期目标（5-10年）：</strong>成为组织中最核心的决策者之一。你的冷静和理性将使你在最艰难的时刻做出最正确的判断，这种能力决定了你能走多高多远。</p>',
+guide:'<p>你需要注意培养自己的共情能力，避免因过度冷静而显得冷漠。建议你：</p><ul><li>有意识地关注身边人的情绪状态，主动提供支持</li><li>学习识别和命名情绪，即使你自己很少体验强烈的情绪</li><li>在团队中，用你的稳定性去安抚和支持情绪波动的同事</li><li>记住：你的冷静是巨大的优势，但温暖和同理心让你更完整</li></ul>'
+}
+};let currentIndex=0;
+const answers={};
+
+function showPage(page){
+  document.getElementById('homePage').classList.add('hidden');
+  document.getElementById('testPage').classList.add('hidden');
+  document.getElementById('resultPage').classList.add('hidden');
+  document.getElementById(page).classList.remove('hidden');
+  document.getElementById(page).classList.add('page-transition');
+  window.scrollTo(0,0);
+}
+
+function startTest(){
+  currentIndex=0;
+  Object.keys(answers).forEach(k=>delete answers[k]);
+  showPage('testPage');
+  renderQuestion();
+}
+function goHome(){showPage('homePage')}
+
+function renderQuestion(){
+  const q=questions[currentIndex];
+  const card=document.getElementById('questionCard');
+  card.classList.remove('card-out');
+  card.style.animation='none';
+  card.offsetHeight;
+  card.style.animation='';
+
+  const dimColor=dimensions.find(d=>d.key===q.dim).color;
+  document.getElementById('dimIndicator').style.background=dimColor;
+  document.getElementById('dimName').textContent=q.dimName+' · '+q.sub;
+  document.getElementById('progressCount').textContent=(currentIndex+1)+' / '+questions.length;
+  document.getElementById('progressBar').style.width=((currentIndex/questions.length)*100)+'%';
+
+  const badge=document.getElementById('qBadge');
+  badge.textContent='第 '+(currentIndex+1)+' 题';
+  badge.style.color=dimColor;
+  badge.style.borderColor=dimColor+'40';
+  badge.style.background=dimColor+'10';
+
+  document.getElementById('qText').textContent=q.text;
+
+  const optsDiv=document.getElementById('options');
+  optsDiv.innerHTML='';
+  answerOptions.forEach(opt=>{
+    const btn=document.createElement('div');
+    btn.className='option';
+    btn.innerHTML='<span class="option-emoji">'+opt.emoji+'</span><span class="option-label">'+opt.label+'</span>';
+    btn.onclick=()=>selectAnswer(opt.value);
+    optsDiv.appendChild(btn);
+  });
+}
+
+document.addEventListener('keydown',e=>{
+  const testPage=document.getElementById('testPage');
+  if(testPage.classList.contains('hidden'))return;
+  const key=parseInt(e.key);
+  if(key>=1&&key<=5)selectAnswer(key);
+});
+
+function selectAnswer(value){
+  const q=questions[currentIndex];
+  answers[q.id]=value;
+  const card=document.getElementById('questionCard');
+  card.classList.add('card-out');
+  setTimeout(()=>{
+    if(currentIndex<questions.length-1){
+      currentIndex++;
+      renderQuestion();
+    }else{
+      showResults();
+    }
+  },350);
+}
+
+function calculateScores(){
+  const scores={O:0,C:0,E:0,A:0,N:0};
+  const counts={O:0,C:0,E:0,A:0,N:0};
+  questions.forEach(q=>{
+    const a=answers[q.id];
+    if(a!==undefined){
+      const score=q.rev?6-a:a;
+      scores[q.dim]+=score;
+      counts[q.dim]++;
+    }
+  });
+  const norm={};
+  for(const k in scores){
+    norm[k]=counts[k]?Math.round((scores[k]/(counts[k]*5))*100):50;
+  }
+  return norm;
+}
+
+function getLevel(score){
+  if(score>=80)return'极高';
+  if(score>=65)return'较高';
+  if(score>=45)return'中等';
+  if(score>=30)return'较低';
+  return'极低';
+}
+
+function getInterpretation(dim,score){
+  let desc='';
+  switch(dim){
+    case'O':
+      if(score>=80)desc='你拥有极其丰富的想象力和创造力，对世界充满好奇，乐于接受新思想和新体验。你的审美敏感度很高，能够从日常生活中发现美。这种特质使你在创意产业、艺术领域和前沿科技行业拥有天然的优势。你善于从多角度思考问题，常常能够提出令人耳目一新的解决方案。你对知识有着永不满足的渴望，喜欢探索哲学、心理学、艺术等抽象领域的深度内容。在团队中，你常常是那个带来新思路、打破思维定势的人。然而，需要注意的是，你有时可能过于沉浸在理想世界中，忽视了现实的约束条件。建议你在发挥创造力的同时，培养一定的务实精神，确保你的想法能够落地执行。长期来看，你的开放性将是你最宝贵的资产，因为在这个快速变化的时代，适应能力比专业技能更重要。';
+      else if(score>=65)desc='你对新鲜事物保持着开放的态度，具有一定的创造力和想象力。你喜欢探索未知领域，但在某些方面也会保持理性判断。这种平衡使你既能够提出创新的想法，又能够评估它们的可行性。你在学习和接受新观念方面表现出色，对不同的文化和观点抱有尊重的态度。在工作中，你能够灵活应对变化，不会固守过时的方法。你的好奇心驱使你不断学习，这让你在职业生涯中拥有持续成长的动力。你适合那些需要创新思维但也要有实际产出的岗位，比如产品经理、市场营销策划、设计等。建议你继续保持对新事物的敏感度，同时建立系统性的知识框架，避免知识过于碎片化。';
+      else if(score>=45)desc='你在传统与创新之间保持着良好的平衡。你既能够欣赏新颖的想法，也重视实际可行的方案。你不会盲目追随潮流，但也不会拒绝有益的改变。这种务实的开放态度使你在大多数工作环境中都能适应良好。你在接受新观念时会有一定的审慎，但这种审慎帮助你避免了不必要的风险。在团队中，你常常扮演着"理性的评估者"角色，能够帮团队筛选出真正有价值的创意。建议你适度培养自己的好奇心，偶尔尝试一些超出舒适区的体验，这将为你的人生带来新的可能性。你的平衡特质本身就是一种优势，因为极端的开放或保守都会带来局限。';
+      else if(score>=30)desc='你更倾向于务实和具体的事物，对传统和熟悉的环境感到舒适。你喜欢脚踏实地的生活方式，不喜欢过多的变化和不确定性。这种特质使你在需要稳定性和可靠性的岗位上表现出色。你重视经验和已验证的方法，不会轻易被新潮的概念所迷惑。在团队中，你是那个确保项目不偏离轨道的"稳定器"。你的同事知道你是一个可信赖的人，因为你不会为了追求新奇而冒险。建议你适度培养对新事物的接受度，保持对行业趋势的基本了解。记住，稳定是你的优势，但在快速变化的时代，适度的灵活性会让你走得更远。你可以从小的改变开始，逐步扩大自己的舒适区。';
+      else desc='你非常务实，偏好具体、实际的事务。你重视传统和常规，对抽象概念不太感兴趣。这种特质使你在需要高度专注和精确执行的岗位上如鱼得水。你喜欢明确的目标和清晰的流程，不喜欢模糊和不确定的情况。在团队中，你是那个确保一切按计划进行的"执行者"。你的可靠性是你的最大优势，同事和领导都知道你是一个说到做到的人。建议你尝试用渐进的方式接触新领域，找到传统与创新之间的连接点。记住，每个人都有自己的独特价值，你的务实精神是组织高效运转不可或缺的基石。';
+      break;
+    case'C':
+      if(score>=80)desc='你拥有极强的自律性和组织能力，目标明确且执行力卓越。你注重细节，做事有条不紊，是值得信赖的合作伙伴。这种高度的尽责性使你能够在任何需要精确性和可靠性的岗位上脱颖而出。你天生具备将宏大目标拆解为可执行步骤的能力，并能够持之以恒地推进每一个步骤。你对时间管理有着近乎苛刻的要求，很少拖延或爽约。在团队中，你自然而然地成为项目推进的核心力量，大家都信赖你的组织和协调能力。然而，需要注意的是，你有时可能过于追求完美，给自己和团队带来不必要的压力。建议你在追求卓越的同时，学会接受"足够好"的标准，避免因过度优化而影响整体进度。长期来看，你的尽责性将是你职业生涯最坚实的基石。';
+      else if(score>=65)desc='你具有良好的自律性和责任感，能够坚持完成既定目标。你做事有条理，注重效率和质量。这种特质使你在需要长期投入和持续努力的工作中表现出色。你善于制定计划并跟踪执行进度，能够有效地管理自己的时间和资源。在团队中，你是那个确保任务按时完成的关键成员。你的同事知道你是一个值得信赖的人，因为你很少让他们失望。建议你继续保持这种优秀的习惯，同时学会在必要时灵活调整计划，避免因过度执着于原计划而错失更好的机会。你的尽责性是你最大的职业资本，培养好它，未来的路会越走越宽。';
+      else if(score>=45)desc='你在灵活性和条理性之间找到了良好的平衡。你能够完成重要任务，但也允许自己有一定的自由空间。你不会为了追求完美而过度纠结，也不会因为随性而耽误正事。这种适度的尽责性使你在大多数工作环境中都能游刃有余。你在处理紧急事务时能够集中精力，在空闲时也能够放松身心。在团队中，你既不是那个过度紧张的完美主义者，也不是那个不负责任的自由散漫者。建议你根据自己的职业目标调整尽责程度——如果你希望向管理方向发展，可以适当提升自己的计划和组织能力；如果你更享受自由的工作方式，可以选择结果导向型岗位。';
+      else if(score>=30)desc='你更倾向于随性而为，不太受规则和计划的约束。你享受自由的生活方式，适应力强但可能缺乏长远规划。这种特质使你在需要快速应变和灵活处理的环境中如鱼得水。你不喜欢被繁琐的流程和严格的规章制度束缚，更愿意跟随当下的感觉行事。在团队中，你是那个带来轻松氛围的"开心果"，能够缓解紧张的工作气氛。然而，需要注意的是，你有时可能因为缺乏计划而错过重要机会，或者因为拖延而影响团队进度。建议你建立基本的任务管理系统，设定明确的短期目标，逐步培养自律的习惯。记住，自由和责任并不矛盾，适度的结构能让你拥有更大的自由。';
+      else desc='你非常随性自由，不喜欢被计划和规则束缚。你活在当下，灵活应变，享受生活中的每一刻。这种特质使你在充满变化和不确定性的环境中表现出色，能够快速适应新情况并找到创造性的解决方案。你的思维不受传统框架的限制，常常能够提出出人意料的创意。在团队中，你是那个打破僵局、带来新视角的人。然而，需要注意的是，在大多数职业环境中，一定程度的自律和责任感是必要的。建议你从小事开始建立习惯，比如每天固定时间检查待办事项、设定简单的提醒等。找到尽责性较高的合作伙伴或朋友，让他们帮助你建立基本的结构。记住，自由是你的超能力，但适度的纪律能让你飞得更高更远。';
+      break;
+    case'E':
+      if(score>=80)desc='你是一个高度外向的人，社交对你来说是能量的来源。你自信、活跃，善于影响他人，在群体中自然而然成为焦点。你的存在本身就具有感染力，能够迅速调动周围人的情绪和积极性。你在社交场合中如鱼得水，能够轻松与陌生人建立联系，并迅速找到共同话题。这种特质使你在销售、公关、演讲、领导等需要大量人际互动的岗位上拥有天然的优势。你善于表达自己的想法，能够在众人面前侃侃而谈。在团队中，你常常是那个推动讨论、协调各方、凝聚共识的人。然而，需要注意的是，你有时可能因为过于关注外部世界而忽视了内心的声音。建议你在享受社交的同时，也留出独处的时间进行自我反思和深度思考。长期来看，学会在独处中获得能量将使你的人生更加完整和丰富。';
+      else if(score>=65)desc='你性格外向，喜欢与人交往，在社交场合中感到自在。你能够自如地表达自己的想法和情感，与不同类型的人建立良好的关系。这种特质使你在需要团队协作和沟通的岗位上表现出色。你享受与他人合作的过程，能够从集体讨论中获得灵感和动力。在团队中，你是那个促进交流、增进了解的"纽带"。你的积极态度能够感染身边的人，提升团队的士气。建议你继续保持这种优秀的社交能力，同时学会在必要时安静地倾听，给他人表达的空间。记住，真正的沟通高手不仅善于说，更善于听。你的外向特质是宝贵的资源，善用它，你将能够建立广泛而深厚的人际网络。';
+      else if(score>=45)desc='你在社交与独处之间找到了良好的平衡。你既能享受社交的乐趣，也珍惜独处的时光。你不会强迫自己参加不想去的聚会，也不会刻意回避有意义的社交活动。这种灵活性使你在各种环境中都能适应良好。在与他人相处时，你能够真诚地交流和倾听；在独处时，你能够深入地思考和反省。在团队中，你既不是那个过度活跃的"话痨"，也不是那个完全沉默的"隐士"。建议你根据自己的能量状态合理安排社交活动，尊重自己需要独处的时刻。你的平衡特质本身就是一种智慧，在这个极端化的时代尤为珍贵。找到属于自己的节奏，你会活得更从容、更自在。';
+      else if(score>=30)desc='你倾向于内向，更喜欢安静的环境和少数亲密的朋友。社交活动可能会消耗你的能量，而独处则能让你恢复精力。这种特质使你在需要深度思考和专注工作的岗位上表现出色。你的内心世界丰富而深邃，善于观察和反思。你可能不善于在人群中高谈阔论，但在一对一的深入交流中，你能够展现出惊人的洞察力和共情能力。在团队中，你常常是那个在关键时刻提出深思熟虑见解的人。建议你接受自己的内向特质，不要强迫自己变成"外向的人"。选择适合自己性格的工作环境和社交方式，用小而精的社交网络代替大而浅的社交圈子。记住，内向不是缺陷，深度是你的超能力。';
+      else desc='你是一个典型的内向者，从独处中获得能量。你深思熟虑，喜欢深度交流而非广泛的社交活动。你的内心世界极为丰富，拥有强大的自我反思能力和创造力。你可能在大型社交场合中感到不适，但在熟悉的小圈子里或者独自一人时，你能够完全放松并展现出最好的一面。在团队中，你倾向于通过行动而非言语来证明自己。你可能不是会议上发言最多的人，但你的每一句话都经过深思熟虑。建议你找到理解并尊重你性格的工作环境，选择那些允许独立工作和深度思考的岗位。与你的内向和解，把它当作你的独特优势而非需要改正的缺陷。记住，世界上最伟大的发明和创作很多都来自安静的房间。';
+      break;
+    case'A':
+      if(score>=80)desc='你拥有极强的同理心和合作精神，总是愿意为他人着想。你温和谦逊，善于化解冲突，是群体中的调和者。你能够敏锐地感知到他人的情绪变化，并本能地想要提供帮助和支持。这种高度的宜人性使你在需要人际协调和情感支持的岗位上拥有无与伦比的优势。在团队中，你是那个让每个人都感到被尊重和重视的人。你善于倾听，不轻易评判他人，这使人们愿意向你敞开心扉。然而，需要注意的是，你有时可能因为过度关注他人的感受而忽视了自己的需求和底线。建议你学会在善良和坚定之间找到平衡，记住：真正的善意不是无底线的妥协，而是在尊重他人的同时也尊重自己。';
+      else if(score>=65)desc='你性格友善，善于与他人合作。你信任他人，愿意帮助他人，在人际关系中表现出良好的包容性。这种特质使你在需要团队协作的岗位上表现出色。你能够与不同性格和背景的人和谐相处，善于寻找共识和共同点。在团队中，你是那个促进和谐、增进团结的重要成员。你的同事喜欢与你共事，因为你总是能够营造积极友好的工作氛围。建议你继续保持这种优秀的合作精神，同时学会在必要时坚持自己的立场。记住，合作不等于盲从，真正的团队贡献有时需要提出不同的观点和建设性的质疑。';
+      else if(score>=45)desc='你在坚持自己的立场和照顾他人感受之间保持了良好的平衡。你既能够合作，也懂得维护自己的利益。你不会为了讨好他人而违背自己的原则，但也不会因为坚持己见而伤害他人的感情。这种平衡的宜人性使你在大多数工作环境中都能游刃有余。在团队中，你是那个能够在冲突中找到折中方案的人。你尊重他人的观点，但也会清晰地表达自己的想法。建议你根据具体情况灵活调整自己的沟通方式，在需要合作时展现包容，在需要决策时展现坚定。你的平衡特质是一种成熟的人际智慧，将使你在职业生涯中受益无穷。';
+      else if(score>=30)desc='你比较独立自主，在人际交往中更注重效率和结果。你可能会更直接地表达自己的观点和需求，不太会为了维持表面和谐而隐藏真实想法。这种特质使你在需要快速决策和果断行动的岗位上表现出色。你不会被人际关系的复杂性所困扰，能够专注于目标和任务的完成。在团队中，你是那个推动事情进展、避免无效讨论的人。然而，需要注意的是，过于直接的表达方式有时会让他人感到不适。建议你在表达不同意见时，适当增加一些缓冲和同理心。记住，效率很重要，但人是实现效率的主体，维护良好的人际关系长期来看会提高效率而非降低它。';
+      else desc='你非常独立自主，在决策时优先考虑自己的利益。你竞争意识强，善于挑战和质疑。这种特质使你在竞争激烈的环境中如鱼得水。你不会因为担心伤害他人感情而放弃追求更好的结果，这种结果导向的思维方式在商业和竞技领域是宝贵的资产。你敢于面对冲突，不回避艰难的对话，这使你在需要做出艰难决策的岗位上表现出色。然而，需要注意的是，完全忽视他人的感受和需求可能会让你失去重要的支持和合作机会。建议你学会在坚持自己立场的同时，也考虑对他人的影响。找到那些同样重视结果的人合作，建立基于相互尊重而非情感依赖的工作关系。';
+      break;
+    case'N':
+      if(score>=80)desc='你的情绪波动较为频繁，对压力和负面事件比较敏感。你可能更容易感到焦虑和担忧，情绪的反应强度和频率都高于平均水平。这种高度敏感的天性既是挑战也是天赋——你体验到的情感深度是常人难以企及的，这使你在艺术创作、深度写作、心理洞察等方面拥有独特的优势。你对自己和他人的情绪都有敏锐的感知力，能够捕捉到微妙的情感变化。然而，需要注意的是，频繁的情绪波动可能会影响你的工作效率和生活质量。建议你系统地学习情绪管理技巧，如正念冥想、认知重构等。建立稳定的生活节奏，包括规律的睡眠、健康的饮食和适度的运动，这些基础习惯对情绪稳定有着巨大的影响。记住，你的敏感让你看到别人看不到的世界，学会与这种敏感共处，它将成为你最强大的创造力源泉。';
+      else if(score>=65)desc='你有时会体验到情绪的波动，在面对压力时可能会感到不安。你对周围的环境和他人的评价比较敏感，这种敏感度使你在某些情况下容易受到影响。你的情绪体验比较丰富，能够深刻地感受到喜悦、悲伤、焦虑等各种情感。这种特质使你在需要共情和情感理解的岗位上具有一定优势。然而，情绪的不稳定有时会影响你的决策质量和工作效率。建议你建立自己的情绪调节工具箱，包括深呼吸练习、情绪日记、运动减压等方法。识别引发你情绪波动的触发因素，提前做好应对准备。在感到情绪强烈时，给自己一些时间和空间，不要在情绪高峰时做出重要决定。记住，情绪本身不是问题，问题在于我们如何应对情绪。';
+      else if(score>=45)desc='你的情绪状态总体平稳，能够在大多数情况下保持平和。你既能体验到丰富的情感，也能理性应对挑战。你不会被情绪完全控制，但也不会压抑自己的感受。这种情绪平衡使你在各种环境中都能适应良好。在面对压力时，你能够保持基本的冷静，找到解决问题的方法。在开心时，你也能够尽情享受快乐的时刻。建议你继续保持这种良好的情绪状态，同时关注一些可能的压力信号，在忙碌的生活中不要忽视自己的心理健康。定期进行自我检查，确保工作和生活的平衡。你的情绪稳定性是你重要的内在资源，善加利用，它将帮助你在人生的起伏中保持从容。';
+      else if(score>=30)desc='你的情绪相对稳定，能够较好地应对生活中的压力和挫折。你通常保持冷静，不易被外界影响。这种特质使你在需要稳定性和抗压能力的岗位上表现出色。你不会因为小事而焦虑，能够理性地分析问题并找到解决方案。在团队中，你是那个在危机时刻保持冷静、给大家信心的人。然而，需要注意的是，过于稳定的情绪有时可能让你忽视了一些需要关注的问题。建议你定期检查自己的情绪状态，确保不是在压抑情绪而非真正平静。适度地体验和表达情绪，会让你的人际关系更加丰富和深入。记住，情绪稳定是优势，但情感丰富会让生命更加完整。';
+      else desc='你的情绪非常稳定，几乎不受外界干扰。你内心平静，抗压能力极强，能够在压力下保持清晰的思维。这种高度的情绪稳定性使你在需要冷静决策的高压环境中拥有无与伦比的优势。无论是面对紧急危机还是长期的压力，你都能够保持镇定自若。在团队中，你是那个大家最信赖的"定海神针"——当其他人慌乱时，你总是那个最清醒的人。然而，需要注意的是，极度稳定的情绪有时可能让你难以与他人建立深层的情感连接。建议你学会识别和表达自己的情感，让他人了解你的内心世界。记住，你的冷静是巨大的力量，但适度的情感表达会让你的人际关系更加温暖和深入。';
+      break;
+  }
+  return desc;
+}
+
+function getProfileName(scores){
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const top=sorted[0][0];
+  const names={O:'探索者',C:'建筑师',E:'领袖',A:'守护者',N:'深思者'};
+  return names[top]||'独特灵魂';
+}
+
+function getProfileDesc(scores){
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const top2=sorted.slice(0,2);
+  const descriptions={
+    'O-C':'你是一个兼具创造力与执行力的"创新实践者"。你拥有丰富的想象力和创新思维，同时又具备将想法转化为现实的组织能力。这种 rare 的组合使你在创业、产品设计、战略规划等领域拥有巨大的优势。你能够从零开始构建一个愿景，然后一步一个脚印地实现它。',
+    'C-O':'你是一个兼具系统思维与创新视野的"架构创新者"。你在严谨的逻辑框架中依然保持着对新事物的开放态度。你善于在现有体系中寻找优化的空间，用创新的方法解决传统问题。这种特质使你成为组织变革和流程优化的最佳推动者。',
+    'O-E':'你是一个充满魅力的"创意领袖"。你的创造力加上你的社交影响力，使你能够将自己的想法传播给大众，并获得他人的支持和追随。你适合从事需要创意表达和公众影响力的工作，如品牌创始人、媒体人等。',
+    'E-O':'你是一个善于表达的"探索先锋"。你的外向性格使你成为新思想的传播者，你喜欢与人分享你的发现和见解。你适合从事教育、培训、咨询等需要不断输出新知的工作。',
+    'O-A':'你是一个富有同情心的人文主义者。你的创造力与同理心相结合，使你能够创作出触动人心的作品，或设计出真正以用户为中心的产品。你适合从事用户体验设计、社会创新、艺术创作等领域。',
+    'A-O':'你是一个温和的"创新协调者"。你善于在团队中引入新的想法，同时确保每个人都感到被尊重和包容。你适合从事需要平衡多方利益的管理角色，或人力资源、团队教练等工作。',
+    'C-E':'你是一个高效的"执行领袖"。你的组织能力加上你的社交能力，使你能够带领团队高效完成复杂的目标。你适合担任项目经理、运营总监等需要协调多方资源的管理职位。',
+    'E-C':'你是一个充满活力的"目标达成者"。你的积极性加上你的自律性，使你成为一个既有激情又有执行力的可靠伙伴。你适合从事销售管理、商务拓展等需要持续输出结果的工作。',
+    'C-A':'你是一个值得信赖的"团队支柱"。你的责任感和合作精神使你成为团队中最可靠的支持者。你适合从事客户服务管理、人力资源运营、行政管理等需要细致和耐心的工作。',
+    'A-C':'你是一个细心的"服务专家"。你的友善态度加上你的严谨作风，使你能够提供既温暖又专业的服务。你适合从事客户成功、质量管理等岗位。',
+    'E-A':'你是一个受欢迎的"社交达人"。你的外向性格和友善态度使你在人群中如鱼得水，能够轻松建立广泛的人际网络。你适合从事公关、商务、社区运营等需要大量社交的工作。',
+    'A-E':'你是一个温和的"关系建设者"。你的宜人性使你善于维护长期的人际关系，同时又不会过度消耗自己的能量。你适合从事客户关系管理、人力资源伙伴等岗位。'
+  };
+  const key=top2[0][0]+'-'+top2[1][0];
+  return descriptions[key]||'你是一个独特的个体，拥有复杂而丰富的人格结构。你的性格组合在你身上产生了独特的化学反应，使你成为一个不可替代的存在。建议你深入理解自己的每一个维度，找到最适合你的发展道路。';
+}
+
+function getLevelKey(score){
+  if(score>=70)return'high';
+  if(score>=45)return'mid';
+  return'low';
+}
+
+function drawRadar(scores){
+  const canvas=document.getElementById('radarCanvas');
+  const ctx=canvas.getContext('2d');
+  const dpr=Math.min(window.devicePixelRatio,2);
+  canvas.width=400*dpr;
+  canvas.height=400*dpr;
+  ctx.scale(dpr,dpr);
+
+  const cx=200,cy=200,radius=140;
+  const dimKeys=['O','C','E','A','N'];
+  const dimColors={'O':'#C053F5','C':'#2563EB','E':'#F59E0B','A':'#10B981','N':'#EF4444'};
+
+  for(let level=1;level<=4;level++){
+    ctx.beginPath();
+    for(let i=0;i<5;i++){
+      const angle=(Math.PI*2/5)*i-Math.PI/2;
+      const dist=(radius/4)*level;
+      const x=cx+Math.cos(angle)*dist;
+      const y=cy+Math.sin(angle)*dist;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle='rgba(255,255,255,0.06)';
+    ctx.stroke();
+  }
+
+  for(let i=0;i<5;i++){
+    const angle=(Math.PI*2/5)*i-Math.PI/2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(angle)*radius,cy+Math.sin(angle)*radius);
+    ctx.strokeStyle='rgba(255,255,255,0.1)';
+    ctx.lineWidth=1;
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  for(let i=0;i<5;i++){
+    const angle=(Math.PI*2/5)*i-Math.PI/2;
+    const score=scores[dimKeys[i]]||50;
+    const dist=(score/100)*radius;
+    const x=cx+Math.cos(angle)*dist;
+    const y=cy+Math.sin(angle)*dist;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.closePath();
+  ctx.fillStyle='rgba(192,83,245,0.15)';
+  ctx.fill();
+  ctx.strokeStyle='rgba(192,83,245,0.6)';
+  ctx.lineWidth=2;
+  ctx.stroke();
+
+  for(let i=0;i<5;i++){
+    const angle=(Math.PI*2/5)*i-Math.PI/2;
+    const score=scores[dimKeys[i]]||50;
+    const dist=(score/100)*radius;
+    const x=cx+Math.cos(angle)*dist;
+    const y=cy+Math.sin(angle)*dist;
+    ctx.beginPath();
+    ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle=dimColors[dimKeys[i]];
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x,y,3,0,Math.PI*2);
+    ctx.fillStyle='#fff';
+    ctx.fill();
+
+    const labelAngle=(Math.PI*2/5)*i-Math.PI/2;
+    const lx=cx+Math.cos(labelAngle)*(radius+28);
+    const ly=cy+Math.sin(labelAngle)*(radius+28);
+    ctx.font='12px "Noto Sans SC",sans-serif';
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.fillStyle='#94A3B8';
+    ctx.fillText(dimensions.find(d=>d.key===dimKeys[i]).name,lx,ly);
+  }
+}
+
+function showResults(){
+  const scores=calculateScores();
+  const profile=getProfileName(scores);
+  const profileDesc=getProfileDesc(scores);
+
+  document.getElementById('profileName').textContent=profile;
+  drawRadar(scores);
+
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const topDim=sorted[0][0];
+  const topScore=scores[topDim];
+  const levelKey=getLevelKey(topScore);
+  const dbKey=topDim+'_'+levelKey;
+  const careerData=careerDB[dbKey]||careerDB['O_mid'];
+
+  const grid=document.getElementById('scoresGrid');
+  grid.innerHTML='';
+  const sortedDims=dimensions.slice().sort((a,b)=>(scores[b.key]||0)-(scores[a.key]||0));
+  sortedDims.forEach(d=>{
+    const score=scores[d.key]||0;
+    const level=getLevel(score);
+    const card=document.createElement('div');
+    card.className='score-card';
+    card.innerHTML=`
+      <div class="score-card-header">
+        <div class="score-card-dim">
+          <div class="score-dot" style="background:${d.color}"></div>
+          <span class="score-name">${d.name}</span>
+        </div>
+        <span class="score-level" style="background:${d.color}20;color:${d.color}">${level}</span>
+      </div>
+      <div class="score-value" style="color:${d.color}">${score}%</div>
+      <div class="score-bar"><div class="score-bar-fill" style="width:${score}%;background:${d.color}"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+
+  const summaryDiv=document.getElementById('personalitySummary');
+  const interp={};
+  dimensions.forEach(d=>interp[d.key]=getInterpretation(d.key,scores[d.key]));
+
+  summaryDiv.innerHTML=`
+    <p>你的测评结果显示，你在<strong style="color:${sortedDims[0].color}">${sortedDims[0].name}</strong>维度得分最高（${scores[sortedDims[0].key]}%），这表明${interp[sortedDims[0].key].substring(0,120)}...</p>
+    <p>你整体呈现出<strong>${profile}</strong>的人格特征——${profileDesc}</p>
+    <p>从五个维度的综合结构来看，${getOverallText(scores,sortedDims,interp)}</p>
+  `;
+
+  const traitRow=document.getElementById('traitRow');
+  traitRow.innerHTML='';
+  sortedDims.slice(0,3).forEach(d=>{
+    const sp=document.createElement('span');
+    sp.className='trait-tag';
+    sp.style.cssText=`background:${d.color}15;color:${d.color};border-color:${d.color}30`;
+    sp.textContent=d.name+' · '+getLevel(scores[d.key]);
+    traitRow.appendChild(sp);
+  });
+
+  document.getElementById('deepAnalysis').innerHTML=`
+    <h3 class="section-title">
+      <span class="icon" style="background:linear-gradient(135deg,var(--purple),var(--blue));color:#fff">◆</span>
+      深度性格分析
+    </h3>
+    <div class="career-section">
+      <h4>核心人格特质</h4>
+      <p>${careerData.profile}</p>
+    </div>
+    <div class="career-section">
+      <h4>在团队中的角色</h4>
+      <p>${getTeamRole(scores,sortedDims[0])}</p>
+    </div>
+    <div class="career-section">
+      <h4>人际沟通风格</h4>
+      <p>${getCommunicationStyle(scores)}</p>
+    </div>
+    <div class="career-section">
+      <h4>压力应对模式</h4>
+      <p>${getStressResponse(scores)}</p>
+    </div>
+  `;
+
+  document.getElementById('careerAnalysis').innerHTML=`
+    <h3 class="section-title">
+      <span class="icon" style="background:linear-gradient(135deg,var(--yellow),var(--green));color:#fff">◇</span>
+      职业定位分析
+    </h3>
+    <div class="career-section">
+      <h4>最适合你的职业方向</h4>
+      <p>基于你的人格画像分析，以下几类职业与你的性格特质高度匹配。这些岗位能够充分发挥你的天然优势，同时避免那些可能让你感到不适的工作要求。</p>
+      <div class="career-grid">
+        ${careerData.careers.map(c=>`<div class="career-item">${c}<div class="career-match">高度匹配</div></div>`).join('')}
+      </div>
+    </div>
+    <div class="career-section">
+      <h4>你在职场中的竞争优势</h4>
+      <p>${getAdvantages(scores,sortedDims[0])}</p>
+    </div>
+    <div class="career-section">
+      <h4>需要避免的职场陷阱</h4>
+      <p>${getPitfalls(scores,sortedDims[0])}</p>
+    </div>
+  `;
+
+  document.getElementById('careerPlan').innerHTML=`
+    <h3 class="section-title">
+      <span class="icon" style="background:linear-gradient(135deg,var(--blue),var(--green));color:#fff">▲</span>
+      职业规划路线
+    </h3>
+    ${careerData.plan}
+  `;
+
+  document.getElementById('futureGuide').innerHTML=`
+    <h3 class="section-title">
+      <span class="icon" style="background:linear-gradient(135deg,var(--red),var(--yellow));color:#fff">★</span>
+      未来发展指导
+    </h3>
+    ${careerData.guide}
+    <div class="career-section" style="margin-top:1.5rem">
+      <h4>成长建议清单</h4>
+      <div class="advice-list" id="adviceList"></div>
+    </div>
+  `;
+
+  const adviceList=document.getElementById('adviceList');
+  const advices=getAdvices(scores);
+  advices.forEach(adv=>{
+    const div=document.createElement('div');
+    div.className='advice-item';
+    div.innerHTML=`<h5>${adv.title}</h5><p>${adv.desc}</p>`;
+    adviceList.appendChild(div);
+  });
+
+  const detList=document.getElementById('detailsList');
+  detList.innerHTML='';
+  dimensions.forEach(d=>{
+    const div=document.createElement('div');
+    div.className='career-section';
+    div.style.cssText='padding-bottom:1.5rem;border-bottom:1px solid rgba(255,255,255,0.05);margin-bottom:1.5rem';
+    div.innerHTML=`
+      <h4 style="color:${d.color}">${d.fullName}</h4>
+      <p>${interp[d.key]}</p>
+      <div class="detail-tags" style="margin-top:0.75rem">
+        ${d.subs.map(s=>`<span class="tag">${s}</span>`).join('')}
+      </div>
+    `;
+    detList.appendChild(div);
+  });
+
+  showPage('resultPage');
+}
+
+function getOverallText(scores,sortedDims,interp){
+  const top=sortedDims[0],second=sortedDims[1];
+  return `你的${top.name}（${scores[top.key]}%）和${second.name}（${scores[second.key]}%）构成了你人格的核心骨架。${interp[top.key].substring(0,80)}... 同时，你的${second.name}特质使你在${second.subs.join('、')}方面表现突出。这种组合赋予了你独特的行事风格和思维模式，理解这两个维度的互动关系，是把握你整体人格的关键。`;
+}
+
+function getTeamRole(scores,topDim){
+  const roles={
+    O:'你在团队中扮演着"创意发电机"的角色。你总能为团队带来新的视角和想法，当大家陷入思维定势时，你是那个打破僵局的人。你的想象力和好奇心能够激发团队的创造力，推动项目向新的方向发展。建议你同时关注创意的可行性，帮助团队筛选出真正可执行的想法。',
+    C:'你在团队中扮演着"项目推进器"的角色。你确保每个任务都有明确的计划和截止期限，追踪每个环节的进度。当项目面临延期风险时，你是那个第一个发现并采取行动的人。你的可靠性让你成为团队中最值得信赖的成员。建议你同时关注团队成员的工作状态，避免过度追求效率而忽视了人的因素。',
+    E:'你在团队中扮演着"能量枢纽"的角色。你促进团队成员之间的交流和合作，在会议中推动讨论，在团队士气低落时鼓舞大家。你的社交能力帮助团队建立良好的人际关系，创造积极的工作氛围。建议你给内向的同事留出表达的空间，不要让你的光芒掩盖了他人的贡献。',
+    A:'你在团队中扮演着"和谐守护者"的角色。你关注每个成员的感受，在冲突发生时主动调解，确保团队的凝聚力。你善于倾听，让每个人都感到被尊重和理解。你的存在让团队成为一个温暖、支持性的环境。建议你学会在必要时坚持原则，不要为了和谐而回避必要的冲突。',
+    N:'你在团队中扮演着"深度感知者"的角色。你对团队的氛围变化和他人的情绪状态有敏锐的洞察力。你能够察觉到潜在的问题，在它们爆发之前就提出预警。虽然情绪波动可能给你带来困扰，但这种敏感度也是你独特的贡献。建议你建立情绪管理的方法，让你的敏感成为优势而非负担。'
+  };
+  return roles[topDim.key]||'你在团队中扮演着独特而重要的角色。你的人格特质组合使你在某些特定方面具有不可替代的价值。建议你深入了解自己的优势领域，主动承担那些最能发挥你特长的职责。';
+}
+
+function getCommunicationStyle(scores){
+  if(scores.E>=70&&scores.A>=60)return'你的沟通风格是"热情共情型"。你善于用真诚的态度和他人建立连接，能够迅速拉近与陌生人的距离。你在交流中既有外向者的活力，又有高宜人性者的体贴，这使你在需要建立信任关系的场景中表现出色。建议你注意控制表达的量，给对方足够的表达空间。';
+  if(scores.E>=70&&scores.A<50)return'你的沟通风格是"直接高效型"。你喜欢简洁明了地表达观点，不绕弯子。你在谈判、销售、公开演讲等需要说服力的场景中表现出色。你的表达充满力量和信心，能够迅速抓住听众的注意力。建议你适当增加一些缓冲和同理心，让沟通更加顺畅。';
+  if(scores.E<45&&scores.A>=60)return'你的沟通风格是"深度倾听型"。你可能不是会议上话最多的人，但你说的每一句话都经过深思熟虑。你善于一对一的深入交流，能够建立高质量的人际关系。你的倾听能力让你成为朋友和同事信赖的倾诉对象。建议在群体场合中也适时表达你的想法。';
+  if(scores.E<45&&scores.N>=60)return'你的沟通风格是"谨慎思考型"。你在表达前会反复斟酌，确保每个观点都有充分的依据。你可能在即时对话中显得有些犹豫，但在书面沟通中你能够展现出惊人的清晰度和逻辑性。建议你不要过度担心说错话，适度的冒险会让你的沟通更加自然。';
+  return'你的沟通风格是"灵活适应型"。你能够根据不同场合和对象调整自己的沟通方式，既有能力进行高效的公开表达，也能够进行深入的私人对话。建议你继续发挥这种灵活性，成为团队中连接不同性格类型的桥梁。';
+}
+
+function getStressResponse(scores){
+  if(scores.N>=70)return'你对压力的敏感度较高，容易在面对挑战时体验到焦虑和紧张。这种敏感既是挑战也是优势——你能够在问题爆发之前就察觉到信号，但也可能因过度担忧而影响判断。建议你建立系统性的压力管理方案：规律的运动习惯（尤其推荐有氧运动）、正念冥想练习、充足的睡眠、以及一个可以倾诉的社交支持网络。学会将压力视为成长的信号而非威胁。';
+  if(scores.N>=50)return'你对压力的反应处于中等水平。适度的压力能够激发你的动力，但过大的压力会影响你的效率和情绪。你在面对挑战时能够保持基本的冷静，但也需要时间来恢复。建议你培养至少两种减压方式（如运动、音乐、阅读等），在感到压力累积时及时使用。同时，学习时间管理技巧，避免多个deadline同时逼近。';
+  if(scores.C>=70)return'你的压力应对方式是"行动导向型"。当面对压力时，你不会逃避或抱怨，而是立即开始制定行动计划。你的高度自律性使你能够在困难时期依然保持效率。这种特质使你非常适合高压环境。需要注意的是，你有时可能为了完成任务而忽视了自己的身心信号，建议你在忙碌中也要留出休息和放松的时间。';
+  return'你的压力应对方式是"冷静分析型"。你在面对压力时能够保持理性的思考，不会被情绪左右。你能够客观地分析形势，找到最优的解决方案。这种特质在危机处理中极为宝贵。建议你同时关注情绪的释放，即使是冷静的人也需要适当的情绪出口。培养一些能够让你完全放松的爱好，确保在高压之后有足够的恢复时间。';
+}
+
+function getAdvantages(scores,topDim){
+  const advs={
+    O:'你的核心竞争优势在于<strong>跨界创新思维</strong>。你能够在看似不相关的领域之间建立联系，产生独特的创意。在一个越来越重视创新的时代，这种能力比任何单一技能都更有价值。你对新事物的快速学习能力使你能够在行业变革中始终保持领先。建议你持续拓展知识边界，同时建立至少一个深度专业领域，形成"T型"知识结构。',
+    C:'你的核心竞争优势在于<strong>卓越的执行力</strong>。在充满不确定性的商业环境中，能够将战略转化为行动、将目标转化为结果的能力是极其稀缺的。你的自律性和责任感让你成为任何团队中最可靠的成员。建议你同时培养战略思维，从单纯的执行者向能够参与决策的管理者发展。',
+    E:'你的核心竞争优势在于<strong>强大的人际影响力</strong>。你能够快速建立人脉网络，影响他人的观点和决策。在需要协作、谈判、演讲的场景中，你几乎总是能够取得理想的结果。建议你同时深化专业知识的积累，让你的影响力建立在扎实的专业能力基础之上，而非仅仅依赖个人魅力。',
+    A:'你的核心竞争优势在于<strong>深厚的人际连接能力</strong>。在一个人工智能日益替代技术工作的时代，真正理解人、关怀人的能力将变得越来越珍贵。你的同理心和合作精神使你能够建立长期稳固的职业关系网络。建议你同时培养自己的边界意识和决策果断性，让你的善良更有力量。',
+    N:'你的核心竞争优势在于<strong>敏锐的感知力和深刻的洞察力</strong>。你对细节的敏感度和对情绪的深度理解，使你在用户体验研究、内容创作、心理咨询等领域拥有独特的优势。虽然情绪波动可能带来挑战，但当你学会管理情绪后，这种敏感度将成为你最强大的创造力源泉。'
+  };
+  return advs[topDim.key]||'你的核心竞争优势在于<strong>独特的人格组合</strong>。你的五个维度形成了特有的平衡结构，使你能够在多种不同的情境中灵活应对。建议你深入分析自己每个维度的特点，找到它们之间的最佳协同方式，打造属于你自己的不可复制的核心竞争力。';
+}
+
+function getPitfalls(scores,topDim){
+  const pits={
+    O:'你需要警惕的陷阱是<strong>"创意太多，落地太少"</strong>。高开放性的人往往容易产生大量想法，但可能缺乏将它们逐一实现的耐心和执行力。你可能频繁地更换方向，在每个项目尚未完成时就转向下一个更有吸引力的想法。建议你刻意练习"完成一件事"的能力，在开启新项目之前，确保上一个项目已经交付。',
+    C:'你需要警惕的陷阱是<strong>"过度完美主义"</strong>。你对完美的追求可能导致工作效率下降、团队压力增大，甚至因为迟迟无法交付而错失机会。你可能对自己和他人都有过高的标准，导致身边的人感到紧张和压抑。建议你学会区分"关键任务"和"次要任务"，在次要任务上接受"足够好"的标准。',
+    E:'你需要警惕的陷阱是<strong>"广度有余，深度不足"</strong>。你的广泛社交网络和频繁的社交活动可能分散你在专业深度上的投入。你可能过于关注外部的认可和反馈，而忽视了内心的声音和长期的目标。建议你定期审视自己的时间分配，确保有足够的时间用于深度工作和自我提升。',
+    A:'你需要警惕的陷阱是<strong>"过度迎合，失去自我"</strong>。你对和谐的追求可能导致你在关键时刻无法坚持正确的立场。你可能因为不想伤害他人感情而回避必要的冲突，或者因为过度付出而导致自己的精力被耗尽。建议你建立清晰的原则和底线，学会在尊重他人的同时也坚定地保护自己。',
+    N:'你需要警惕的陷阱是<strong>"被情绪控制决策"</strong>。在情绪低谷时，你可能做出过于悲观的判断；在焦虑状态下，你可能做出草率的决定。你可能因为过度担心未来而错失当下的机会。建议你建立"情绪-决策"的隔离机制——在情绪激动时不做重大决定，给自己24小时的冷静期。'
+  };
+  return pits[topDim.key]||'你需要警惕的陷阱是<strong>"忽视自己的独特需求"</strong>。你可能为了适应环境而压抑自己真实的性格倾向，长期如此会导致职业倦怠。建议你定期进行自我反思，确保你的工作环境和职业方向真正适合你，而不是仅仅因为"大家都这么做"就盲目跟随。';
+}
+
+function getAdvices(scores){
+  const advs=[];
+  if(scores.O>=65)advs.push({title:'发挥创造力',desc:'每天留出固定的"创意时间"，不受干扰地进行自由思考和创作。建立灵感记录本，随时捕捉闪现的想法。定期与不同领域的人交流，保持思维的新鲜度。'});
+  if(scores.C>=65)advs.push({title:'精进执行力',desc:'在现有优秀习惯的基础上，学习更高级的项目管理和战略规划方法。培养授权和团队管理的能力，从个人贡献者向团队领导者发展。'});
+  if(scores.E>=65)advs.push({title:'深化影响力',desc:'在拓展人脉的同时，有意识地培养少数几个深度的职业关系。学习高级沟通技巧如谈判、演讲、 storytelling，将你的影响力提升到新的层次。'});
+  if(scores.A>=65)advs.push({title:'建立边界意识',desc:'学习设定健康的人际边界，在保持善良的同时保护自己的时间和精力。培养在必要时进行建设性冲突的能力，这将让你的合作更加有效。'});
+  if(scores.N>=65)advs.push({title:'转化敏感度',desc:'将你的情绪敏感度转化为创作和洞察的力量。学习情绪管理技巧如正念冥想，建立支持性的社交网络，找到健康的情绪释放渠道。'});
+  if(scores.O<50)advs.push({title:'培养开放心态',desc:'每季度尝试一个全新的领域或体验，主动接触与你观点不同的人。阅读跨领域的书籍，参加不同类型的活动，逐步拓展自己的舒适区。'});
+  if(scores.C<50)advs.push({title:'建立基本结构',desc:'从最简单的习惯开始：每天列出3件最重要的任务，设定明确的截止时间，使用任务管理工具跟踪进度。找到尽责性的伙伴互相监督。'});
+  if(scores.E<50)advs.push({title:'选择性社交',desc:'不必强迫自己变成外向的人，但可以策略性地参与对你职业发展有益的社交活动。提前准备话题和问题，选择小规模的聚会，用书面沟通补充面对面交流。'});
+  if(scores.A<50)advs.push({title:'培养同理心',desc:'在做决策前刻意考虑对他人的影响，学习积极倾听技巧，主动询问他人的感受和需求。记住，长期的成功离不开他人的支持。'});
+  if(scores.N<50)advs.push({title:'深化情感连接',desc:'虽然你情绪稳定，但适度的情感表达会让你的人际关系更加丰富。尝试分享你的感受，主动关心他人的情绪状态，让你不仅是一个可靠的人，也是一个温暖的人。'});
+  return advs;
+}
+</script>
+</body>
+</html>
