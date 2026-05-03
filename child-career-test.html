@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>儿童兴趣与职业发展测评</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f5f0eb;
+    --card: #ffffff;
+    --primary: #5b7b94;
+    --accent: #e8a87c;
+    --text: #3c3c3c;
+    --text-light: #6b6b6b;
+    --border: #e0d5c7;
+    --shadow: 0 4px 24px rgba(0,0,0,0.06);
+    --radius: 16px;
+    --r-color: #e07b5a;
+    --i-color: #5b7b94;
+    --a-color: #9b6fb0;
+    --s-color: #6aab7b;
+    --e-color: #d4a843;
+    --c-color: #6b8e9e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.7;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+
+  /* ===== Header ===== */
+  .header {
+    text-align: center;
+    padding: 40px 20px 24px;
+  }
+  .header .icon { font-size: 48px; margin-bottom: 8px; }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #5b7b94, #e8a87c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header .subtitle {
+    color: var(--text-light);
+    font-size: 15px;
+    margin-top: 6px;
+  }
+
+  /* ===== Card ===== */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 32px 28px;
+    margin-bottom: 20px;
+    transition: all 0.25s;
+  }
+
+  /* ===== Welcome Page ===== */
+  .welcome-desc {
+    color: var(--text-light);
+    margin-bottom: 28px;
+    font-size: 15px;
+    text-align: center;
+    line-height: 1.9;
+  }
+
+  .gender-section { margin-bottom: 28px; }
+  .gender-section .label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: var(--text);
+    text-align: center;
+  }
+  .gender-options {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .gender-option {
+    flex: 1 1 120px;
+    max-width: 180px;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 14px;
+    text-align: center;
+    transition: all 0.2s;
+    background: #fafaf8;
+  }
+  .gender-option:hover { border-color: var(--accent); background: #fdf5ec; }
+  .gender-option.selected {
+    border-color: var(--primary);
+    background: #edf3f7;
+    box-shadow: 0 0 0 3px rgba(91,123,148,0.12);
+  }
+  .gender-option .gender-icon { font-size: 36px; display: block; margin-bottom: 6px; }
+  .gender-option .gender-text { font-weight: 600; font-size: 15px; }
+
+  .age-section { margin-bottom: 28px; }
+  .age-section .label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: var(--text);
+    text-align: center;
+  }
+  .age-input-wrap {
+    display: flex;
+    justify-content: center;
+  }
+  .age-input-wrap input {
+    width: 140px;
+    padding: 10px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 16px;
+    text-align: center;
+    font-family: inherit;
+    transition: border-color 0.2s;
+  }
+  .age-input-wrap input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(91,123,148,0.1);
+  }
+
+  .btn {
+    display: block;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 14px 32px;
+    border: none;
+    border-radius: 30px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    font-family: inherit;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #5b7b94, #6b9ab8);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(91,123,148,0.3);
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(91,123,148,0.4);
+  }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ===== Progress Bar ===== */
+  .progress-wrap {
+    margin-bottom: 24px;
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 6px;
+  }
+  .progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #5b7b94, #8bb8d0);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* ===== Question Page ===== */
+  .question-num {
+    font-size: 13px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .question-text {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: #fafaf8;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    text-align: left;
+  }
+  .option-btn:hover { border-color: var(--accent); background: #fdf5ec; }
+  .option-btn.selected {
+    border-color: var(--primary);
+    background: #edf3f7;
+    font-weight: 600;
+  }
+  .option-radio {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .option-btn.selected .option-radio {
+    border-color: var(--primary);
+    background: var(--primary);
+  }
+  .option-btn.selected .option-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 28px;
+    gap: 12px;
+  }
+  .btn-nav {
+    flex: 1;
+    padding: 12px 20px;
+    border: 2px solid var(--border);
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    background: #fff;
+    color: var(--text);
+    transition: all 0.2s;
+    max-width: 200px;
+  }
+  .btn-nav:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-nav.next {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+  .btn-nav.next:hover { opacity: 0.9; }
+  .btn-nav:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ===== Results Page ===== */
+  .results-header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .results-header h2 {
+    font-size: 26px;
+    margin-bottom: 4px;
+  }
+  .results-header .user-info {
+    color: var(--text-light);
+    font-size: 14px;
+  }
+
+  .chart-wrap {
+    max-width: 420px;
+    margin: 0 auto 32px;
+    padding: 16px;
+  }
+
+  .score-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+  .score-card {
+    border-radius: 12px;
+    padding: 18px 16px;
+    border-left: 5px solid;
+    background: #fafaf8;
+    transition: transform 0.2s;
+  }
+  .score-card:hover { transform: translateY(-2px); }
+  .score-card .sc-name {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .score-card .sc-score {
+    font-size: 28px;
+    font-weight: 700;
+  }
+  .score-card .sc-bar-wrap {
+    height: 6px;
+    background: #eee;
+    border-radius: 3px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .score-card .sc-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+  }
+
+  .detail-section {
+    margin-bottom: 24px;
+  }
+  .detail-section h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #eee;
+  }
+  .detail-section p, .detail-section li {
+    color: var(--text-light);
+    font-size: 14.5px;
+    line-height: 1.8;
+    margin-bottom: 6px;
+  }
+  .detail-section ul { padding-left: 20px; }
+
+  .career-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .career-tag {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #f5f0eb;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .career-tag:hover { background: #e8d9c8; transform: translateY(-1px); }
+  .career-tag .career-icon { display: block; font-size: 24px; margin-bottom: 2px; }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #fdf5ec, #edf3f7);
+    border-radius: 12px;
+    padding: 20px 22px;
+    margin-bottom: 24px;
+    border: 1px solid #e0d5c7;
+  }
+  .highlight-box h4 { margin-bottom: 8px; font-size: 16px; }
+  .highlight-box p { color: var(--text-light); font-size: 14.5px; line-height: 1.8; }
+
+  .contact-notice {
+    text-align: center;
+    padding: 16px 20px;
+    margin-top: 32px;
+    border-radius: 12px;
+    background: #fafaf8;
+    border: 1px dashed #d0c8bb;
+    color: #8b7b6b;
+    font-size: 13.5px;
+    line-height: 1.8;
+    letter-spacing: 0.3px;
+  }
+  .contact-notice strong {
+    color: #6b5544;
+  }
+
+  .btn-restart {
+    background: #fff;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    margin-top: 16px;
+  }
+  .btn-restart:hover { background: #edf3f7; }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 600px) {
+    .card { padding: 22px 16px; }
+    .header h1 { font-size: 23px; }
+    .question-text { font-size: 17px; }
+    .score-cards { grid-template-columns: 1fr 1fr; }
+    .career-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- ==================== HEADER ==================== -->
+  <div class="header">
+    <div class="icon">🧒✨</div>
+    <h1>儿童兴趣与职业发展测评</h1>
+    <p class="subtitle">基于霍兰德职业兴趣理论 · 专为6-15岁儿童设计</p>
+  </div>
+
+  <!-- ==================== PAGE 0: WELCOME ==================== -->
+  <div class="card" id="page-welcome">
+    <p class="welcome-desc">
+      本测评基于<strong>霍兰德职业兴趣理论（RIASEC）</strong>，结合儿童心理发展特点精心设计。<br>
+      通过30道趣味题目，从六个维度全面评估孩子的兴趣倾向，<br>
+      并匹配适合的未来职业方向。
+    </p>
+    <p class="welcome-desc" style="font-size:13px; color:#999;">
+      ⏱ 预计用时：8-12分钟 &nbsp;|&nbsp; 📋 共30题 &nbsp;|&nbsp; 🔒 结果仅本地展示
+    </p>
+
+    <!-- Gender Selection -->
+    <div class="gender-section">
+      <span class="label">请选择孩子的性别</span>
+      <div class="gender-options">
+        <div class="gender-option" data-gender="male" onclick="selectGender('male', this)">
+          <span class="gender-icon">👦</span>
+          <span class="gender-text">男孩</span>
+        </div>
+        <div class="gender-option" data-gender="female" onclick="selectGender('female', this)">
+          <span class="gender-icon">👧</span>
+          <span class="gender-text">女孩</span>
+        </div>
+        <div class="gender-option" data-gender="other" onclick="selectGender('other', this)">
+          <span class="gender-icon">🧒</span>
+          <span class="gender-text">暂不选择</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Age -->
+    <div class="age-section">
+      <span class="label">请选择或输入孩子年龄</span>
+      <div class="age-input-wrap">
+        <input type="number" id="age-input" min="4" max="18" placeholder="6-15岁" value="">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-start" disabled onclick="startTest()">
+      开始测评
+    </button>
+  </div>
+
+  <!-- ==================== PAGE 1: QUESTIONS ==================== -->
+  <div class="card hidden" id="page-questions">
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span id="progress-label">第 1 / 30 题</span>
+        <span id="progress-pct">3%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 3%;"></div>
+      </div>
+    </div>
+    <div class="question-num" id="q-dimension"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="options-list" id="q-options"></div>
+    <div class="nav-buttons">
+      <button class="btn-nav" id="btn-prev" onclick="prevQuestion()">← 上一题</button>
+      <button class="btn-nav next" id="btn-next" onclick="nextQuestion()">下一题 →</button>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2: RESULTS ==================== -->
+  <div class="card hidden" id="page-results">
+    <div class="results-header">
+      <h2>📊 测评结果报告</h2>
+      <p class="user-info" id="result-user-info"></p>
+    </div>
+
+    <!-- Radar Chart -->
+    <div class="chart-wrap">
+      <canvas id="radarChart"></canvas>
+    </div>
+
+    <!-- Score Cards -->
+    <div class="score-cards" id="score-cards"></div>
+
+    <!-- Detailed Analysis -->
+    <div id="detail-analysis"></div>
+
+    <!-- Career Recommendations -->
+    <div class="detail-section">
+      <h3>🎯 推荐职业方向</h3>
+      <div class="career-grid" id="career-recs"></div>
+    </div>
+
+    <!-- Parent Advice -->
+    <div class="highlight-box" id="parent-advice"></div>
+
+    <!-- Development Suggestions -->
+    <div class="detail-section">
+      <h3>🌱 培养建议</h3>
+      <div id="dev-suggestions"></div>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="contact-notice">
+      📌 <strong>更多测试、文游加Q群：1095932194，低价接个人定制</strong>
+    </div>
+
+    <button class="btn btn-restart" onclick="restartTest()">🔄 重新测评</button>
+  </div>
+
+</div>
+
+<script>
+// ==================== DATA ====================
+
+const dimensions = {
+  R: {
+    name: '实际型 (Realistic)',
+    icon: '🔧',
+    color: '#e07b5a',
+    short: '动手操作',
+    desc: '喜欢动手实践、操作工具、户外活动和体育运动。这类孩子通常精力充沛，喜欢通过身体和双手来探索世界。',
+    strengths: ['动手能力强', '身体协调性好', '喜欢户外运动', '善于操作工具和器械', '空间感知力出色'],
+    careers: [
+      { name: '工程师', icon: '⚙️' },
+      { name: '运动员/教练', icon: '🏃' },
+      { name: '飞行员', icon: '✈️' },
+      { name: '建筑师', icon: '🏗️' },
+      { name: '厨师/烘焙师', icon: '🍳' },
+      { name: '兽医', icon: '🐾' },
+      { name: '消防员', icon: '🚒' },
+      { name: '机械师', icon: '🔩' },
+      { name: '园林设计师', icon: '🌳' },
+      { name: '地质勘探员', icon: '⛏️' },
+    ],
+    development: '多提供动手实践的机会，如乐高搭建、木工手工、科学实验套装、体育运动等。鼓励孩子参加户外探索活动和团队运动，培养动手能力和身体协调性。可以带孩子参观工厂、科技馆，了解机械和工程的奥妙。'
+  },
+  I: {
+    name: '研究型 (Investigative)',
+    icon: '🔬',
+    color: '#5b7b94',
+    short: '思考探索',
+    desc: '喜欢观察、分析、解决问题和探索自然现象。这类孩子好奇心旺盛，喜欢问"为什么"，善于逻辑推理和独立思考。',
+    strengths: ['逻辑思维能力强', '好奇心旺盛', '善于分析和推理', '喜欢独立研究', '对自然科学有浓厚兴趣'],
+    careers: [
+      { name: '科学家/研究员', icon: '🔬' },
+      { name: '医生', icon: '🩺' },
+      { name: '程序员', icon: '💻' },
+      { name: '数据分析师', icon: '📊' },
+      { name: '药剂师', icon: '💊' },
+      { name: '心理学家', icon: '🧠' },
+      { name: '天文学家', icon: '🔭' },
+      { name: '生物学家', icon: '🧬' },
+      { name: '人工智能工程师', icon: '🤖' },
+      { name: '法医鉴定师', icon: '🔎' },
+    ],
+    development: '提供丰富的科普读物、科学纪录片和实验工具。鼓励孩子提问并一起寻找答案，培养科学思维。可以学习编程、下棋、数学思维训练等。带孩子去科技馆、自然博物馆，激发探索兴趣。'
+  },
+  A: {
+    name: '艺术型 (Artistic)',
+    icon: '🎨',
+    color: '#9b6fb0',
+    short: '创意表达',
+    desc: '喜欢通过绘画、音乐、舞蹈、写作等方式表达自我。这类孩子想象力丰富，情感细腻，对美有独特的感受力。',
+    strengths: ['创造力丰富', '想象力出色', '审美感知力强', '情感表达细腻', '善于用艺术形式表达自我'],
+    careers: [
+      { name: '画家/插画师', icon: '🎨' },
+      { name: '音乐家/作曲家', icon: '🎵' },
+      { name: '作家/编剧', icon: '✍️' },
+      { name: '设计师（服装/室内）', icon: '👗' },
+      { name: '摄影师', icon: '📷' },
+      { name: '动画师', icon: '🎬' },
+      { name: '舞蹈家', icon: '💃' },
+      { name: '游戏美术设计', icon: '🎮' },
+      { name: '广告创意总监', icon: '💡' },
+      { name: '花艺师', icon: '💐' },
+    ],
+    development: '提供丰富的美术材料、乐器或舞蹈课程。带孩子参观美术馆、听音乐会、看戏剧表演。鼓励孩子自由创作，不以"像不像"为标准评价作品。可以报名创意写作、戏剧表演等兴趣班，保护孩子的创造力。'
+  },
+  S: {
+    name: '社会型 (Social)',
+    icon: '🤝',
+    color: '#6aab7b',
+    short: '助人合作',
+    desc: '喜欢与人交往、帮助他人、教导和团队合作。这类孩子善解人意，有同理心，乐于分享和关心身边人。',
+    strengths: ['人际交往能力强', '富有同理心', '善于沟通和倾听', '乐于助人', '团队协作能力好'],
+    careers: [
+      { name: '教师/教授', icon: '📚' },
+      { name: '心理咨询师', icon: '💝' },
+      { name: '社会工作者', icon: '🤲' },
+      { name: '护士/护理人员', icon: '🏥' },
+      { name: '人力资源专家', icon: '👥' },
+      { name: '外交官', icon: '🌍' },
+      { name: '记者/主持人', icon: '🎙️' },
+      { name: '导游', icon: '🗺️' },
+      { name: '幼儿教育者', icon: '🧸' },
+      { name: '公益组织负责人', icon: '🕊️' },
+    ],
+    development: '鼓励孩子参加团队活动和志愿服务，培养领导力和同理心。多创造与同龄人交流合作的机会，如夏令营、小组项目等。引导孩子学会倾听和表达，可以参加演讲、辩论等语言类活动。'
+  },
+  E: {
+    name: '企业型 (Enterprising)',
+    icon: '🚀',
+    color: '#d4a843',
+    short: '领导影响',
+    desc: '喜欢领导、说服、组织和策划活动。这类孩子自信果断，有较强的影响力和竞争意识，善于表达自己的想法。',
+    strengths: ['领导能力强', '自信果断', '善于说服和表达', '组织策划能力好', '有商业头脑'],
+    careers: [
+      { name: '企业家/创业者', icon: '💼' },
+      { name: '律师', icon: '⚖️' },
+      { name: '政治家', icon: '🏛️' },
+      { name: '销售经理', icon: '📈' },
+      { name: '项目经理', icon: '📋' },
+      { name: '投资分析师', icon: '💰' },
+      { name: '房地产经纪人', icon: '🏠' },
+      { name: '市场总监', icon: '📣' },
+      { name: '活动策划师', icon: '🎪' },
+      { name: '公关专家', icon: '🤵' },
+    ],
+    development: '给孩子提供组织活动的机会，如策划家庭旅行、组织同学聚会等。鼓励参加模拟联合国、辩论赛、商业竞赛等活动。培养演讲能力和自信心，教孩子基本的理财知识和管理意识。'
+  },
+  C: {
+    name: '常规型 (Conventional)',
+    icon: '📋',
+    color: '#6b8e9e',
+    short: '条理有序',
+    desc: '喜欢有条理、有规则的工作环境，做事细致认真、注重细节。这类孩子自律性强，善于规划和管理，做事有始有终。',
+    strengths: ['做事有条理', '注重细节和准确性', '自律性强', '善于规划和管理', '执行力出色'],
+    careers: [
+      { name: '会计师/审计师', icon: '🧮' },
+      { name: '银行家/金融师', icon: '🏦' },
+      { name: '档案管理员', icon: '📁' },
+      { name: '行政管理人员', icon: '🖋️' },
+      { name: '精算师', icon: '📐' },
+      { name: '质量控制专家', icon: '✅' },
+      { name: '税务顾问', icon: '📑' },
+      { name: '物流管理师', icon: '📦' },
+      { name: '法务秘书', icon: '⚖️' },
+      { name: '数据库管理员', icon: '🗄️' },
+    ],
+    development: '培养孩子的时间管理和任务规划能力，使用日程表或待办清单。提供需要耐心和细致方成完成的活动，如拼图、模型制作、书法等。教孩子基本的整理收纳技巧，培养良好的学习习惯。'
+  }
+};
+
+// 30 questions, 5 per dimension, shuffled
+const allQuestions = [
+  // R - Realistic (实际型) - 5 questions
+  { dim: 'R', text: '我喜欢拆开玩具或物品，看看里面是什么样的，再试着装回去。' },
+  { dim: 'R', text: '比起安静地坐着，我更喜欢跑跑跳跳、做运动或户外活动。' },
+  { dim: 'R', text: '我喜欢用积木、乐高或各种材料搭建和创造东西。' },
+  { dim: 'R', text: '我对各种工具（如螺丝刀、锤子）感到好奇，想学习怎么使用它们。' },
+  { dim: 'R', text: '我喜欢亲自动手做实验、种植物或做手工，而不是只看书或听别人讲。' },
+
+  // I - Investigative (研究型) - 5 questions
+  { dim: 'I', text: '遇到不懂的事情，我会不停地追问"为什么"，直到弄明白为止。' },
+  { dim: 'I', text: '我喜欢看关于动物、宇宙、恐龙或人体奥秘的科普书和纪录片。' },
+  { dim: 'I', text: '做数学题或解谜题时，我感到很有趣，像在玩侦探游戏一样。' },
+  { dim: 'I', text: '我喜欢一个人安安静静地研究自己感兴趣的东西。' },
+  { dim: 'I', text: '做实验验证自己的想法，比直接听别人告诉我答案更有意思。' },
+
+  // A - Artistic (艺术型) - 5 questions
+  { dim: 'A', text: '我喜欢画画、涂鸦或做手工，一画起来就忘了时间。' },
+  { dim: 'A', text: '听到好听的音乐时，我会跟着哼唱、打节拍，甚至想自己创作。' },
+  { dim: 'A', text: '我脑子里经常冒出各种有趣的故事、角色或画面，想写下来或画出来。' },
+  { dim: 'A', text: '我喜欢设计和搭配衣服、布置房间，让东西看起来更好看。' },
+  { dim: 'A', text: '看到美丽的风景或有趣的事物，我会很想用画笔、相机或文字记录下来。' },
+
+  // S - Social (社会型) - 5 questions
+  { dim: 'S', text: '看到同学不开心时，我会主动去安慰和帮助他/她。' },
+  { dim: 'S', text: '我喜欢和朋友们一起合作完成任务，比一个人做更有意思。' },
+  { dim: 'S', text: '我很乐意教别人做我会的事情，看到别人学会了我会很开心。' },
+  { dim: 'S', text: '在小组活动中，我善于倾听别人的意见，也能友好地表达自己的想法。' },
+  { dim: 'S', text: '我对帮助别人的职业（如老师、医生、社工）充满向往和敬佩。' },
+
+  // E - Enterprising (企业型) - 5 questions
+  { dim: 'E', text: '在小组活动中，我常常被推选为队长或负责人，带领大家一起完成任务。' },
+  { dim: 'E', text: '我喜欢说服别人接受我的想法或计划，觉得自己挺有影响力的。' },
+  { dim: 'E', text: '我有很多好点子，并且会想办法把它们变成现实（比如组织活动、做小生意）。' },
+  { dim: 'E', text: '在比赛或竞赛中，我很想赢，并会为此努力准备。' },
+  { dim: 'E', text: '我喜欢站在大家面前讲话、表演或展示自己的成果。' },
+
+  // C - Conventional (常规型) - 5 questions
+  { dim: 'C', text: '我喜欢把事情做得井井有条，比如整理书包、书桌和自己的房间。' },
+  { dim: 'C', text: '做事情前我喜欢先制定计划或列一个清单，然后按步骤完成。' },
+  { dim: 'C', text: '我做事很有耐心，能坚持把一件事情做到满意为止。' },
+  { dim: 'C', text: '我喜欢收集和整理东西（如卡片、邮票、贴纸），并给它们分类摆放。' },
+  { dim: 'C', text: '我对数字和细节很敏感，做算术题时会仔细检查确保没有出错。' },
+];
+
+const options = [
+  { value: 1, label: '完全不符合', desc: '这完全不是我' },
+  { value: 2, label: '不太符合', desc: '偶尔会这样' },
+  { value: 3, label: '有点符合', desc: '有时候是这样' },
+  { value: 4, label: '比较符合', desc: '经常是这样' },
+  { value: 5, label: '完全符合', desc: '这完全就是我！' },
+];
+
+// ==================== STATE ====================
+let state = {
+  gender: null,
+  age: null,
+  currentQ: 0,
+  answers: {}, // { questionIndex: optionValue }
+};
+
+// ==================== FUNCTIONS ====================
+
+function selectGender(gender, el) {
+  document.querySelectorAll('.gender-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.gender = gender;
+  checkStartReady();
+}
+
+function checkStartReady() {
+  const ageVal = parseInt(document.getElementById('age-input').value);
+  const btn = document.getElementById('btn-start');
+  btn.disabled = !(state.gender && ageVal >= 4 && ageVal <= 18);
+}
+
+document.getElementById('age-input').addEventListener('input', function() {
+  state.age = parseInt(this.value);
+  checkStartReady();
+});
+
+function startTest() {
+  state.age = parseInt(document.getElementById('age-input').value);
+  state.currentQ = 0;
+  state.answers = {};
+  document.getElementById('page-welcome').classList.add('hidden');
+  document.getElementById('page-questions').classList.remove('hidden');
+  document.getElementById('page-results').classList.add('hidden');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = allQuestions[state.currentQ];
+  const dim = dimensions[q.dim];
+
+  document.getElementById('q-dimension').textContent = `${dim.icon} ${dim.name}`;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('progress-label').textContent = `第 ${state.currentQ + 1} / ${allQuestions.length} 题`;
+  const pct = Math.round((state.currentQ + 1) / allQuestions.length * 100);
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  const optsContainer = document.getElementById('q-options');
+  optsContainer.innerHTML = '';
+
+  const selectedVal = state.answers[state.currentQ];
+
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    if (selectedVal === opt.value) btn.classList.add('selected');
+    btn.innerHTML = `
+      <div class="option-radio"></div>
+      <div>
+        <div style="font-weight:600;">${opt.label}</div>
+        <div style="font-size:12px;color:#999;">${opt.desc}</div>
+      </div>
+    `;
+    btn.onclick = () => selectOption(state.currentQ, opt.value);
+    optsContainer.appendChild(btn);
+  });
+
+  document.getElementById('btn-prev').style.visibility = state.currentQ === 0 ? 'hidden' : 'visible';
+  const btnNext = document.getElementById('btn-next');
+  if (state.currentQ === allQuestions.length - 1) {
+    btnNext.textContent = '查看结果 🎉';
+  } else {
+    btnNext.textContent = '下一题 →';
+  }
+}
+
+function selectOption(qIndex, value) {
+  state.answers[qIndex] = value;
+  renderQuestion();
+}
+
+function nextQuestion() {
+  if (state.answers[state.currentQ] === undefined) {
+    // Shake or alert
+    alert('请先选择一个选项再继续哦~');
+    return;
+  }
+  if (state.currentQ < allQuestions.length - 1) {
+    state.currentQ++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (state.currentQ > 0) {
+    state.currentQ--;
+    renderQuestion();
+  }
+}
+
+// ==================== RESULTS ====================
+
+function calcScores() {
+  const scores = { R: 0, I: 0, A: 0, S: 0, E: 0, C: 0 };
+  allQuestions.forEach((q, i) => {
+    scores[q.dim] += (state.answers[i] || 1);
+  });
+  return scores;
+}
+
+function getGenderText() {
+  if (state.gender === 'male') return '男孩';
+  if (state.gender === 'female') return '女孩';
+  return '小朋友';
+}
+
+function getAgeGroup() {
+  const a = state.age;
+  if (a <= 7) return '低龄段（4-7岁）';
+  if (a <= 10) return '中龄段（8-10岁）';
+  if (a <= 13) return '高龄段（11-13岁）';
+  return '青少年段（14-18岁）';
+}
+
+function showResults() {
+  document.getElementById('page-questions').classList.add('hidden');
+  document.getElementById('page-results').classList.remove('hidden');
+
+  const scores = calcScores();
+  const genderText = getGenderText();
+
+  document.getElementById('result-user-info').textContent =
+    `${genderText} · ${state.age}岁 · ${getAgeGroup()}`;
+
+  // Radar chart
+  const dimKeys = ['R', 'I', 'A', 'S', 'E', 'C'];
+  const labels = dimKeys.map(k => dimensions[k].short);
+  const data = dimKeys.map(k => scores[k]);
+  const colors = dimKeys.map(k => dimensions[k].color);
+
+  const ctx = document.getElementById('radarChart').getContext('2d');
+  if (window._radarChart) window._radarChart.destroy();
+  window._radarChart = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '兴趣得分',
+        data: data,
+        backgroundColor: 'rgba(91, 123, 148, 0.15)',
+        borderColor: 'rgba(91, 123, 148, 0.7)',
+        borderWidth: 2,
+        pointBackgroundColor: colors,
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          beginAtZero: true,
+          min: 0,
+          max: 25,
+          ticks: { stepSize: 5, backdropColor: 'transparent', font: { size: 11 } },
+          pointLabels: { font: { size: 13, weight: '600' }, color: '#555' },
+          grid: { color: '#e8e0d8' },
+          angleLines: { color: '#e8e0d8' },
+        }
+      },
+      plugins: {
+        legend: { display: false },
+      }
+    }
+  });
+
+  // Score cards
+  const scContainer = document.getElementById('score-cards');
+  scContainer.innerHTML = '';
+  dimKeys.forEach(k => {
+    const d = dimensions[k];
+    const score = scores[k];
+    const pct = Math.round(score / 25 * 100);
+    scContainer.innerHTML += `
+      <div class="score-card" style="border-left-color: ${d.color};">
+        <div class="sc-name">${d.icon} ${d.short}</div>
+        <div class="sc-score" style="color:${d.color};">${score}<span style="font-size:14px;color:#999;">/25</span></div>
+        <div class="sc-bar-wrap"><div class="sc-bar" style="width:${pct}%;background:${d.color};"></div></div>
+      </div>
+    `;
+  });
+
+  // Sort dimensions by score
+  const ranked = dimKeys.sort((a, b) => scores[b] - scores[a]);
+  const top3 = ranked.slice(0, 3);
+  const bottom1 = ranked[ranked.length - 1];
+
+  // Detailed analysis
+  const detailContainer = document.getElementById('detail-analysis');
+  detailContainer.innerHTML = '';
+
+  // Overall personality
+  const topDim = dimensions[top3[0]];
+  const secondDim = dimensions[top3[1]];
+  const thirdDim = dimensions[top3[2]];
+
+  const genderPronoun = state.gender === 'male' ? '他' : (state.gender === 'female' ? '她' : 'TA');
+
+  detailContainer.innerHTML += `
+    <div class="highlight-box">
+      <h4>🧩 综合画像</h4>
+      <p>
+        根据测评结果，这位${state.age}岁的${genderText}表现出以<strong style="color:${topDim.color};">「${topDim.short}」</strong>为核心、
+        兼具<strong style="color:${secondDim.color};">「${secondDim.short}」</strong>与
+        <strong style="color:${thirdDim.color};">「${thirdDim.short}」</strong>特质的兴趣组合。
+        ${genderPronoun}的<strong>主导兴趣类型是「${topDim.name.replace(/\(.*\)/, '')}」</strong>，
+        这意味着${genderPronoun}在${topDim.short}方面展现出最强烈的兴趣和潜能。
+        兴趣是孩子最好的老师——在这个方向上给予充分的支持和引导，
+        往往能取得事半功倍的效果。
+      </p>
+    </div>
+  `;
+
+  // Per-dimension analysis
+  dimKeys.forEach(k => {
+    const d = dimensions[k];
+    const score = scores[k];
+    let level, levelColor, analysis;
+    if (score >= 20) {
+      level = '非常突出 ⭐';
+      levelColor = '#e07b5a';
+      analysis = `这是${genderPronoun}最显著的兴趣领域。${genderPronoun}在${d.short}方面表现出强烈的天赋和热情，这很可能成为${genderPronoun}未来发展的核心方向。建议在这个领域提供更多专业化的培养资源，并注意保持兴趣的持久性。`;
+    } else if (score >= 16) {
+      level = '比较突出 ★';
+      levelColor = '#d4a843';
+      analysis = `${genderPronoun}在${d.short}方面有较强的兴趣和潜力。这是${genderPronoun}的重要兴趣领域之一，值得持续培养和关注。适当的引导和机会能让这方面的潜能得到良好发展。`;
+    } else if (score >= 11) {
+      level = '中等水平 ●';
+      levelColor = '#5b7b94';
+      analysis = `${genderPronoun}对${d.short}类活动有一定的兴趣，但不是最核心的偏好。可以继续接触和尝试，观察是否有进一步发展的可能。保持开放的接触有助于全面发展。`;
+    } else if (score >= 7) {
+      level = '较低 ○';
+      levelColor = '#6b8e9e';
+      analysis = `${genderPronoun}目前对${d.short}类型的活动兴趣不太高。这不代表不适合，可能是接触机会较少或尚未发现乐趣。可以偶尔以有趣的方式引入，观察反应。`;
+    } else {
+      level = '暂不突出';
+      levelColor = '#999';
+      analysis = `目前${genderPronoun}在这方面尚未表现出明显兴趣。每个孩子都有独特的兴趣图谱，不需要在所有方面都突出。尊重${genderPronoun}的偏好，把精力放在更有热情的领域。`;
+    }
+
+    detailContainer.innerHTML += `
+      <div class="detail-section">
+        <h3 style="color:${d.color};">${d.icon} ${d.name} — 得分 ${score}/25 <span style="font-size:13px;color:${levelColor};">${level}</span></h3>
+        <p style="margin-top:8px;"><strong>兴趣特征：</strong>${d.desc}</p>
+        <p><strong>优势能力：</strong>${d.strengths.join('、')}</p>
+        <p style="color:#888;font-size:13.5px;">📝 ${analysis}</p>
+      </div>
+    `;
+  });
+
+  // Career recommendations
+  const careerContainer = document.getElementById('career-recs');
+  careerContainer.innerHTML = '';
+  const shownCareers = new Set();
+  // Show top 3 dimensions' careers
+  for (let i = 0; i < Math.min(3, ranked.length); i++) {
+    const d = dimensions[ranked[i]];
+    d.careers.forEach(c => {
+      if (!shownCareers.has(c.name) && careerContainer.children.length < 12) {
+        shownCareers.add(c.name);
+        careerContainer.innerHTML += `
+          <div class="career-tag" style="border-bottom: 3px solid ${d.color};">
+            <span class="career-icon">${c.icon}</span>
+            ${c.name}
+          </div>
+        `;
+      }
+    });
+  }
+
+  // Parent advice
+  const adviceContainer = document.getElementById('parent-advice');
+  const topN = top3.map(k => dimensions[k].short).join('、');
+  adviceContainer.innerHTML = `
+    <h4>💡 给家长的建议</h4>
+    <p>
+      您的孩子兴趣组合为 <strong>${topN}</strong> 型。
+      每个孩子都是独一无二的，兴趣测评的目的是帮助家长更好地了解孩子的倾向，
+      而非给孩子贴标签或限制发展。以下是几点建议：
+    </p>
+    <ul style="margin-top:8px;padding-left:18px;color:var(--text-light);font-size:14px;line-height:2;">
+      <li><strong>顺势而为：</strong>在${genderPronoun}最有兴趣的领域提供更多资源和支持，让兴趣成为最好的老师。</li>
+      <li><strong>多元尝试：</strong>即使某些领域得分较低，也可以适当接触，避免过早窄化发展路径。</li>
+      <li><strong>关注过程：</strong>多关注${genderPronoun}在活动中的投入和快乐，而非仅仅关注结果和成绩。</li>
+      <li><strong>避免比较：</strong>每个孩子的兴趣发展节奏不同，不要与其他孩子过度比较。</li>
+      <li><strong>定期回顾：</strong>孩子的兴趣会随年龄而变化，建议每年重新测评一次，动态调整培养策略。</li>
+    </ul>
+  `;
+
+  // Development suggestions
+  const devContainer = document.getElementById('dev-suggestions');
+  devContainer.innerHTML = '';
+  top3.forEach(k => {
+    const d = dimensions[k];
+    devContainer.innerHTML += `
+      <div style="margin-bottom:14px;padding:14px 16px;background:#fafaf8;border-radius:10px;border-left:4px solid ${d.color};">
+        <strong>${d.icon} ${d.short}方向：</strong>
+        <span style="color:var(--text-light);font-size:14px;">${d.development}</span>
+      </div>
+    `;
+  });
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartTest() {
+  state.currentQ = 0;
+  state.answers = {};
+  if (window._radarChart) {
+    window._radarChart.destroy();
+    window._radarChart = null;
+  }
+  document.getElementById('page-results').classList.add('hidden');
+  document.getElementById('page-welcome').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
